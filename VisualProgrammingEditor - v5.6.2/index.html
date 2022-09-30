@@ -1,0 +1,247 @@
+
+  <!DOCTYPE html>
+  <html lang="en" xmlns = "http://www.w3.org/1999/xhtml">
+  <head>
+    <script src="https://unpkg.com/gojs@2.2.13/release/go.js"></script>
+    <script src="generator.js"></script>
+    <script src="styles/style.js"></script>
+    <script src="styles/functionstyle.js"></script>
+    <script src="styles/argstyle.js"></script>
+    <script src="styles/blockstyle.js"></script>
+    <script src="textEditor/operatorDropdownEditor.js"></script>
+    <script src="textEditor/varArgDropdownEditor.js"></script>
+
+    <link rel="stylesheet" type="text/css"href="css/tabstyle.css">
+    <style type="text/css">
+  .tab-label::after {
+    content: "❯";
+    width: 1em;
+    height: 1em;
+    text-align: center;
+    transition: all 0.35s;
+  }
+    </style>
+    
+    <script id="code">
+
+    const resultLines = [];
+    var resultStore = false;
+    /*
+    console.oldLog = console.log;
+    console.log = function(value)
+    {
+      console.oldLog(value);
+      resultStore ? resultLines.push(value) : null;
+      return value;
+    };*/
+    
+    const $ = go.GraphObject.make;  // for conciseness in defining templates
+
+    function init() {
+      
+      document.body.style.backgroundColor = "#95c2de";
+
+      myDiagram =
+        $(go.Diagram, "myDiagramDiv",  // create a new Diagram in the HTML DIV element "myDiagramDiv"
+          {
+            "LinkDrawn": maybeChangeLinkCategory,     // these two DiagramEvents call a
+            "LinkRelinked": maybeChangeLinkCategory,
+            "undoManager.isEnabled": true,
+            "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+					  initialAutoScale: go.Diagram.Uniform,
+					  initialContentAlignment: go.Spot.Left
+          });
+
+
+      // when the document is modified, add a "*" to the title and enable the "Save" button
+      myDiagram.addDiagramListener("Modified", e => { //name "Modified" is built-in
+        var button = document.getElementById("saveModel");
+        if (button) button.disabled = !myDiagram.isModified;
+      });
+
+      myDiagram.addDiagramListener("ExternalObjectsDropped", e => {
+        // stop any ongoing text editing
+        if (myDiagram.currentTool instanceof go.TextEditingTool) {
+          myDiagram.currentTool.acceptText(go.TextEditingTool.LostFocus);
+        }
+        // expand any "macros"
+        myDiagram.commandHandler.ungroupSelection();
+      });
+
+      myDiagram.layout =  $(go.LayeredDigraphLayout,
+              { direction: 0 })
+
+      // creates relinkable Links that will avoid crossing Nodes when possible and will jump over other Links in their paths
+      myDiagram.linkTemplate =
+        $(go.Link,
+          {
+            routing: go.Link.AvoidsNodes,
+            curve: go.Link.JumpOver,
+            //corner: 3,
+            relinkableFrom: true, relinkableTo: true,
+            selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
+            shadowOffset: new go.Point(0, 0), shadowBlur: 5, shadowColor: "red"
+          },
+          new go.Binding("isShadowed", "isSelected").ofObject(),
+          $(go.Shape,
+            { name: "SHAPE", strokeWidth: 2, stroke: "blue", strokeDashArray:  [3,2]}
+          ),
+          $(go.Shape,
+            { toArrow: "Standard"},
+            { name: "SHAPE", strokeWidth: 2, stroke: "blue" }
+          )
+          );
+
+        myDiagram.linkTemplateMap.add("Reversed",
+            $(go.Link,
+              new go.Binding("isShadowed", "isSelected").ofObject(),
+              {selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
+              shadowOffset: new go.Point(0, 0), shadowBlur: 10, shadowColor: "red"},
+              $(go.Shape, { strokeWidth: 4, stroke: "green" }),
+              $(go.Shape, { fromArrow: "Backward" }),
+            )
+          );
+
+        myDiagram.linkTemplateMap.add("BlockToNode",
+          $(go.Link,
+            new go.Binding("isShadowed", "isSelected").ofObject(),
+            {selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
+            shadowOffset: new go.Point(0, 0), shadowBlur: 10, shadowColor: "red"},
+            $(go.Shape, { strokeWidth: 4, stroke: "purple" })
+          )
+        );
+      
+      // add the templates created above to myDiagram and myPalette
+      myDiagram.nodeTemplateMap.add("print", printTemplate);
+      myDiagram.nodeTemplateMap.add("operation", operatorTemplate);
+      myDiagram.nodeTemplateMap.add("varsDecl", varsDeclTemplate);
+      myDiagram.nodeTemplateMap.add("varsRefer", varsReferTemplate);
+      myDiagram.nodeTemplateMap.add("if", ifTemplate);
+      myDiagram.nodeTemplateMap.add("while", whileTemplate);
+      myDiagram.nodeTemplateMap.add("for", forTemplate);
+      myDiagram.nodeTemplateMap.add("args", argsTemplate);
+      myDiagram.nodeTemplateMap.add("blocks", blocksTemplate);
+      myDiagram.nodeTemplateMap.add("mainBlock", mainBlockTemplate);
+      myDiagram.nodeTemplateMap.add("funBlocks", funBlocksTemplate);
+
+      myDiagram.groupTemplateMap.add("printGroup", printGroupTemplate);
+      myDiagram.groupTemplateMap.add("operatorGroup", operatorGroupTemplate);
+      myDiagram.groupTemplateMap.add("varsDeclGroup", varsDeclGroupTemplate);
+      myDiagram.groupTemplateMap.add("varsReferGroup", varsReferGroupTemplate);
+      myDiagram.groupTemplateMap.add("ifGroup", ifGroupTemplate);
+      myDiagram.groupTemplateMap.add("whileGroup", whileGroupTemplate);
+      myDiagram.groupTemplateMap.add("forGroup", forGroupTemplate);
+
+      myPalette =  $(go.Palette, "myPaletteDiv",  // must name or refer to the DIV HTML element
+        {
+          nodeTemplateMap: myDiagram.nodeTemplateMap,  // share the templates used by myDiagram
+          groupTemplateMap: myDiagram.groupTemplateMap,
+          //autoScale: go.Diagram.Uniform,
+
+          model: new go.GraphLinksModel(paletteComps,paletteLinks)
+        });  // create a new Palette in the HTML DIV element "palette"
+
+      myPalette2 =  $(go.Palette, "myPaletteDiv2",  // must name or refer to the DIV HTML element
+        {
+          nodeTemplateMap: myDiagram.nodeTemplateMap,  // share the templates used by myDiagram
+          groupTemplateMap: myDiagram.groupTemplateMap,
+          //autoScale: go.Diagram.Uniform,
+
+          model: new go.GraphLinksModel(paletteComps2,paletteLinks2)
+        });
+
+      myPalette.model.nodeCategoryProperty = "type";
+      myPalette2.model.nodeCategoryProperty = "type";
+
+      function maybeChangeLinkCategory(e) {
+        var link = e.subject;
+        var blocktonode = false;
+        if(link.fromNode.name == "blocks"){
+          blocktonode = true;
+        }
+        e.diagram.model.setCategoryForLinkData(link.data, (blocktonode ? "BlockToNode" : ""));
+      }
+      // load the initial diagram
+      load();
+    }
+    </script>
+
+    <script src="templates/functionsTemplates.js"></script>
+    <script src="templates/argTemplate.js"></script>
+    <script src="templates/blockTemplate.js"></script>
+    <script src="paletteComponents.js"></script>
+    <script src="savenload.js"></script>
+
+  </head>
+
+  <body onload="init()">
+    <div id="sample">
+    <div style="width: 100%; display: flex; justify-content: space-between">
+
+      <div class="tabs">
+        <div class="tab">
+          <input type="radio" id="rd1" name="rd" checked="true">
+          <label class="tab-label" for="rd1">Statements</label>
+          <div class="tab-content">
+            <div id="myPaletteDiv" style="width: 120px; height: 24.75em; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
+          </div>
+        </div>
+        <div class="tab">
+          <input type="radio" id="rd2" name="rd">
+          <label class="tab-label" for="rd2">Expressions</label>
+          <div class="tab-content">
+            <div id="myPaletteDiv2" style="width: 120px; height: 24.75em; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
+          </div>
+        </div>
+        <div class="tab">
+          <input type="radio" id="rd3" name="rd">
+          <label class="tab-label" for="rd3">Functions</label>
+          <div class="tab-content">
+            
+          </div>
+        </div>
+      </div>
+
+      <div id="myDiagramDiv" style="flex-grow: 1; height: 500px; background-color: #e0e0e0; border: 1px solid black; position: relative;"></div>
+      
+    </div>
+    <div>
+      <div>
+        <button id="saveModel" onclick="save()">Save</button>
+        <button onclick="load()">Load</button>
+      </div>
+      <div>
+        <strong style = "float: left; width: 33%">
+          Diagram Model saved in JSON format:
+       </strong>
+       <strong style = "float: left; width: 33%">
+           JSON code generation:
+        </strong>
+        <strong style = "float: left; width: 33%">
+          Result:
+       </strong>
+      </div>
+      <textarea id="mySavedModel" style="width:32%;height:200px; margin-right: 5px;" >
+      { 
+        "class": "go.GraphLinksModel",
+        "nodeCategoryProperty": "type",
+        "copiesArrays": true,
+        "copiesArrayObjects": true,
+        "linkFromPortIdProperty": "fromPort",
+        "linkToPortIdProperty": "toPort",
+        "nodeDataArray": [
+          {"key": "main" , "type": "mainBlock","items":[{"portId":"1"},{"portId":"2"}] }
+        ],
+        "linkDataArray": [
+        ]
+      }
+      </textarea>
+      <textarea id="generatedModel" style="flex-grow: 1; width:32%;height:200px; margin-right: 5px;">
+      </textarea>
+      <textarea id="resultModel" style="flex-grow: 1; width:32%;height:200px">
+      </textarea>
+    </div>
+    </pre></div>
+    
+  </body>
+  </html>
