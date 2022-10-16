@@ -1,13 +1,34 @@
-const operatorMap = {
+const arithmOperatorMap = {
     "+": "+",
     "-": "-",
     "x": "*",
-    "÷": "/",
+    "÷": "/"
+}
+
+const relationalOperatorMap = {
     ">": ">",
     ">=": ">=",
     "<": "<",
     "<=": "<=",
     "==": "=="
+}
+
+const unaryOperatorMap = {
+    "!": "!",
+    "++": "++",
+    "--": "--",
+}
+
+const binaryOperatorMap = {
+    "&&": "&&",
+    "||": "||"
+}
+
+const operatorTypeMap = {
+    "operator": arithmOperatorMap,
+    "relationaloperator": relationalOperatorMap,
+    "unaryoperator": unaryOperatorMap,
+    "binaryoperator": binaryOperatorMap
 }
 
 var refDeclaredVariables = { }
@@ -99,8 +120,8 @@ function generateStatement(stmt, declaredVariables) { // recursive function, bui
 }
 
 function generateExpression(expr, declaredVariables) { // recursive function, building the expression
-    if(expr.type == "operator") {
-        const operator = operatorMap[expr.alias];
+    if(expr.type == "operator" || expr.type == "relationaloperator" || expr.type == "unaryoperator" || expr.type == "binaryoperator") {
+        const operator = operatorTypeMap[expr.type][expr.alias];
         const arguments = expr.items.map((arg) => {
             return generateExpressionFromArgument(arg, declaredVariables)
         }).join(` ${operator} `);

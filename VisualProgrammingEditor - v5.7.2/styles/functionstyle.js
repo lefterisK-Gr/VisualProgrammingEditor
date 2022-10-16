@@ -10,24 +10,27 @@
   }
 
   function setOperationProp(functionName) {
-    if(functionName == "OPERATION") {
+    var functionNameType = functionName.split(" ");
+    if(functionNameType[1] == "OP") {
       return {
         textEditor: window.OperatorEditorSelectBox,
         name: "OPERATION",
         editable: true,
-        choices: Object.getOwnPropertyNames(operatorMap),
-        text: `+`, //overwrite
+        choices: Object.getOwnPropertyNames(operatorNameMap[functionName]),
+        //text: `+`, //overwrite
         width: 20, height: 20,
         textAlign: "center",
         verticalAlignment: go.Spot.Center
-      }
+      },
+      new go.Binding("text", "alias")
     }
     return {}
   }
 
   function functionBoxStyle(functionName, shapeColor) {
-    if(functionName == "OPERATION") {
-      return $(go.Shape,"Circle", { width: 50, height: 50, fill: yellowgrad});
+    var functionNameType = functionName.split(" ");
+    if(functionNameType[1] == "OP") {
+      return $(go.Shape,"Circle", { width: 50, height: 50, fill: shapeColor});
     }
     return $(go.Shape, nodeFunctionShapeStyle(),{ figure: "RoundedRectangle", fill: shapeColor })
   }
@@ -36,7 +39,7 @@
     return [
       selectionStyle(),
       functionBoxStyle(functionName, shapeColor),
-      $(go.TextBlock, {text: functionName}, textStyle(), setOperationProp(functionName))
+      $(go.TextBlock, {text: functionName, isMultiline: true, textAlign: "center"}, textStyle(), setOperationProp(functionName))
     ]
   }
 

@@ -69,14 +69,38 @@
           {portId: "2:"} 
         ], group: 20},
 
-        {key: 23, type: "varsReferGroup", isGroup: true},
-        {key: 24, type: "varsRefer", group: 23},
-        {key: 25, type: "var", items: [ 
+        {key: 23, type: "relationalOperatorGroup", isGroup: true},
+        {key: 24, type: "relationaloperator", alias: ">", group: 23},
+        {key: 25, type: "args", arity: { "from" : 2 }, items: [ 
+          {portId: "1:"},
+          {portId: "2:"} 
+        ], group: 23},
+
+        {key: 26, type: "unaryOperatorGroup", isGroup: true},
+        {key: 27, type: "unaryoperator", alias: "!", group: 26},
+        {key: 28, type: "args", arity: { "from" : 2 }, items: [ 
+          {portId: "1:"},
+          {portId: "2:"} 
+        ], group: 26},
+
+        {key: 29, type: "binaryOperatorGroup", isGroup: true},
+        {key: 30, type: "binaryoperator", alias: "&&", group: 29},
+        {key: 31, type: "args", arity: { "from" : 2 }, items: [ 
+          {portId: "1:"},
+          {portId: "2:"} 
+        ], group: 29},
+
+        {key: 32, type: "varsReferGroup", isGroup: true},
+        {key: 33, type: "varsRefer", group: 32},
+        {key: 34, type: "var", items: [ 
           {portId: "1:"}
-        ], group: 23}
+        ], group: 32}
     ]
 
     var paletteLinks2 = [
         { category: "Reversed", from: 21, to: 22},
         { category: "Reversed", from: 24, to: 25},
+        { category: "Reversed", from: 27, to: 28},
+        { category: "Reversed", from: 30, to: 31},
+        { category: "Reversed", from: 33, to: 34},
     ]

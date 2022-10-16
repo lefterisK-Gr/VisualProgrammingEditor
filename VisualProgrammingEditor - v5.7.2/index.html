@@ -49,7 +49,8 @@
             "undoManager.isEnabled": true,
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
 					  initialAutoScale: go.Diagram.Uniform,
-					  initialContentAlignment: go.Spot.Left
+					  initialContentAlignment: go.Spot.Left,
+            layout: $(go.LayeredDigraphLayout, { isOngoing: false, layerSpacing: 50})
           },
           {
             click: (e, obj) => { //make this function
@@ -78,11 +79,19 @@
         }
         // expand any "macros"
         myDiagram.commandHandler.ungroupSelection();
+        layout();
       });
 
-      myDiagram.layout =  $(go.LayeredDigraphLayout,
-              { direction: 0, isInitial: false, isOngoing: false 
-                 })
+      myDiagram.addDiagramListener("ViewportBoundsChanged", function(e) {
+        // only iterates through simple Parts in the diagram, not Nodes or Links
+        myDiagram.parts.each(function(part) {
+          // and only on those that have the "_viewPosition" property set to a Point
+          if (part._viewPosition) {
+            part.position = myDiagram.transformViewToDoc(part._viewPosition);
+            part.scale = 1/myDiagram.scale;  // counteract any zooming
+          }
+        })
+      });
 
       // creates relinkable Links that will avoid crossing Nodes when possible and will jump over other Links in their paths
       myDiagram.linkTemplate =
@@ -126,9 +135,15 @@
       
       // add the templates created above to myDiagram and myPalette
       myDiagram.nodeTemplateMap.add("print", printTemplate);
+
       myDiagram.nodeTemplateMap.add("operator", operatorTemplate);
+      myDiagram.nodeTemplateMap.add("relationaloperator", relationalOperatorTemplate);
+      myDiagram.nodeTemplateMap.add("unaryoperator", unaryOperatorTemplate);
+      myDiagram.nodeTemplateMap.add("binaryoperator", binaryOperatorTemplate);
+
       myDiagram.nodeTemplateMap.add("varsDecl", varsDeclTemplate);
       myDiagram.nodeTemplateMap.add("varsRefer", varsReferTemplate);
+      //myDiagram.nodeTemplateMap.add("assign", assignTemplate);
       myDiagram.nodeTemplateMap.add("if", ifTemplate);
       myDiagram.nodeTemplateMap.add("while", whileTemplate);
       myDiagram.nodeTemplateMap.add("for", forTemplate);
@@ -139,10 +154,15 @@
       myDiagram.nodeTemplateMap.add("mainBlock", mainBlockTemplate);
       myDiagram.nodeTemplateMap.add("funBlocks", funBlocksTemplate);
 
-      myDiagram.nodeTemplateMap.add("recycle", recycleTemplate);
+      myDiagram.add(recycleTemplate);
 
       myDiagram.groupTemplateMap.add("printGroup", printGroupTemplate);
+
       myDiagram.groupTemplateMap.add("operatorGroup", operatorGroupTemplate);
+      myDiagram.groupTemplateMap.add("relationalOperatorGroup", relationalOperatorGroupTemplate);
+      myDiagram.groupTemplateMap.add("unaryOperatorGroup", unaryOperatorGroupTemplate);
+      myDiagram.groupTemplateMap.add("binaryOperatorGroup", binaryOperatorGroupTemplate);
+
       myDiagram.groupTemplateMap.add("varsDeclGroup", varsDeclGroupTemplate);
       myDiagram.groupTemplateMap.add("varsReferGroup", varsReferGroupTemplate);
       myDiagram.groupTemplateMap.add("ifGroup", ifGroupTemplate);
@@ -181,6 +201,7 @@
  
       // load the initial diagram
       load();
+      layout();
     }
     </script>
 
@@ -250,8 +271,7 @@
         "linkFromPortIdProperty": "fromPort",
         "linkToPortIdProperty": "toPort",
         "nodeDataArray": [
-          {"key": "main" , "type": "mainBlock","items":[{"portId":"1"},{"portId":"2"}] },
-          {"key": "-2" , "type": "recycle"}
+          {"key": "main" , "type": "mainBlock","items":[{"portId":"1"},{"portId":"2"}] }
         ],
         "linkDataArray": [
         ]

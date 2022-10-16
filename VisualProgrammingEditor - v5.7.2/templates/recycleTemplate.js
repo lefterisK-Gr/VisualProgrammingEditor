@@ -1,8 +1,8 @@
 var recycleTemplate = 
-    $(go.Node, "Auto",
+    $(go.Part,
         {
-            portId: "to", deletable: false,
-            layerName: "Background", locationSpot: go.Spot.Center
+            layerName: "Background",
+            _viewPosition: new go.Point(50,400)
         },
         {
             mouseDrop: (e, obj) => myDiagram.commandHandler.deleteSelection()
