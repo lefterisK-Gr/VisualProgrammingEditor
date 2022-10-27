@@ -1,7 +1,7 @@
 
   const argDefaultColor = "lightgray";
   const argDefaultStroke = "darkslategray";
-  const isArgFixedColor = "#6BCEFF";
+  const argFixedColor = "#6BCEFF";
 
   const mouseSettingsSelect = "mouseSettingsSelect"
   const settingsMenuSelect = "settingsMenuSelect"
@@ -154,11 +154,11 @@
     if (!(arg instanceof go.Node)) return;
     
     let i = 1;
-    while (arg.findPort( i.toString() +":") !== arg) 
+    while (arg.findPort( i.toString()) !== arg) 
     {
       i++;
     }
-    const name = i.toString()+":";
+    const name = i.toString();
     const arr = arg.data.items;
     if(arg.data.arity && arg.data.arity.to && arr.length == arg.data.arity.to)
       return;
@@ -172,6 +172,7 @@
       // and add it to the end of Array of port data
       myDiagram.model.insertArrayItem(arr, -1, newportdata);
     }
+    arg.updateTargetBindings("isEnabled");
     myDiagram.commitTransaction("add argument");
   }
 
@@ -183,6 +184,7 @@
     
     myDiagram.startTransaction("remove argument");
     myDiagram.model.removeArrayItem(arr);
+    arg.updateTargetBindings("isEnabled");
     myDiagram.commitTransaction("remove argument");
   }
 

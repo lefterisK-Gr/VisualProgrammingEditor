@@ -11,8 +11,7 @@
   }
 
   function setOperationProp(functionName, isGoup) {
-    var functionNameType = functionName.split(" ");
-    if(functionNameType[1] == "OP" && !isGoup) {
+    if(functionName.endsWith("OP") && !isGoup) {
       return [{
         textEditor: window.OperatorEditorSelectBox,
         name: "OPERATION",
@@ -28,8 +27,7 @@
   }
 
   function functionBoxStyle(functionName, shapeColor, isGroup) {
-    var functionNameType = functionName.split(" ");
-    if(functionNameType[1] == "OP" && !isGroup) {
+    if(functionName.endsWith("OP") && !isGroup) {
       return $(go.Shape,"Circle", { width: 50, height: 50, fill: shapeColor});
     }
     return $(go.Shape, nodeFunctionShapeStyle(),{ figure: "RoundedRectangle", fill: shapeColor })
@@ -43,11 +41,15 @@
     ]
   }
 
+  function portIdSize(isOp) {
+    return isOp ? new go.Size(18,18) : new go.Size(18, 50);
+  }
+
   function nodeFunctionStyle(shapeColor, functionName) {
     return [
       functionStyle(shapeColor, functionName, false),
       $(go.Shape, "Ellipse", portStyle(true), 
-        { fill: "black", portId: "in", alignment: new go.Spot(0, 0.5) ,desiredSize: new go.Size(18, 18)}
+        { fill: "black", portId: "in", alignment: new go.Spot(0.05, 0.5) ,desiredSize: portIdSize(functionName.endsWith("OP"))}
       )
     ];
   }

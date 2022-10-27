@@ -38,7 +38,7 @@ function blockStyle(block_kind) {
             alignment: go.Spot.Top, alignmentFocus: go.Spot.Bottom
           }
         ),
-        $(go.Panel, "Horizontal",
+        $(go.Panel, "Horizontal", //add this to fun
           {alignment: go.Spot.Bottom},
           $("Button",
             $(go.Shape, "PlusLine", { width: 10, height: 10 }),

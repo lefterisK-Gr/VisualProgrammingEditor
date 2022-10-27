@@ -17,23 +17,49 @@ function argVarShapeStyle(isBigger) {
     };
 }
 
+function canHaveButton(node, isPlus) {
+  const data = node.data;
+  const arr = data.items;
+  console.log(arr.length);
+  console.log(data);
+  if ( isPlus && data.arity && (data.arity.to === arr.length) ) {
+    return false;
+  } 
+  else if ( !isPlus && data.arity && (data.arity.from === arr.length)) {
+    return false;
+  }
+  return true;
+}
+
 function signsButton() {
   return [
     $(go.Panel, "Horizontal",
       {alignment: go.Spot.Left},
       $("Button",
+          {"ButtonBorder.fill": "lightgray",
+          "_buttonFillNormal": "lightgray",
+          "_buttonFillDisabled": "darkgray" },
           $(go.Shape, "PlusLine", { width: 10, height: 10 }),
           {
             name: "PLUSBUTTON", 
             click: (e, button) => addArg(button.part)
           },
+          new go.Binding("isEnabled", "", function(v, shape) {
+            return canHaveButton(shape.part, true);
+          }).ofObject(),
       ),
       $("Button",
+          {"ButtonBorder.fill": "lightgray",
+          "_buttonFillNormal": "lightgray",
+          "_buttonFillDisabled": "darkgray" },
           $(go.Shape, "MinusLine", { width: 10, height: 10 }),
           { 
             name: "MINUSBUTTON", 
             click: (e, button) => removeArg(button.part)
-          }
+          },
+          new go.Binding("isEnabled", "", function(v, shape) {
+            return canHaveButton(shape.part, false);
+          }).ofObject(),
       )
     )
   ]
@@ -69,7 +95,7 @@ function argStyle() {
         $(go.Shape, "Rectangle", argShapeStyle(),
           new go.Binding("fill", "itemIndex", function(v, shape) {
               if( v < shape.part.data.arity.from)
-                  return isArgFixedColor;
+                  return argFixedColor;
               return argDefaultColor;
           }).ofObject()
         ),
@@ -166,7 +192,7 @@ function varDeclArgStyle() {
 
 function varArgStyle() {
   return [
-    $(go.Shape, { fill: "lightgrey" }),
+    $(go.Shape, { fill: argFixedColor }),
     $(go.TextBlock, 
       {editable: true, width: 100, margin: 5, background: lightergray},
       new go.Binding("visible", "isExistingVar", function(v) {return !v}),
