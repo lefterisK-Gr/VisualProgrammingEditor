@@ -4,7 +4,7 @@
             {key: 1, type: "printGroup", isGroup: true},
             {key: 2,type: "print", group: 1},
             {key: 3, type: "args", items: [ 
-              {portId: "1"},
+              {portId: "1"}, //remove portId, just args_via_object
               {portId: "2"} 
             ], group: 1},
 
@@ -99,16 +99,23 @@
 
         {key: 35, type: "varsReferGroup", isGroup: true},
         {key: 36, type: "varsRefer", group: 35},
-        {key: 37, type: "var", arity: { "from" : 1, "to": 1 }, items: [ 
+        {key: 37, type: "var", arity: { "from" : 1, "to": 1 }, items: [ //dont need to have items
           {portId: "1"}
         ], group: 35},
 
-        {key: 38, type: "objectGroup", isGroup: true},
-        {key: 39, type: "object", group: 38},
-        {key: 40, type: "decl", items: [ 
+        {key: 38, type: "getElemGroup", isGroup: true},
+        {key: 39, type: "getElem", group: 38},
+        {key: 40, type: "args", arity: { "from" : 2 }, items: [
           {portId: "1"},
           {portId: "2"}
-        ], group: 38}
+        ], group: 38},
+
+        {key: 41, type: "objectGroup", isGroup: true},
+        {key: 42, type: "object", group: 41},
+        {key: 43, type: "decl", items: [ 
+          {portId: "1"},
+          {portId: "2"}
+        ], group: 41}
     ]
 
     var paletteLinks2 = [
@@ -119,4 +126,5 @@
         { category: "Reversed", from: 33, to: 34},
         { category: "Reversed", from: 36, to: 37},
         { category: "Reversed", from: 39, to: 40},
+        { category: "Reversed", from: 42, to: 43},
     ]

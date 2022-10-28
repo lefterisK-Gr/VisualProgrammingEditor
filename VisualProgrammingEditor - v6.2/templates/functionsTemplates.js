@@ -4,6 +4,7 @@
 	var lightbluegrad = $(go.Brush, "Linear", { 0: "#B0E0E6", 1: "#87CEEB" });
 	var bluegrad = $(go.Brush, "Linear", { 0: "#3333ff", 1: "#6666ff" });
 	var purplegrad = $(go.Brush, "Linear", { 0: "#9A00FF", 1: "#B84BFF" });
+	var redpinkgrad = $(go.Brush, "Linear", { 0: "#CC0066", 1: "#FF3399" });
 	var yellowgrad = $(go.Brush, "Linear", { 0: "rgb(255, 255, 0)", 1: "rgb(255, 255, 102)" });
 	var yellowgreengrad = $(go.Brush, "Linear", { 0: "rgb(255, 255, 0)", 1: "rgb(102, 255, 102)" });
 	var yellowbluegrad = $(go.Brush, "Linear", { 0: "rgb(255, 255, 0)", 1: "rgb(102, 102, 255)" });

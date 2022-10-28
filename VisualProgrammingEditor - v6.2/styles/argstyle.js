@@ -199,7 +199,7 @@ function varArgStyle() {
       new go.Binding("text", "paramtext").makeTwoWay()),
     $(go.TextBlock, "Enter Var", 
       {width: 100, margin: 5, background: darkergray, textEditor: window.VarEditorSelectBox, editable: true},
-      new go.Binding("choices", "portId", function(v, args) {
+      new go.Binding("choices", "", function(v, args) {
         nDeclared = refDeclaredVariables[args.part.findLinksInto().first().data.from];
         return nDeclared ? nDeclared : null;
       }),
