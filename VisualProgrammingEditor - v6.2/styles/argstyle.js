@@ -75,15 +75,14 @@ function selectableArgStyle(varKind) {
       {width: 100, margin: 5, background: darkergray, textEditor: window.VarEditorSelectBox, editable: true},
       new go.Binding("choices", "", function(v, args) {
         var nDeclared;
-        $history.some(stackFrame => {
+        stackFrames.some(stackFrame => {
           if(stackFrame.refs.indexOf(args.part.findLinksInto().first().data.from) >= 0)
           { 
             nDeclared = Object.keys(stackFrame.variables);
             return true;
           }
         });
-        console.log(args.part.data);
-        console.log(nDeclared);
+        console.log(stackFrames)
         return nDeclared ? nDeclared : null;
       }),
       new go.Binding("visible", "isExistingVar"),

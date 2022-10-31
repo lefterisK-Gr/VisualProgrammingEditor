@@ -35,32 +35,38 @@ function indent(str) {
     return str.split("\n").map(line => "    " + line).join("\n");
 }
 
-const $history = [];
+var stackFrames = []; //stackFrames happening with references
 
 function setVariable($stack, variable, value) {
     $stack[variable] = value ? value : null;
 }
 
 function getVariable($stack, id, varKey) {
-    if(!$history[id]) {
-        $history.push({refs: [], variables: $stack});
-        $history[id].refs.push(varKey);
-        $history[id].variables = $stack;
+    if(!stackFrames[id]) {
+        stackFrames.push({refs: [], variables: $stack});
+        stackFrames[id].refs.push(varKey);
+        stackFrames[id].variables = $stack;
         return;
     }
-    if(!$history[id].refs.includes(varKey)) {
-        console.log("inside get")
-        $history[id].refs.push(varKey);
+    console.log(stackFrames);
+    if(!stackFrames[id].refs.includes(varKey)) {
+        stackFrames[id].refs.push(varKey);
     }
 }
 
 function generate(ast) { // go to style and enable deletable==false
+    console.log(stackFrames.length); //need to empty objects
+    console.log(stackFrames);
+    console.log(stackFrames[0]);
     return generateStatements(ast[0].items, {}, 0) //ast[0] represents main--is it ok to make assumption?
 }
 
 function generateStatements(statements, stack, frameId) {
     const lines = [];
+    console.log(stackFrames);
+    console.log(stack);
     for(let statement of statements) { 
+        console.log(stackFrames);
         const line = statement.argument ? generateStatement(statement.argument, stack, frameId) : "";
         lines.push(line);
     }
@@ -70,6 +76,7 @@ function generateStatements(statements, stack, frameId) {
 function generateStatement(stmt, stack, frameId) { // recursive function, building the line statement
     if(stmt.type == "varsDecl") { //var i = 0
         var declarations = [];
+        console.log("inside decl");
         const arguments = stmt.items.map((arg) => {
             return generateExpressionFromArgument(arg, stack, frameId)
         });
@@ -83,9 +90,10 @@ function generateStatement(stmt, stack, frameId) { // recursive function, buildi
             if(variables[i]) {
                 declarations.push(declaration);
                 console.log(variables[i]);
+                console.log(stackFrames);
                 setVariable(stack, variables[i], arguments[i]);
-                console.log($history);
-                frameId = $history.length;
+                console.log(stackFrames);
+                frameId = stackFrames.length;
             }
         }
         declarations = declarations.join(", ");
@@ -162,7 +170,9 @@ function generateExpression(expr, stack, frameId) { // recursive function, build
             return generateExpressionFromArgument(arg, stack, frameId)
         }).join(`, `);
 
+        console.log("inside varref");
         getVariable(stack, frameId, expr.key);
+
         return `${arguments}`
     }
     else if(expr.type == "getElem") {

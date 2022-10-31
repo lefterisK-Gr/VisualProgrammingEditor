@@ -57,7 +57,6 @@ function save() {
 
   function updateDecls() {
     tempAstModel = parse(myDiagram.model.toJson());
-    $history.length = 0;
     generate(tempAstModel); //upadte declared variables
   }
 
