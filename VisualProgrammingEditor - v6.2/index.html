@@ -55,7 +55,7 @@
             {
               click: (e, obj) => { //make this function
                 myDiagram.nodes.each(function (n) {
-                  if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl") {
+                  if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl" || n.data.type == "obj") {
                     n.elt(0).elements.each(it => {
                       setArgSelected(it.elt(0), false);
                     });

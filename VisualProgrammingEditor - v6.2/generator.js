@@ -162,9 +162,7 @@ function generateExpression(expr, stack, frameId) { // recursive function, build
             return generateExpressionFromArgument(arg, stack, frameId)
         }).join(`, `);
 
-        console.log(stack);
         getVariable(stack, frameId, expr.key);
-        console.log($history);
         return `${arguments}`
     }
     else if(expr.type == "getElem") {
