@@ -9,13 +9,15 @@
   const UnselectedBrush = "transparent";  // item appearance, if not "selected"
   const SelectedBrush = "orange";   // item appearance, if "selected"
   
-  var argTemplate =         $(go.Panel,"Auto", {name: "ARGTEMPLATE"}, argStyle());
-  var varDeclArgTemplate =  $(go.Panel,"Auto", varDeclArgStyle());
-  var varArgTemplate =      $(go.Panel,"Auto", varArgStyle());
+  var argTemplate =         $(go.Panel, "Auto", argStyle());
+  var varDeclArgTemplate =  $(go.Panel, "Auto", varDeclArgStyle());
+  var varArgTemplate =      $(go.Panel, "Auto", varArgStyle());
+  var getElemArgTemplate =  $(go.Panel, "Auto", getElemArgStyle());
 
-  var argsTemplate =        $(go.Node,"Vertical", argsStyle());
-  var varArgsTemplate =     $(go.Node,"Vertical", varArgsStyle());
-  var varDeclArgsTemplate = $(go.Node,"Vertical", argsStyle()); //maybe change this
+  var argsTemplate =        $(go.Node, "Vertical", argsStyle());
+  var varDeclArgsTemplate = $(go.Node, "Vertical", argsStyle()); //maybe change this
+  var varArgsTemplate =     $(go.Node, "Vertical", varArgsStyle());
+  var getElemArgsTemplate = $(go.Node, "Vertical", argsStyle());
   
   function settingsAdornment(isVarRef) {
     return [
@@ -120,8 +122,8 @@
     if (!isArgSelected(item.elt(0))) {
       // deselect all sibling items      
       myDiagram.nodes.each(function (n) {
-        if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl") {
-          n.elt(0).elements.each(it => {
+        if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl" || n.data.type == "obj") {
+          n.elt(0).elements.each(it => { //remove selection highlight
             setArgSelected(it.elt(0), false);
           });
         }

@@ -12,7 +12,6 @@ function editorShow(textBlock, diagram, tool, customSelectBox, selectEditor) {
     customSelectBox.innerHTML = "";
 
     var list = textBlock.choices;
-    console.log(list);
     // Perhaps give some default choices if textBlock.choices is null
     if (list === null) list = [];
     var l = list.length;

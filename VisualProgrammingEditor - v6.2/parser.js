@@ -42,9 +42,7 @@ function createAST(nodes, links) {
                 }
                 else {
                     var index = parentItem.items.map(function(e) { return e.portId}).indexOf(linkItem.fromPort)
-                    console.log(item);
                     parentItem.items[index].argument = item; 
-                    console.log(parentItem.items[index])
                 }
             }
         }

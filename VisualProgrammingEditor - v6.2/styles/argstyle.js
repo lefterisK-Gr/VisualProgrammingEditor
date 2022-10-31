@@ -20,8 +20,6 @@ function argVarShapeStyle(isBigger) {
 function canHaveButton(node, isPlus) {
   const data = node.data;
   const arr = data.items;
-  console.log(arr.length);
-  console.log(data);
   if ( isPlus && data.arity && (data.arity.to === arr.length) ) {
     return false;
   } 
@@ -65,6 +63,33 @@ function signsButton() {
   ]
 }
 
+function selectableArgStyle(varKind) {
+  return [
+    $(go.TextBlock, 
+      {row: 0, column: 1, alignment: go.Spot.Right},
+      {editable: true, width: 100, margin: 5, background: lightergray},
+      new go.Binding("visible", "isExistingVar", function(v) {return !v}),
+      new go.Binding("text", "paramtext").makeTwoWay()),
+    $(go.TextBlock, "Enter " + varKind, 
+      {row: 0, column: 1, alignment: go.Spot.Right},
+      {width: 100, margin: 5, background: darkergray, textEditor: window.VarEditorSelectBox, editable: true},
+      new go.Binding("choices", "", function(v, args) {
+        var nDeclared;
+        $history.some(stackFrame => {
+          if(stackFrame.refs.indexOf(args.part.findLinksInto().first().data.from) >= 0)
+          { 
+            nDeclared = Object.keys(stackFrame.variables);
+            return true;
+          }
+        });
+        return nDeclared ? nDeclared : null;
+      }),
+      new go.Binding("visible", "isExistingVar"),
+      new go.Binding("text", "paramtext").makeTwoWay()
+    )
+  ]
+}
+
 function argsStyle() {
     return [
     selectionStyle(), 
@@ -73,6 +98,8 @@ function argsStyle() {
         new go.Binding("itemTemplate", "type", function(v) {
             if(v == "decl")
                 return varDeclArgTemplate;
+            else if(v == "obj")
+                return getElemArgTemplate;
             return argTemplate;
         })
     ),
@@ -193,23 +220,42 @@ function varDeclArgStyle() {
 function varArgStyle() {
   return [
     $(go.Shape, { fill: argFixedColor }),
-    $(go.TextBlock, 
-      {editable: true, width: 100, margin: 5, background: lightergray},
-      new go.Binding("visible", "isExistingVar", function(v) {return !v}),
-      new go.Binding("text", "paramtext").makeTwoWay()),
-    $(go.TextBlock, "Enter Var", 
-      {width: 100, margin: 5, background: darkergray, textEditor: window.VarEditorSelectBox, editable: true},
-      new go.Binding("choices", "", function(v, args) {
-        nDeclared = refDeclaredVariables[args.part.findLinksInto().first().data.from];
-        return nDeclared ? nDeclared : null;
-      }),
-      new go.Binding("visible", "isExistingVar"),
-      new go.Binding("text", "paramtext").makeTwoWay()
-    ),
+    selectableArgStyle("Var"),
     {
       click: (e, obj) => {
         onArgClick(e, obj, true);
       }
     }
   ]
+}
+
+function getElemArgStyle() {
+  return [
+    $(go.Shape, "Rectangle", argShapeStyle(),
+      new go.Binding("fill", "itemIndex", function(v, shape) {
+          if( v < shape.part.data.arity.from)
+              return argFixedColor;
+          return argDefaultColor;
+      }).ofObject()
+    ),
+    $(go.Panel, "Table",
+      {
+        defaultAlignment: go.Spot.Left,
+        defaultColumnSeparatorStroke: "gray" //overriden by stroke of shape
+      },
+      $(go.RowColumnDefinition, { column: 0, width: 40 }),
+      $(go.RowColumnDefinition, { column: 1, width: 105 }),
+      $(go.TextBlock, //portId lport
+        {row: 0, column: 0, width: 30 }, //width less than 40 cause of margin
+        {margin: new go.Margin(2, 5, 2, 5)},
+        new go.Binding("text", "portId")
+      ),
+      selectableArgStyle("Key"),
+    ),
+    {
+      click: (e, obj) => {
+        onArgClick(e, obj, false);
+      }
+    }
+]
 }

@@ -45,7 +45,6 @@
             {key: 18, type: "funBlocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true} 
             ], group: 15},
 
-
             { key: 19, type: "blocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true} ]}
         ]
 
@@ -105,9 +104,9 @@
 
         {key: 38, type: "getElemGroup", isGroup: true},
         {key: 39, type: "getElem", group: 38},
-        {key: 40, type: "args", arity: { "from" : 2 }, items: [
-          {portId: "1"},
-          {portId: "2"}
+        {key: 40, type: "obj", arity: { "from" : 2 }, items: [
+          {portId: "obj"},
+          {portId: "key1"}
         ], group: 38},
 
         {key: 41, type: "objectGroup", isGroup: true},

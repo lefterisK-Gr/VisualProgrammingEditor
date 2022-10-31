@@ -57,15 +57,14 @@ function save() {
 
   function updateDecls() {
     tempAstModel = parse(myDiagram.model.toJson());
+    $history.length = 0;
     generate(tempAstModel); //upadte declared variables
   }
 
   function updateVar(n) {
     if(n.data.type == "varsRefer") {
       let outlink = n.findLinksOutOf(); // find argument
-      console.log(outlink.first().data.to);
       let arg = myDiagram.findNodeForKey(outlink.first().data.to)
-      console.log(arg.data);
       arg.updateTargetBindings("choices");
     }
   }
