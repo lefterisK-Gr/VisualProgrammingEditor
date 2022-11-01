@@ -37,37 +37,37 @@ function indent(str) {
 
 var stackFrames = []; //stackFrames happening with references
 
-function setVariable($stack, variable, value) {
-    $stack[variable] = value ? value : null;
+function setVariable(stack, variable, value) {
+    stack[variable] = value ? value : null;
 }
 
-function getVariable($stack, id, varKey) {
-    if(!stackFrames[id]) {
-        stackFrames.push({refs: [], variables: $stack});
-        stackFrames[id].refs.push(varKey);
-        stackFrames[id].variables = $stack;
-        return;
+function getVariable(stack, id, varKey) {
+    console.log("inside get");
+    console.log(id);
+    let frame = JSON.parse(JSON.stringify(stack));
+    if(stackFrames.length < (id+1)) {
+        stackFrames.push({refs: [], variables: frame});
     }
-    console.log(stackFrames);
-    if(!stackFrames[id].refs.includes(varKey)) {
+    const idIndex = stackFrames?.[id];
+    if(idIndex !== undefined && !stackFrames[id].refs.includes(varKey)) {
         stackFrames[id].refs.push(varKey);
     }
 }
 
 function generate(ast) { // go to style and enable deletable==false
-    console.log(stackFrames.length); //need to empty objects
     console.log(stackFrames);
-    console.log(stackFrames[0]);
+    stackFrames = [];
+    console.log(stackFrames);
     return generateStatements(ast[0].items, {}, 0) //ast[0] represents main--is it ok to make assumption?
 }
 
 function generateStatements(statements, stack, frameId) {
     const lines = [];
-    console.log(stackFrames);
-    console.log(stack);
     for(let statement of statements) { 
-        console.log(stackFrames);
         const line = statement.argument ? generateStatement(statement.argument, stack, frameId) : "";
+        frameId = stackFrames.length;
+        console.log(stackFrames.length);
+        console.log(frameId);
         lines.push(line);
     }
     return lines.join("\n");
@@ -76,7 +76,6 @@ function generateStatements(statements, stack, frameId) {
 function generateStatement(stmt, stack, frameId) { // recursive function, building the line statement
     if(stmt.type == "varsDecl") { //var i = 0
         var declarations = [];
-        console.log("inside decl");
         const arguments = stmt.items.map((arg) => {
             return generateExpressionFromArgument(arg, stack, frameId)
         });
@@ -90,10 +89,7 @@ function generateStatement(stmt, stack, frameId) { // recursive function, buildi
             if(variables[i]) {
                 declarations.push(declaration);
                 console.log(variables[i]);
-                console.log(stackFrames);
                 setVariable(stack, variables[i], arguments[i]);
-                console.log(stackFrames);
-                frameId = stackFrames.length;
             }
         }
         declarations = declarations.join(", ");
@@ -170,9 +166,7 @@ function generateExpression(expr, stack, frameId) { // recursive function, build
             return generateExpressionFromArgument(arg, stack, frameId)
         }).join(`, `);
 
-        console.log("inside varref");
         getVariable(stack, frameId, expr.key);
-
         return `${arguments}`
     }
     else if(expr.type == "getElem") {

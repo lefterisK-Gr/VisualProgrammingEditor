@@ -82,7 +82,7 @@ function selectableArgStyle(varKind) {
             return true;
           }
         });
-        console.log(stackFrames)
+        console.log(stackFrames);
         return nDeclared ? nDeclared : null;
       }),
       new go.Binding("visible", "isExistingVar"),

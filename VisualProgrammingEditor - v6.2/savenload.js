@@ -57,6 +57,7 @@ function save() {
 
   function updateDecls() {
     tempAstModel = parse(myDiagram.model.toJson());
+    console.log(stackFrames);
     generate(tempAstModel); //upadte declared variables
   }
 
