@@ -73,18 +73,30 @@ function selectableArgStyle(varKind) {
     $(go.TextBlock, "Enter " + varKind, 
       {row: 0, column: 1, alignment: go.Spot.Right},
       {width: 100, margin: 5, background: darkergray, textEditor: window.VarEditorSelectBox, editable: true},
-      new go.Binding("choices", "", function(v, args) {
+      new go.Binding("choices", "itemIndex", function(v, args) {
         var nDeclared;
+        var i;
+        console.log("inside choices")
+        console.log(v);
+        console.log(args.part.findLinksInto().first().data.from);
+
         stackFrames.some(stackFrame => {
           if(stackFrame.refs.indexOf(args.part.findLinksInto().first().data.from) >= 0)
           { 
-            nDeclared = Object.keys(stackFrame.variables);
+            nDeclared = stackFrame.variables;
             return true;
           }
         });
+        
+        while(i < v) {
+          var tempIndex = args.data.items[i];
+          nDeclared = nDeclared[tempIndex]
+          i++;
+        }
         console.log(stackFrames);
-        return nDeclared ? nDeclared : null;
-      }),
+        console.log(nDeclared);
+        return nDeclared ? Object.keys(nDeclared) : null;
+      }).ofObject(),
       new go.Binding("visible", "isExistingVar"),
       new go.Binding("text", "paramtext").makeTwoWay()
     )

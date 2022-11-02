@@ -62,7 +62,7 @@ function save() {
   }
 
   function updateVar(n) {
-    if(n.data.type == "varsRefer") {
+    if(n.data.type == "varsRefer" || n.data.type == "getElem") {
       let outlink = n.findLinksOutOf(); // find argument
       let arg = myDiagram.findNodeForKey(outlink.first().data.to)
       arg.updateTargetBindings("choices");

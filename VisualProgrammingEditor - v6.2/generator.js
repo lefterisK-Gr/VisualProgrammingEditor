@@ -57,14 +57,15 @@ function getVariable(stack, id, varKey) {
 function generate(ast) { // go to style and enable deletable==false
     console.log(stackFrames);
     stackFrames = [];
+    frame = { id : 0};
     console.log(stackFrames);
-    return generateStatements(ast[0].items, {}, 0) //ast[0] represents main--is it ok to make assumption?
+    return generateStatements(ast[0].items, {}, frame) //ast[0] represents main--is it ok to make assumption?
 }
 
-function generateStatements(statements, stack, frameId) {
+function generateStatements(statements, stack, frame) {
     const lines = [];
     for(let statement of statements) { 
-        const line = statement.argument ? generateStatement(statement.argument, stack, frameId) : "";
+        const line = statement.argument ? generateStatement(statement.argument, stack, frame) : "";
         frameId = stackFrames.length;
         console.log(stackFrames.length);
         console.log(frameId);
