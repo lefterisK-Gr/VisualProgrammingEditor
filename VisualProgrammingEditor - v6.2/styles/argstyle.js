@@ -73,12 +73,12 @@ function selectableArgStyle(varKind) {
     $(go.TextBlock, "Enter " + varKind, 
       {row: 0, column: 1, alignment: go.Spot.Right},
       {width: 100, margin: 5, background: darkergray, textEditor: window.VarEditorSelectBox, editable: true},
+      
+      //INTELLISENSE
       new go.Binding("choices", "itemIndex", function(v, args) {
         var nDeclared;
-        var i;
-        console.log("inside choices")
-        console.log(v);
-        console.log(args.part.findLinksInto().first().data.from);
+        var i = 0;
+        var vobj
 
         stackFrames.some(stackFrame => {
           if(stackFrame.refs.indexOf(args.part.findLinksInto().first().data.from) >= 0)
@@ -87,18 +87,34 @@ function selectableArgStyle(varKind) {
             return true;
           }
         });
+        console.log(v)
         
-        while(i < v) {
-          var tempIndex = args.data.items[i];
-          nDeclared = nDeclared[tempIndex]
+        while(i < v) { // v is current itemIndex
+          console.log(args.part.data.items);
+          tempIndex = args.part.data.items[i].paramtext;
+          console.log(tempIndex)
+          if( !tempIndex ) break;
+          console.log("ok");
+          console.log(nDeclared[tempIndex]);
+
+          vobj = (typeof nDeclared[tempIndex] == 'string') ? JSON.parse(nDeclared[tempIndex]) : nDeclared[tempIndex]
+
+          if(typeof vobj === 'object'){
+            nDeclared = vobj
+            console.log(nDeclared)
+          }
           i++;
         }
-        console.log(stackFrames);
-        console.log(nDeclared);
+        console.log("update choices");
         return nDeclared ? Object.keys(nDeclared) : null;
       }).ofObject(),
       new go.Binding("visible", "isExistingVar"),
-      new go.Binding("text", "paramtext").makeTwoWay()
+      new go.Binding("text", "paramtext").makeTwoWay(),
+      {
+        textEdited: function(tb, olds, news) {
+          tb.part.updateTargetBindings("choices");
+        }
+      }
     )
   ]
 }

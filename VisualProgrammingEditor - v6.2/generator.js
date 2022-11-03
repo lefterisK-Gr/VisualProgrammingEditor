@@ -36,29 +36,28 @@ function indent(str) {
 }
 
 var stackFrames = []; //stackFrames happening with references
+var changedFrame = false;
 
 function setVariable(stack, variable, value) {
     stack[variable] = value ? value : null;
 }
 
-function getVariable(stack, id, varKey) {
-    console.log("inside get");
-    console.log(id);
-    let frame = JSON.parse(JSON.stringify(stack));
-    if(stackFrames.length < (id+1)) {
-        stackFrames.push({refs: [], variables: frame});
+function getVariable(stack, frame, varKey) {
+    changedFrame = false;
+    let frameVars = JSON.parse(JSON.stringify(stack));
+    if(stackFrames.length < (frame.id)) {
+        stackFrames.push({refs: [], variables: frameVars});
     }
-    const idIndex = stackFrames?.[id];
-    if(idIndex !== undefined && !stackFrames[id].refs.includes(varKey)) {
-        stackFrames[id].refs.push(varKey);
+    const idIndex = stackFrames?.[frame.id-1]; //check if there is stackframe for frameId
+    if(idIndex !== undefined && !stackFrames[frame.id-1].refs.includes(varKey)) {
+        stackFrames[frame.id-1].refs.push(varKey);
     }
 }
 
 function generate(ast) { // go to style and enable deletable==false
-    console.log(stackFrames);
+    changedFrame = false;
     stackFrames = [];
     frame = { id : 0};
-    console.log(stackFrames);
     return generateStatements(ast[0].items, {}, frame) //ast[0] represents main--is it ok to make assumption?
 }
 
@@ -66,19 +65,16 @@ function generateStatements(statements, stack, frame) {
     const lines = [];
     for(let statement of statements) { 
         const line = statement.argument ? generateStatement(statement.argument, stack, frame) : "";
-        frameId = stackFrames.length;
-        console.log(stackFrames.length);
-        console.log(frameId);
         lines.push(line);
     }
     return lines.join("\n");
 }
 
-function generateStatement(stmt, stack, frameId) { // recursive function, building the line statement
+function generateStatement(stmt, stack, frame) { // recursive function, building the line statement
     if(stmt.type == "varsDecl") { //var i = 0
         var declarations = [];
         const arguments = stmt.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frameId)
+            return generateExpressionFromArgument(arg, stack, frame)
         });
 
         const variables = stmt.items.map((arg) => { 
@@ -89,8 +85,8 @@ function generateStatement(stmt, stack, frameId) { // recursive function, buildi
             const declaration = arguments[i] ? variables[i] + " = " + arguments[i] : variables[i]; //case where there is only value
             if(variables[i]) {
                 declarations.push(declaration);
-                console.log(variables[i]);
                 setVariable(stack, variables[i], arguments[i]);
+                if(!changedFrame) {changedFrame = true; frame.id++;}
             }
         }
         declarations = declarations.join(", ");
@@ -98,14 +94,14 @@ function generateStatement(stmt, stack, frameId) { // recursive function, buildi
     }
     else if(stmt.type == "print") {
         const arguments = stmt.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frameId)
+            return generateExpressionFromArgument(arg, stack, frame)
         }).join(" + ");
 
         return `console.log( ${arguments} );`;
     }
     else if(stmt.type == "if") {
         const arguments = stmt.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frameId)
+            return generateExpressionFromArgument(arg, stack, frame)
         });
 
         const condition = arguments[0];
@@ -116,7 +112,7 @@ function generateStatement(stmt, stack, frameId) { // recursive function, buildi
     } 
     else if(stmt.type == "while") {
         const arguments = stmt.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frameId)
+            return generateExpressionFromArgument(arg, stack, frame)
         });
         const condition = arguments[0];
         const if_true_part = arguments[1];
@@ -125,7 +121,7 @@ function generateStatement(stmt, stack, frameId) { // recursive function, buildi
     } 
     else if(stmt.type == "for") {
         const arguments = stmt.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frameId)
+            return generateExpressionFromArgument(arg, stack, frame)
         });
         const initialize = arguments[0];
         const condition = arguments[1];
@@ -136,51 +132,52 @@ function generateStatement(stmt, stack, frameId) { // recursive function, buildi
     } 
     else if(stmt.type == "blocks") {
         const tempStack = stack.slice(0);
-        const tempFrameId = frameId;
+        const tempFrameId = frame.id;
         const arguments = indent(generateStatements(stmt.items, tempStack, tempFrameId));
         return `{\n${arguments}\n}`
     } 
     else {
-        const expr = generateExpression(stmt, stack, frameId);
+        const expr = generateExpression(stmt, stack, frame);
         return `${expr};`
     }
 }
 
-function generateExpression(expr, stack, frameId) { // recursive function, building the expression
+function generateExpression(expr, stack, frame) { // recursive function, building the expression
     if(expr.type == "arithmeticOperator" || expr.type == "relationalOperator" || expr.type == "unaryOperator" || expr.type == "binaryOperator") {
         const operator = operatorTypeMap[expr.type][expr.alias];
         const arguments = expr.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frameId)
+            return generateExpressionFromArgument(arg, stack, frame)
         }).join(` ${operator} `);
 
         return `(${arguments})`
     } 
     else if(expr.type == "assign") {
         const arguments = expr.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frameId)
+            return generateExpressionFromArgument(arg, stack, frame)
         }).join(` = `);
 
         return `${arguments}`
     }
     else if(expr.type == "varsRefer") { // i - i,a,b
         const arguments = expr.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frameId)
+            return generateExpressionFromArgument(arg, stack, frame)
         }).join(`, `);
 
-        getVariable(stack, frameId, expr.key);
+        getVariable(stack, frame, expr.key);
         return `${arguments}`
     }
     else if(expr.type == "getElem") {
-        const arguments = expr.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frameId)
-        }).join(`.`);
+        const arguments = expr.items.map((arg, index) => { //take cases if number or string, if number no quotes
+            const getElemIndex = generateExpressionFromArgument(arg, stack, frame)
+            return index ? ( (typeof getElemIndex == 'number') ? `[${getElemIndex}]` : `["${getElemIndex}"]`) : getElemIndex;
+        }).join('');
 
-        getVariable(stack, frameId, expr.key);
+        getVariable(stack, frame, expr.key);
         return `${arguments}`;
     }
     else if(expr.type == "object") {
         const arguments = expr.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frameId)
+            return generateExpressionFromArgument(arg, stack, frame)
         });
 
         const variables = expr.items.map((arg) => {
@@ -190,7 +187,7 @@ function generateExpression(expr, stack, frameId) { // recursive function, build
         var entries = [];
 
         for(var i = 0; i < variables.length; i++) {
-            entry = variables[i] + " : " + arguments[i]; //case where there is only value
+            entry = `"${variables[i]}"` + " : " + arguments[i]; //case where there is only value //create error when no argument
             entries.push(entry);
         }
         entries = entries.join(",\n")
@@ -198,7 +195,7 @@ function generateExpression(expr, stack, frameId) { // recursive function, build
         return `{\n${entries}\n}`;
     }
     else if(expr.type == "funBlocks") {
-        const arguments = indent(generateStatements(expr.items, stack, frameId));
+        const arguments = indent(generateStatements(expr.items, stack, frame));
         return `${arguments}`
     }
     else {
@@ -206,9 +203,9 @@ function generateExpression(expr, stack, frameId) { // recursive function, build
     }
 }
 
-function generateExpressionFromArgument(arg, stack, frameId) {
+function generateExpressionFromArgument(arg, stack, frame) {
     if(arg.isport || arg.connectedBlock){ //there is no need for connectedBlock
-        return generateExpression(arg.argument, stack, frameId);
+        return generateExpression(arg.argument, stack, frame);
     }
     else {
         return arg.paramtext ? arg.paramtext : "";
