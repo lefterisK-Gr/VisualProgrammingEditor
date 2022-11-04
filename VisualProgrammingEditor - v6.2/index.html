@@ -206,8 +206,7 @@
           var link = e.subject;
 
           updateDecls();
-
-          n = myDiagram.findNodeForKey(link.data.to);
+          n = myDiagram.findNodeForKey(link.data.to); // get the node to where link drew
           updateVar(n);
         }
         

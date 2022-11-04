@@ -19,6 +19,8 @@
   var varArgsTemplate =     $(go.Node, "Vertical", varArgsStyle());
   var getElemArgsTemplate = $(go.Node, "Vertical", argsStyle());
   
+  //THIS FILE CONTAINS THE FUNCTIONALITIES OF ARGS
+
   function settingsAdornment(isVarRef) {
     return [
       $(go.Placeholder),

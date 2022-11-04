@@ -17,7 +17,7 @@ function argVarShapeStyle(isBigger) {
     };
 }
 
-function canHaveButton(node, isPlus) {
+function canHaveButton(node, isPlus) { //move this to template
   const data = node.data;
   const arr = data.items;
   if ( isPlus && data.arity && (data.arity.to === arr.length) ) {
@@ -286,5 +286,5 @@ function getElemArgStyle() {
         onArgClick(e, obj, false);
       }
     }
-]
+  ]
 }

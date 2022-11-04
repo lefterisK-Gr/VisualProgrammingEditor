@@ -132,7 +132,8 @@ function generateStatement(stmt, stack, frame) { // recursive function, building
     } 
     else if(stmt.type == "blocks") {
         const tempStack = stack.slice(0);
-        const tempFrameId = frame.id;
+        const tempFrameId = { id : 0};
+        tempFrameId.id = frame.id;
         const arguments = indent(generateStatements(stmt.items, tempStack, tempFrameId));
         return `{\n${arguments}\n}`
     } 
