@@ -53,31 +53,7 @@ return [
     {width: 100, margin: 5, background: darkergray, textEditor: window.VarEditorSelectBox, editable: true},
     
     //INTELLISENSE
-    new go.Binding("choices", "itemIndex", function(v, args) {
-      var nDeclared;
-      var i = 0;
-      var vobj
-
-      stackFrames.some(stackFrame => {
-        if(stackFrame.refs.indexOf(args.part.findLinksInto().first().data.from) >= 0)
-        { 
-          nDeclared = stackFrame.variables;
-          return true;
-        }
-      });
-      
-      while(i < v) { // v is current itemIndex
-        tempIndex = args.part.data.items[i].paramtext;
-        if( !tempIndex ) break;
-        vobj = (typeof nDeclared[tempIndex] == 'string') ? JSON.parse(nDeclared[tempIndex]) : nDeclared[tempIndex]
-
-        if(typeof vobj === 'object'){
-          nDeclared = vobj
-        }
-        i++;
-      }
-      return nDeclared ? Object.keys(nDeclared) : null;
-    }).ofObject(),
+    new go.Binding("choices", "itemIndex", argChoicesIntellisense).ofObject(),
     new go.Binding("visible", "isExistingVar"),
     new go.Binding("text", "paramtext").makeTwoWay(),
     {
