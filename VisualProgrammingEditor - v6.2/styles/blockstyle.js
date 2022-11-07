@@ -9,7 +9,7 @@ function blockStyle(block_kind) {
           {
             itemTemplate: 
               $(go.Panel,"Auto",
-                $(go.Shape, "Rectangle", portStyle(false),  // the rvalue port
+                $(go.Shape, "Rectangle", portStyle(false),  // the output port
                   new go.Binding("portId", "portId"),
                   {desiredSize: new go.Size(40, 40), strokeWidth: 2, fill: blockFill(block_kind)}
                 ),

@@ -45,6 +45,8 @@ function setVariable(stack, variable, value) {
 function getVariable(stack, frame, varKey) {
     changedFrame = false;
     let frameVars = JSON.parse(JSON.stringify(stack));
+    console.log(stackFrames.length);
+    console.log(frame.id);
     if(stackFrames.length < (frame.id)) {
         stackFrames.push({refs: [], variables: frameVars});
     }
@@ -57,7 +59,7 @@ function getVariable(stack, frame, varKey) {
 function generate(ast) { // go to style and enable deletable==false
     changedFrame = false;
     stackFrames = [];
-    frame = { id : 0};
+    var frame = { id : 0, maxId : 0};
     return generateStatements(ast[0].items, {}, frame) //ast[0] represents main--is it ok to make assumption?
 }
 
@@ -86,7 +88,9 @@ function generateStatement(stmt, stack, frame) { // recursive function, building
             if(variables[i]) {
                 declarations.push(declaration);
                 setVariable(stack, variables[i], arguments[i]);
-                if(!changedFrame) {changedFrame = true; frame.id++;}
+                if(!changedFrame) {
+                    changedFrame = true;
+                }
             }
         }
         declarations = declarations.join(", ");
@@ -131,10 +135,13 @@ function generateStatement(stmt, stack, frame) { // recursive function, building
         return `for ( ${initialize}; ${condition}; ${update} ) {\n${contains}\n}`;
     } 
     else if(stmt.type == "blocks") {
-        const tempStack = stack.slice(0);
-        const tempFrameId = { id : 0};
-        tempFrameId.id = frame.id;
-        const arguments = indent(generateStatements(stmt.items, tempStack, tempFrameId));
+        const tempStack =JSON.parse(JSON.stringify(stack));
+        const tempFrameId = frame.id;
+        const tempChangedFrame = changedFrame;
+        changedFrame = false;
+        const arguments = indent(generateStatements(stmt.items, tempStack, frame));
+        frame.id = tempFrameId;
+        changedFrame = tempChangedFrame;
         return `{\n${arguments}\n}`
     } 
     else {
@@ -144,6 +151,7 @@ function generateStatement(stmt, stack, frame) { // recursive function, building
 }
 
 function generateExpression(expr, stack, frame) { // recursive function, building the expression
+    if(!expr) return "";
     if(expr.type == "arithmeticOperator" || expr.type == "relationalOperator" || expr.type == "unaryOperator" || expr.type == "binaryOperator") {
         const operator = operatorTypeMap[expr.type][expr.alias];
         const arguments = expr.items.map((arg) => {
@@ -164,7 +172,13 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
             return generateExpressionFromArgument(arg, stack, frame)
         }).join(`, `);
 
+        if(changedFrame) {
+            frame.maxId++;
+            const frameMaxId = frame.maxId;
+            frame.id = frameMaxId;
+        }
         getVariable(stack, frame, expr.key);
+        console.log(stackFrames);
         return `${arguments}`
     }
     else if(expr.type == "getElem") {
@@ -173,7 +187,13 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
             return index ? ( (typeof getElemIndex == 'number') ? `[${getElemIndex}]` : `["${getElemIndex}"]`) : getElemIndex;
         }).join('');
 
+        if(changedFrame) {
+            frame.maxId++;
+            const frameMaxId = frame.maxId;
+            frame.id = frameMaxId;
+        }
         getVariable(stack, frame, expr.key);
+        console.log(stackFrames);
         return `${arguments}`;
     }
     else if(expr.type == "object") {
@@ -188,7 +208,7 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
         var entries = [];
 
         for(var i = 0; i < variables.length; i++) {
-            entry = `"${variables[i]}"` + " : " + arguments[i]; //case where there is only value //create error when no argument
+            entry = `"${variables[i]}"` + " : " + (arguments[i] ? arguments[i] : 0); //case where there is only value //create error when no argument
             entries.push(entry);
         }
         entries = entries.join(",\n")
@@ -209,6 +229,6 @@ function generateExpressionFromArgument(arg, stack, frame) {
         return generateExpression(arg.argument, stack, frame);
     }
     else {
-        return arg.paramtext ? arg.paramtext : "";
+        return arg.paramtext ? `"${arg.paramtext}"` : "";
     }
 }
