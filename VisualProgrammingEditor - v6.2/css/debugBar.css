@@ -1,0 +1,68 @@
+.editor-toolbar {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0px 10px;
+  background-color: rgb(13, 20, 101);
+}
+
+.editor-toolbar-logo {
+  display: flex;
+  justify-content: center;
+}
+
+.top-toolbar-buttons {
+  width: -webkit-fill-available;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.editor-toolbar-buttons {
+  height: 30vh;
+  border-radius: 10px;
+  width: -webkit-fill-available;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  background-color: #201f2f;
+}
+
+.editor-toolbar-button-category {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.editor-toolbar-buttons .separator {
+  height: 2px;
+  width: 30px;
+  background-color: #4B4B4E;
+}
+
+.undo-button {
+  background-color: #ff0000;
+  border: #ff0000;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  -webkit-mask-size: 100%;
+  -webkit-mask-image: url(../images/goBackHover.png);
+  mask-image: url(../images/goBackHover.png);
+}
+
+.redo-button {
+  background-color: #ff0000;
+  border: #ff0000;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  -webkit-mask-size: 100%;
+  -webkit-mask-image: url(../images/goBackHover.png);
+  mask-image: url(../images/goBackHover.png);
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
