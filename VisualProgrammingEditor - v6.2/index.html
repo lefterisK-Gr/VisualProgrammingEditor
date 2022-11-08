@@ -31,8 +31,9 @@
     
       const resultLines = [];
       var resultStore = false;
-      /*
-      console.oldLog = console.log;
+      
+      //remove comments for printing result
+      /*console.oldLog = console.log;
       console.log = function(value)
       {
         console.oldLog(value);
@@ -224,7 +225,8 @@
     <script src="templates/argTemplate.js"></script>
     <script src="templates/blockTemplate.js"></script>
     <script src="templates/recycleTemplate.js"></script>
-    <script src="paletteComponents.js"></script>
+    <script src="palettes/StatementsPalette.js"></script>
+    <script src="palettes/ExpressionsPalette.js"></script>
     <script src="savenload.js"></script>
 
   </head>
@@ -259,7 +261,7 @@
           <input type="radio" id="rd3" name="rd">
           <label class="tab-label" for="rd3">Functions</label>
           <div class="tab-content">
-            
+            <div id="myPaletteDiv3" style="width: 120px; height: 24.75em; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
           </div>
         </div>
       </div>

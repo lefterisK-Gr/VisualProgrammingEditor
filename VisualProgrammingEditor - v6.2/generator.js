@@ -184,7 +184,7 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
     else if(expr.type == "getElem") {
         const arguments = expr.items.map((arg, index) => { //take cases if number or string, if number no quotes
             const getElemIndex = generateExpressionFromArgument(arg, stack, frame)
-            return index ? ( (typeof getElemIndex == 'number') ? `[${getElemIndex}]` : `["${getElemIndex}"]`) : getElemIndex;
+            return index ? `[${getElemIndex}]` : getElemIndex;
         }).join('');
 
         if(changedFrame) {
@@ -229,6 +229,6 @@ function generateExpressionFromArgument(arg, stack, frame) {
         return generateExpression(arg.argument, stack, frame);
     }
     else {
-        return arg.paramtext ? `"${arg.paramtext}"` : "";
+        return arg.paramtext ? ( ((typeof arg.paramtext == 'number') || (arg.portId == "obj") || (arg.portId == "var")) ? `${arg.paramtext}` : `"${arg.paramtext}"`) : "";
     }
 }

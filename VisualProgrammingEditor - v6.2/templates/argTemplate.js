@@ -216,11 +216,23 @@
     
     console.log(arg.data);
     let i = 1;
-    while (arg.findPort( i.toString() ) !== arg) 
-    {
-      i++;
+    var name;
+    if(arg.data.type == "obj") {
+      const objKeyStr = "key";
+      while (arg.findPort( objKeyStr + i.toString() ) !== arg) 
+      {
+        i++;
+      }
+      name = objKeyStr + i.toString();
     }
-    const name = i.toString();
+    else {
+      while (arg.findPort( i.toString() ) !== arg) 
+      {
+        i++;
+      }
+      name = i.toString();
+    }
+    
     const arr = arg.data.items;
     if(arg.data.arity && arg.data.arity.to && arr.length == arg.data.arity.to)
       return;
@@ -286,4 +298,30 @@
     myDiagram.model.setDataProperty(data, "isExistingVar", false);
     myDiagram.model.setDataProperty(data, "paramtext", "");
     myDiagram.commitTransaction("makeTextField1");
+  }
+
+  function argChoicesIntellisense(v, args) {
+    var nDeclared;
+    var i = 0;
+    var vobj
+
+    stackFrames.some(stackFrame => {
+      if(stackFrame.refs.indexOf(args.part.findLinksInto().first().data.from) >= 0)
+      { 
+        nDeclared = stackFrame.variables;
+        return true;
+      }
+    });
+    
+    while(i < v) { // v is current itemIndex
+      tempIndex = args.part.data.items[i].paramtext;
+      if( !tempIndex ) break;
+      vobj = (typeof nDeclared[tempIndex] == 'string') ? JSON.parse(nDeclared[tempIndex]) : nDeclared[tempIndex]
+
+      if(typeof vobj === 'object'){
+        nDeclared = vobj
+      }
+      i++;
+    }
+    return nDeclared ? Object.keys(nDeclared) : null;
   }

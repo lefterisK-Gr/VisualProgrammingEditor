@@ -27,14 +27,6 @@ function save() {
     document.getElementById("mySavedModel").value = JSON.stringify(astModel, null, 2);
 
     generateCode();
-    //let result = eval(document.getElementById("generatedModel").value );
-    //console.log(result); //here is printed undefined because we need one more variable in eval
-    resultStore = true;
-    //--eval(document.getElementById("generatedModel").value);
-    resultStore = false;
-    //--console.log(resultLines);
-    //--document.getElementById("resultModel").value = resultLines.join("\n");
-    //--resultLines.length = 0;
 
     myDiagram.nodes.each(function(n) {
       if(n.data.type == "var") {
@@ -52,7 +44,14 @@ function save() {
   }
 
   function execute() {
-    
+      let result = eval(document.getElementById("generatedModel").value );
+      console.log(result); //here is printed undefined because we need one more variable in eval
+      resultStore = true;
+      eval(document.getElementById("generatedModel").value);
+      resultStore = false;
+      console.log(resultLines);
+      document.getElementById("resultModel").value = resultLines.join("\n");
+      resultLines.length = 0;
   }
 
   function updateDecls() {
