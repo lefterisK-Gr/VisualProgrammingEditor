@@ -44,19 +44,18 @@ function save() {
   }
 
   function execute() {
-      let result = eval(document.getElementById("generatedModel").value );
-      console.log(result); //here is printed undefined because we need one more variable in eval
+      /*let result = eval(document.getElementById("generatedModel").value );
       resultStore = true;
       eval(document.getElementById("generatedModel").value);
       resultStore = false;
-      console.log(resultLines);
       document.getElementById("resultModel").value = resultLines.join("\n");
-      resultLines.length = 0;
+      resultLines.length = 0;*/
   }
 
   function updateDecls() {
     tempAstModel = parse(myDiagram.model.toJson());
     generate(tempAstModel); //upadte declared variables
+    console.log(stackFrames);
   }
 
   function updateVar(n) {
@@ -64,6 +63,15 @@ function save() {
       let outlink = n.findLinksOutOf(); // find argument
       let arg = myDiagram.findNodeForKey(outlink.first().data.to)
       arg.updateTargetBindings("choices");
+    }
+  }
+
+  function updateVars() {
+    if(n.data.type == "varsDecl") {
+      myDiagram.nodes.each(function(n) {
+        console.log(n.data);
+        if (n.data && (n.data.type == "var" || n.data.type == "obj") ) { n.updateTargetBindings("choices") }
+      });
     }
   }
 

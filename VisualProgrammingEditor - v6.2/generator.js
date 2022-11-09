@@ -45,8 +45,6 @@ function setVariable(stack, variable, value) {
 function getVariable(stack, frame, varKey) {
     changedFrame = false;
     let frameVars = JSON.parse(JSON.stringify(stack));
-    console.log(stackFrames.length);
-    console.log(frame.id);
     if(stackFrames.length < (frame.id)) {
         stackFrames.push({refs: [], variables: frameVars});
     }
@@ -178,7 +176,6 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
             frame.id = frameMaxId;
         }
         getVariable(stack, frame, expr.key);
-        console.log(stackFrames);
         return `${arguments}`
     }
     else if(expr.type == "getElem") {
@@ -193,7 +190,6 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
             frame.id = frameMaxId;
         }
         getVariable(stack, frame, expr.key);
-        console.log(stackFrames);
         return `${arguments}`;
     }
     else if(expr.type == "object") {

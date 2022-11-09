@@ -214,7 +214,6 @@
   function addArg(arg) {
     if (!(arg instanceof go.Node)) return;
     
-    console.log(arg.data);
     let i = 1;
     var name;
     if(arg.data.type == "obj") {
@@ -323,5 +322,6 @@
       }
       i++;
     }
+    console.log(nDeclared);
     return nDeclared ? Object.keys(nDeclared) : null;
   }

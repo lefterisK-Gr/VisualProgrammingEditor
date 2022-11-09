@@ -45,7 +45,7 @@
       const $ = go.GraphObject.make;  // for conciseness in defining templates
     
       function init() {
-        document.body.style.backgroundColor = "#95c2de";
+        document.body.style.backgroundColor = "#36393f";
         myDiagram =
           $(go.Diagram, "myDiagramDiv",  // create a new Diagram in the HTML DIV element "myDiagramDiv"
             {
@@ -213,6 +213,7 @@
           updateDecls();
           n = myDiagram.findNodeForKey(link.data.to); // get the node to where link drew
           updateVar(n);
+          updateVars();
         }
         
         // load the initial diagram
@@ -237,7 +238,7 @@
 
     <div class="editor-toolbar">
       <div class="editor-toolbar-logo">
-        <img class="logo-image" src="logo/CodeChainsLogo.png" width="175" height="25">
+        <img class="logo-image" src="logo/CodeChainsLogo.png" width="130" height="25">
       </div>
       <div class ="top-toolbar-buttons">
         <div class="undo-button"></div><!-- undo -->
@@ -303,19 +304,19 @@
 
         <div class ="editor-toolbar-buttons">
           <div class="editor-toolbar-button-category">
-            <div class="undo-button"></div><!-- play -->
-            <div class="undo-button"></div><!-- pause -->
+            <div class="play-button"></div><!-- play -->
+            <div class="pause-button"></div><!-- pause -->
           </div>
           <div class="separator"></div>
           <div class="editor-toolbar-button-category">
-            <div class="undo-button"></div><!-- step over -->
-            <div class="undo-button"></div><!-- step into -->
-            <div class="undo-button"></div><!-- step out -->
+            <div class="step-over-button"></div><!-- step over -->
+            <div class="step-into-button"></div><!-- step into -->
+            <div class="step-out-button"></div><!-- step out -->
           </div>
           <div class="separator"></div>
           <div class="editor-toolbar-button-category">
-            <div class="undo-button"></div><!-- restart -->
-            <div class="undo-button"></div><!-- stop -->
+            <div class="restart-button"></div><!-- restart -->
+            <div class="stop-button"></div><!-- stop -->
           </div>
         </div>
 

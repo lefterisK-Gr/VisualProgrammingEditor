@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   padding: 0px 10px;
-  background-color: rgb(13, 20, 101);
+  background-color: #202225;
 }
 
 .editor-toolbar-logo {
@@ -28,7 +28,7 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
-  background-color: #201f2f;
+  background-color: #221f2f;
 }
 
 .editor-toolbar-button-category {
@@ -43,26 +43,76 @@
   background-color: #4B4B4E;
 }
 
-.undo-button {
+.undo-button, .redo-button, .play-button, .pause-button, .step-over-button, .step-into-button, .step-out-button, .restart-button, .stop-button {
   background-color: #ff0000;
   border: #ff0000;
   width: 25px;
   height: 25px;
   cursor: pointer;
   -webkit-mask-size: 100%;
+}
+
+.undo-button {
+  background-color: #5365f4;
+  border: #5365f4;
   -webkit-mask-image: url(../images/goBackHover.png);
   mask-image: url(../images/goBackHover.png);
 }
 
 .redo-button {
-  background-color: #ff0000;
-  border: #ff0000;
-  width: 25px;
-  height: 25px;
-  cursor: pointer;
-  -webkit-mask-size: 100%;
+  background-color: #5365f4;
+  border: #5365f4;
   -webkit-mask-image: url(../images/goBackHover.png);
   mask-image: url(../images/goBackHover.png);
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
+}
+
+.play-button {
+  background-color: #0ed145;
+  border: #0ed145;
+  -webkit-mask-image: url(../images/play-button-arrowhead.png);
+  mask-image: url(../images/play-button-arrowhead.png);
+}
+
+.pause-button {
+  background-color: #5566f2;
+  border: #5566f2;
+  -webkit-mask-image: url(../images/pause.png);
+  mask-image: url(../images/pause.png);
+}
+
+.step-over-button {
+  background-color: #8592f9;
+  border: #8592f9;
+  -webkit-mask-image: url(../images/step-over.png);
+  mask-image: url(../images/step-over.png);
+}
+
+.step-into-button {
+  background-color: #8592f9;
+  border: #8592f9;
+  -webkit-mask-image: url(../images/step-into.png);
+  mask-image: url(../images/step-into.png);
+}
+
+.step-out-button {
+  background-color: #8592f9;
+  border: #8592f9;
+  -webkit-mask-image: url(../images/step-out.png);
+  mask-image: url(../images/step-out.png);
+}
+
+.restart-button {
+  background-color: #fff200;
+  border: #fff200;
+  -webkit-mask-image: url(../images/restart.png);
+  mask-image: url(../images/restart.png);
+}
+
+.stop-button {
+  background-color: #ec1c24;
+  border: #ec1c24;
+  -webkit-mask-image: url(../images/stop.png);
+  mask-image: url(../images/stop.png);
 }

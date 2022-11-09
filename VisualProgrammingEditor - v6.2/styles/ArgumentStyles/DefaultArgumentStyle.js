@@ -54,10 +54,12 @@ return [
     
     //INTELLISENSE
     new go.Binding("choices", "itemIndex", argChoicesIntellisense).ofObject(),
+
     new go.Binding("visible", "isExistingVar"),
     new go.Binding("text", "paramtext").makeTwoWay(),
     {
       textEdited: function(tb, olds, news) {
+        console.log(tb.part);
         tb.part.updateTargetBindings("choices");
       }
     }

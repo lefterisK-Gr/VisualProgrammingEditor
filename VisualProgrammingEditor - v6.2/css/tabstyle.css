@@ -18,11 +18,11 @@
     display: flex;
     justify-content: space-between;
     padding: 0.5em;
-    background: #1F4963;
+    background: #5241d6;
     cursor: pointer;
   }
   .tab-label:hover {
-    background: #627f91;
+    background: #6c5ed6;
   }
   .tab-content {
     max-height: 0;
@@ -38,11 +38,11 @@
     cursor: pointer;
   }
   .tab-close:hover {
-    background: #1a252f;
+    background: #332271;
   }
   
   input:checked + .tab-label {
-    background: #1a252f;
+    background: #332271;
   }
   input:checked + .tab-label::after {
     transform: rotate(90deg);
