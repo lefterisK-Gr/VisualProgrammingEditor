@@ -141,7 +141,10 @@ function generateStatement(stmt, stack, frame) { // recursive function, building
         frame.id = tempFrameId;
         changedFrame = tempChangedFrame;
         return `{\n${arguments}\n}`
-    } 
+    }
+    else if((stmt.type == "break") || (stmt.type == "continue")) {
+        return `${stmt.type};`
+    }
     else {
         const expr = generateExpression(stmt, stack, frame);
         return `${expr};`

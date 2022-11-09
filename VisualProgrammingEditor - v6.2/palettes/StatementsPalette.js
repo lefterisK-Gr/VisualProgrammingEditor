@@ -1,7 +1,7 @@
 var paletteComps = [  // specify the contents of the Palette
 
             {key: 1, type: "printGroup", isGroup: true},
-            {key: 2,type: "print", group: 1},
+            {key: 2, type: "print", group: 1},
             {key: 3, type: "args", items: [ 
               {portId: "1"}, //remove portId, just args_via_object
               {portId: "2"} 
@@ -15,7 +15,7 @@ var paletteComps = [  // specify the contents of the Palette
             ], group: 4},
 
             {key: 7, type: "ifGroup", isGroup: true},
-            {key: 8,type: "if", group: 7},
+            {key: 8, type: "if", group: 7},
             {key: 9, type: "args", arity: { "from" : 2 , "to": 3}, items: [ 
               {portId: "condition"},
               {portId: "if_part", connectedBlock: true},
@@ -25,7 +25,7 @@ var paletteComps = [  // specify the contents of the Palette
             ], group: 7},
 
             {key: 11, type: "whileGroup", isGroup: true},
-            {key: 12,type: "while", group: 11},
+            {key: 12, type: "while", group: 11},
             {key: 13, type: "args", arity: { "from" : 2 , "to": 2}, items: [ 
               {portId: "condition"},
               {portId: "if_true_part", connectedBlock: true} 
@@ -34,7 +34,7 @@ var paletteComps = [  // specify the contents of the Palette
             ], group: 11},
 
             {key: 15, type: "forGroup", isGroup: true},
-            {key: 16,type: "for", group: 15},
+            {key: 16, type: "for", group: 15},
             {key: 17, type: "args", arity: { "from" : 4 , "to": 4}, items: [ 
               {portId: "initialize"},
               {portId: "condition"},
@@ -43,6 +43,12 @@ var paletteComps = [  // specify the contents of the Palette
             ], group: 15},
             {key: 18, type: "funBlocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true} 
             ], group: 15},
+
+            { key: 19, type: "breakGroup", isGroup: true },
+            { key: 20, type: "break", group: 19 },
+
+            { key: 21, type: "continueGroup", isGroup: true },
+            { key: 22, type: "continue", group: 21 },
 
             { key: 19, type: "blocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true} ]}
         ]

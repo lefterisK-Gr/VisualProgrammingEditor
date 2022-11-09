@@ -1,10 +1,10 @@
   
-  function nodeFunctionShapeStyle() {
+  function nodeFunctionShapeStyle(isSmallerBox) {
     return {
       name: "NODESHAPE",
       fill: "lightgray", //default color
       stroke: "darkslategray",
-      desiredSize: new go.Size(105, 50),
+      desiredSize: isSmallerBox ? new go.Size(105, 30) : new go.Size(105, 40),
       strokeWidth: 2,
       parameter1: 10
     };
@@ -30,7 +30,10 @@
     if(functionName.endsWith("OP") && !isGroup) {
       return $(go.Shape,"Circle", { width: 50, height: 50, fill: shapeColor});
     }
-    return $(go.Shape, nodeFunctionShapeStyle(),{ figure: "RoundedRectangle", fill: shapeColor })
+    if((functionName == "BREAK") || (functionName == "CONTINUE")) {
+      return $(go.Shape, nodeFunctionShapeStyle(true),{ figure: "RoundedRectangle", fill: shapeColor })
+    }
+    return $(go.Shape, nodeFunctionShapeStyle(false),{ figure: "RoundedRectangle", fill: shapeColor })
   }
 
   function functionStyle(shapeColor, functionName, isGroup) {
@@ -42,14 +45,14 @@
   }
 
   function portIdSize(isOp) {
-    return isOp ? new go.Size(18,18) : new go.Size(18, 50);
+    return isOp ? new go.Size(18,18) : new go.Size(18, 40);
   }
 
   function nodeFunctionStyle(shapeColor, functionName) {
     return [
       functionStyle(shapeColor, functionName, false),
       $(go.Shape, "Ellipse", portStyle(true), 
-        { fill: "black", portId: "in", alignment: new go.Spot(0.05, 0.5) ,desiredSize: portIdSize(functionName.endsWith("OP"))}
+        { fill: "black", portId: "in", alignment: new go.Spot(0.05, 0.5) ,desiredSize: portIdSize(functionName.endsWith("OP") || (functionName == "BREAK") || (functionName == "CONTINUE"))}
       )
     ];
   }
