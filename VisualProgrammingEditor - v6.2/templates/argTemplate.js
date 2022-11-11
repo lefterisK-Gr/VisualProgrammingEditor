@@ -237,13 +237,38 @@
       return;
 
     myDiagram.startTransaction("add argument"); 
-    if (arr) {
-      // create a new port data object
-      const newportdata = {
-        portId: name //portId defines name of arg
-      };
-      // and add it to the end of Array of port data
-      myDiagram.model.insertArrayItem(arr, -1, newportdata);
+    if (arr) { // since we have add button, there must be items so no need for if??
+      var model = myDiagram.model;
+      var newportdata;
+      // newportdata in if Block
+      const inLink = arg.findLinksInto();
+      const blockConnected = myDiagram.findNodeForKey(inLink.first().data.from).data.type;
+      if(blockConnected == "if") {
+        newportdata = {
+          portId: "else_part",
+          isConnectedBlock: true
+        }
+
+        var connectedBlock = {type: "funBlocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true}]}
+        var p = arg.location;
+        connectedBlock.loc = p.x + 200 + " " + p.y;
+        model.addNodeData(connectedBlock);
+        // and add it to the end of Array of port data
+        model.insertArrayItem(arr, -1, newportdata);
+        //add link to funBlock
+        var linkdata = {fromPort: "else_part", toPort: "in"};
+        linkdata[model.linkFromKeyProperty] = model.getKeyForNodeData(arg.part.data);
+        linkdata[model.linkToKeyProperty] = model.getKeyForNodeData(connectedBlock);
+
+        model.addLinkData(linkdata)
+      }
+      else { // create a new port data object
+        newportdata = {
+          portId: name //portId defines name of arg
+        };
+        // and add it to the end of Array of port data
+        model.insertArrayItem(arr, -1, newportdata);
+      }
     }
     arg.updateTargetBindings("isEnabled");
     myDiagram.commitTransaction("add argument");
@@ -256,6 +281,14 @@
       return;
     
     myDiagram.startTransaction("remove argument");
+    //remove connectedBlock from elsePart
+    outLink = arg.part.findLinksOutOf();
+    while(outLink.next()) {
+      if(outLink.value.data.fromPort == "else_part") {
+        myDiagram.remove(myDiagram.findNodeForKey(outLink.value.data.to))
+        break;
+      }
+    }
     myDiagram.model.removeArrayItem(arr);
     arg.updateTargetBindings("isEnabled");
     myDiagram.commitTransaction("remove argument");
@@ -271,10 +304,9 @@
   function activateTextField(arg) {
     myDiagram.startTransaction("makeTextField");
     const data = arg.data;  
-    //console.log(argnode.part.data); //arguments
     //remove connected links
     links = arg.part.findLinksOutOf();
-    while(links.next()) {
+    while(links.next()) { //just needs links.first() since only one link exists
       if(links.value.data.fromPort == arg.data.portId){
         myDiagram.remove(links.value);
       }

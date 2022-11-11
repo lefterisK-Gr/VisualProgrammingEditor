@@ -10,6 +10,7 @@ function varArgsStyle() {
 
 function varArgStyle() {
   return [
+    new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
     $(go.Shape, { fill: argFixedColor }),
     selectableArgStyle("Var"),
     {

@@ -1,5 +1,6 @@
 function blockStyle(block_kind) {
     return [
+        new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
         selectionStyle(), 
         {name: "blocks",
           deletable: (block_kind == block.stmt)

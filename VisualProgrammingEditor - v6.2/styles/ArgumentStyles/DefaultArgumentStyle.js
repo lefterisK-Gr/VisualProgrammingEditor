@@ -69,6 +69,7 @@ return [
 
 function argsStyle() {
   return [
+  new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
   selectionStyle(), 
   $(go.Panel, "Vertical", {name: "ARGS"},
       new go.Binding("itemArray", "items"),

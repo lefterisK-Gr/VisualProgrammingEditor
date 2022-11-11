@@ -50,6 +50,7 @@
 
   function nodeFunctionStyle(shapeColor, functionName) {
     return [
+      new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
       functionStyle(shapeColor, functionName, false),
       $(go.Shape, "Ellipse", portStyle(true), 
         { fill: "black", portId: "in", alignment: new go.Spot(0.05, 0.5) ,desiredSize: portIdSize(functionName.endsWith("OP") || (functionName == "BREAK") || (functionName == "CONTINUE"))}

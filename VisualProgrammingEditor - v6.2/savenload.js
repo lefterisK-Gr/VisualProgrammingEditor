@@ -33,6 +33,8 @@ function save() {
         n.updateTargetBindings("choices");
       }
     });
+
+    console.log( savedModel)
   }
 
   function load() {

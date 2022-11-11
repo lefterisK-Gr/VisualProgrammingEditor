@@ -55,7 +55,7 @@
               "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
 			  		  initialAutoScale: go.Diagram.Uniform,
 			  		  initialContentAlignment: go.Spot.Left,
-              layout: $(go.LayeredDigraphLayout, { isOngoing: false, layerSpacing: 50})
+              layout: $(go.LayeredDigraphLayout, { isInitial: false,isOngoing: false, layerSpacing: 50})
             },
             {
               click: (e, obj) => { //make this function
@@ -71,7 +71,7 @@
               }
             });
 
-        myDiagram.padding.right = 100;
+        myDiagram.padding.right = 200;
         
         // when the document is modified, add a "*" to the title and enable the "Save" button
         myDiagram.addDiagramListener("Modified", e => { //name "Modified" is built-in
@@ -86,7 +86,7 @@
           }
           // expand any "macros"
           myDiagram.commandHandler.ungroupSelection();
-          layout();
+          //layout();
         });
 
         myDiagram.addDiagramListener("ViewportBoundsChanged", function(e) {
@@ -103,6 +103,7 @@
         // creates relinkable Links that will avoid crossing Nodes when possible and will jump over other Links in their paths
         myDiagram.linkTemplate =
           $(go.Link,
+            new go.Binding("points").makeTwoWay(),
             {
               routing: go.Link.AvoidsNodes,
               curve: go.Link.JumpOver,
