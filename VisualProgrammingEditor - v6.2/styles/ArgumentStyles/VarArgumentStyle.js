@@ -10,6 +10,12 @@ function varArgsStyle() {
 
 function varArgStyle() {
   return [
+    new go.Binding("visible", "key", function(v, node) {
+      if(myDiagram.findNodeForKey(v)) {
+        return true
+      }
+      return false;
+    }).ofObject(),
     new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
     $(go.Shape, { fill: argFixedColor }),
     selectableArgStyle("Var"),

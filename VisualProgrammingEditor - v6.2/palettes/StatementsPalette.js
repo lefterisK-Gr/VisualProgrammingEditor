@@ -1,11 +1,11 @@
 var paletteComps = [  // specify the contents of the Palette
 
             {key: 1, type: "printGroup", isGroup: true},
-            {key: 2, type: "print", group: 1},
+            {key: 2, type: "print", group: 1, loc: "0 0"},
             {key: 3, type: "args", items: [ 
               {portId: "1"}, //remove portId, just args_via_object
               {portId: "2"} 
-            ], group: 1},
+            ], group: 1, loc: "100 0"},
 
             {key: 4, type: "varsDeclGroup", isGroup: true},
             {key: 5, type: "varsDecl", group: 4},

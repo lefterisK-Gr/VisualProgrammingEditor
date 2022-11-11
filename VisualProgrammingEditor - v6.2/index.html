@@ -85,9 +85,14 @@
             myDiagram.currentTool.acceptText(go.TextEditingTool.LostFocus);
           }
           // expand any "macros"
-          myDiagram.commandHandler.ungroupSelection();
+          //myDiagram.commandHandler.ungroupSelection();
           //layout();
+          fading();
         });
+
+        function fading() {
+        setTimeout(() => {console.log("ok"); myDiagram.commandHandler.ungroupSelection()}, 0)
+      }
 
         myDiagram.addDiagramListener("ViewportBoundsChanged", function(e) {
           // only iterates through simple Parts in the diagram, not Nodes or Links

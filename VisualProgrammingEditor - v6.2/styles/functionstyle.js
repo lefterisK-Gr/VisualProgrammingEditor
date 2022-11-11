@@ -50,6 +50,12 @@
 
   function nodeFunctionStyle(shapeColor, functionName) {
     return [
+      new go.Binding("visible", "key", function(v, node) {
+        if(myDiagram.findNodeForKey(v)) {
+          return true
+        }
+        return false;
+      }).ofObject(),
       new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
       functionStyle(shapeColor, functionName, false),
       $(go.Shape, "Ellipse", portStyle(true), 
@@ -62,7 +68,7 @@
     return [
       go.Panel.Auto,
       {
-        isSubGraphExpanded: false,  // only show the Group itself, not any of its members
+        //isSubGraphExpanded: false,  // only show the Group itself, not any of its members
         ungroupable: true
       },
       functionStyle(shapeColor, functionName, true)

@@ -1,5 +1,11 @@
 function blockStyle(block_kind) {
     return [
+        new go.Binding("visible", "key", function(v, node) {
+          if(myDiagram.findNodeForKey(v)) {
+            return true
+          }
+          return false;
+        }).ofObject(),
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
         selectionStyle(), 
         {name: "blocks",
