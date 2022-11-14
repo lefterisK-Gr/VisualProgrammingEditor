@@ -1,7 +1,7 @@
 function blockStyle(block_kind) {
     return [
         new go.Binding("visible", "key", function(v, node) {
-          if(myDiagram.findNodeForKey(v)) {
+          if(myDiagram.findNodeForKey(v) || !node.data.group) {
             return true
           }
           return false;

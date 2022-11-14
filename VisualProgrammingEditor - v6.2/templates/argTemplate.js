@@ -18,7 +18,7 @@
   //argument table style
   var argsTemplate =        $(go.Node, "Vertical", argsStyle());
   var varDeclArgsTemplate = $(go.Node, "Vertical", argsStyle()); //maybe change this
-  var varArgsTemplate =     $(go.Node, "Vertical", varArgsStyle());
+  var varArgsTemplate =     $(go.Node, "Vertical", argsStyle());
   var getElemArgsTemplate = $(go.Node, "Vertical", argsStyle());
   
   const settingsAdornmentMap = {
@@ -28,7 +28,7 @@
   }
   //THIS FILE CONTAINS THE FUNCTIONALITIES OF ARGS
 
-  function canHaveButton(node, isPlus) { //move this to template
+  function canHaveButton(node, isPlus) {
     const data = node.data;
     const arr = data.items;
     if ( isPlus && data.arity && (data.arity.to === arr.length) ) {
@@ -251,7 +251,7 @@
 
         var connectedBlock = {type: "funBlocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true}]}
         var p = arg.location;
-        connectedBlock.loc = p.x + 200 + " " + p.y;
+        connectedBlock.loc = (p.x + 200) + " " + (p.y + 100);
         model.addNodeData(connectedBlock);
         // and add it to the end of Array of port data
         model.insertArrayItem(arr, -1, newportdata);

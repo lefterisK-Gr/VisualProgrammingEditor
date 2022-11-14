@@ -16,9 +16,8 @@ var paletteComps2 = [
 
     {key: 26, type: "unaryOperatorGroup", isGroup: true},
     {key: 27, type: "unaryOperator", alias: "!", group: 26},
-    {key: 28, type: "args", arity: { "from" : 2 }, items: [ 
-      {portId: "1"},
-      {portId: "2"} 
+    {key: 28, type: "args", arity: { "from" : 1, "to": 1 }, items: [ 
+      {portId: "1"}
     ], group: 26},
 
     {key: 29, type: "binaryOperatorGroup", isGroup: true},

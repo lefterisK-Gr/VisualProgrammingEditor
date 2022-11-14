@@ -10,6 +10,13 @@ function argShapeStyle() {
 function signsButton() {
 return [
   $(go.Panel, "Horizontal",
+    new go.Binding("visible", "type", function(v, node) {
+      const data = node.part.data;
+      if(data.arity && (data.arity.from == data.arity.to)){
+        return false;
+      }
+      return true;
+    }),
     {alignment: go.Spot.Left},
     $("Button",
         {"ButtonBorder.fill": "lightgray",
@@ -59,7 +66,6 @@ return [
     new go.Binding("text", "paramtext").makeTwoWay(),
     {
       textEdited: function(tb, olds, news) {
-        console.log(tb.part);
         tb.part.updateTargetBindings("choices");
       }
     }
@@ -84,6 +90,8 @@ function argsStyle() {
               return varDeclArgTemplate;
           else if(v == "obj")
               return getElemArgTemplate;
+          else if(v == "var")
+              return varArgTemplate;
           return argTemplate;
       })
   ),

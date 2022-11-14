@@ -70,29 +70,33 @@ function generateStatements(statements, stack, frame) {
     return lines.join("\n");
 }
 
-function generateStatement(stmt, stack, frame) { // recursive function, building the line statement
-    if(stmt.type == "varsDecl") { //var i = 0
-        var declarations = [];
-        const arguments = stmt.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frame)
-        });
+function varDeclaration(stmt, stack, frame)  {
+    var declarations = [];
+    const arguments = stmt.items.map((arg) => {
+        return generateExpressionFromArgument(arg, stack, frame)
+    });
 
-        const variables = stmt.items.map((arg) => { 
-            return arg.variable ? arg.variable : null; 
-        }); 
+    const variables = stmt.items.map((arg) => { 
+        return arg.variable ? arg.variable : null; 
+    }); 
 
-        for(var i = 0; i < variables.length; i++) {
-            const declaration = arguments[i] ? variables[i] + " = " + arguments[i] : variables[i]; //case where there is only value
-            if(variables[i]) {
-                declarations.push(declaration);
-                setVariable(stack, variables[i], arguments[i]);
-                if(!changedFrame) {
-                    changedFrame = true;
-                }
+    for(var i = 0; i < variables.length; i++) {
+        const declaration = arguments[i] ? variables[i] + " = " + arguments[i] : variables[i]; //case where there is only value
+        if(variables[i]) {
+            declarations.push(declaration);
+            setVariable(stack, variables[i], arguments[i]);
+            if(!changedFrame) {
+                changedFrame = true;
             }
         }
-        declarations = declarations.join(", ");
-        return `var ${declarations};`;
+    }
+    declarations = declarations.join(", ");
+    return `var ${declarations};`;
+}
+
+function generateStatement(stmt, stack, frame) { // recursive function, building the line statement
+    if(stmt.type == "varsDecl") { //var i = 0
+        return varDeclaration(stmt, stack, frame)
     }
     else if(stmt.type == "print") {
         const arguments = stmt.items.map((arg) => {
@@ -122,15 +126,20 @@ function generateStatement(stmt, stack, frame) { // recursive function, building
         return `while (${condition}) {\n${if_true_part}\n}`;
     } 
     else if(stmt.type == "for") {
-        const arguments = stmt.items.map((arg) => {
+        let subset = stmt.items.slice(1,4);
+        
+        const arguments = subset.map((arg) => {
             return generateExpressionFromArgument(arg, stack, frame)
         });
-        const initialize = arguments[0];
-        const condition = arguments[1];
-        const update = arguments[2];
-        const contains = arguments[3];
+        
+        const initialize = generateExpressionFromArgument(stmt.items[0], stack, frame) ? 
+            generateExpressionFromArgument(stmt.items[0], stack, frame) : generateExpressionFromArgument(stmt.items[0], stack, frame) + ";";
+        const condition = arguments[0];
+        const update = arguments[1];
+        const contains = arguments[2];
 
-        return `for ( ${initialize}; ${condition}; ${update} ) {\n${contains}\n}`;
+        console.log(`${initialize}`);
+        return `for ( ${initialize} ${condition}; ${update} ) {\n${contains}\n}`;
     } 
     else if(stmt.type == "blocks") {
         const tempStack =JSON.parse(JSON.stringify(stack));
@@ -152,7 +161,7 @@ function generateStatement(stmt, stack, frame) { // recursive function, building
 }
 
 function generateExpression(expr, stack, frame) { // recursive function, building the expression
-    if(!expr) return "";
+    if(!expr) return ""; //what is this??
     if(expr.type == "arithmeticOperator" || expr.type == "relationalOperator" || expr.type == "unaryOperator" || expr.type == "binaryOperator") {
         const operator = operatorTypeMap[expr.type][expr.alias];
         const arguments = expr.items.map((arg) => {
@@ -225,6 +234,10 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
 
 function generateExpressionFromArgument(arg, stack, frame) {
     if(arg.isport || arg.connectedBlock){ //there is no need for connectedBlock
+        if(arg.portId=="initialize" && arg.argument.type == "varsDecl") {
+            console.log(arg.argument);
+            return varDeclaration(arg.argument, stack, frame);
+        }
         return generateExpression(arg.argument, stack, frame);
     }
     else {

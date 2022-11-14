@@ -34,7 +34,6 @@ function save() {
       }
     });
 
-    console.log( savedModel)
   }
 
   function load() {
@@ -68,7 +67,7 @@ function save() {
     }
   }
 
-  function updateVars() {
+  function updateVars(n) {
     if(n.data.type == "varsDecl") {
       myDiagram.nodes.each(function(n) {
         console.log(n.data);

@@ -66,6 +66,7 @@
 
   function groupFunctionStyle(shapeColor, functionName) { 
     return [
+      {layout: $(go.LayeredDigraphLayout, {layerSpacing: 50})},
       go.Panel.Auto,
       {
         //isSubGraphExpanded: false,  // only show the Group itself, not any of its members
