@@ -171,19 +171,25 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
         return `(${arguments})`
     } 
     else if(expr.type == "assign") { 
-        const arguments = expr.items.map((arg) => {
+        const variables = expr.items.map((arg) => {
             return generateExpressionFromArgument(arg, stack, frame)
-        }).join(` = `); //only final argument has real value
+        }); //only final argument has real value
 
-        arguments.forEach(function (item, index) {
-            if(index != arguments.length) {
-                setVariable(stack, item, arguments[arguments.length - 1]);
+        console.log(variables);
+        variables.forEach(function (item, index) {
+            console.log(item);
+            console.log(stackFrames)
+            console.log(stackFrames.vari)
+            if(index != variables.length && stack[item]) {
+                console.log(item);
+                setVariable(stack, item, variables[variables.length - 1]);
                 if(!changedFrame) {
                     changedFrame = true;
                 }
             }
         })
 
+        const arguments = variables.join(` = `)
         return `${arguments}`
     }
     else if(expr.type == "varsRefer") { // i - i,a,b
