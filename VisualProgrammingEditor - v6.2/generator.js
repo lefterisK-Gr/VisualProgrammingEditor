@@ -170,10 +170,19 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
 
         return `(${arguments})`
     } 
-    else if(expr.type == "assign") {
+    else if(expr.type == "assign") { 
         const arguments = expr.items.map((arg) => {
             return generateExpressionFromArgument(arg, stack, frame)
-        }).join(` = `);
+        }).join(` = `); //only final argument has real value
+
+        arguments.forEach(function (item, index) {
+            if(index != arguments.length) {
+                setVariable(stack, item, arguments[arguments.length - 1]);
+                if(!changedFrame) {
+                    changedFrame = true;
+                }
+            }
+        })
 
         return `${arguments}`
     }
