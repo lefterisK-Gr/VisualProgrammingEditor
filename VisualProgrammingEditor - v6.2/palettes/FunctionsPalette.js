@@ -1,9 +1,9 @@
 var paletteComps3 = [
     {key: 1, type: "functionGroup", isGroup: true},
     {key: 2, type: "function", group: 1},
-    {key: 3, type: "decl", items: [ 
+    {key: 3, type: "parameters", items: [ 
         {portId: "1"}, //remove portId, just args_via_object
-        {portId: "2"} 
+        {portId: "2"}
     ], group: 1},
 ]
 

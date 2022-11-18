@@ -10,18 +10,20 @@
   const SelectedBrush = "orange";   // item appearance, if "selected"
   
   //argument row style
-  var argTemplate =         $(go.Panel, "Auto", argStyle());
-  var varDeclArgTemplate =  $(go.Panel, "Auto", varDeclArgStyle());
-  var varArgTemplate =      $(go.Panel, "Auto", varArgStyle());
+  var argTemplate =         $(go.Panel, "Auto", argStyle(false));
+  var varDeclArgTemplate =  $(go.Panel, "Auto", varDeclArgStyle());//add parameter to varArg so change binding to parameter
+  var varArgTemplate =      $(go.Panel, "Auto", varArgStyle());   
   var getElemArgTemplate =  $(go.Panel, "Auto", getElemArgStyle());
 
+  var funParamTemplate =    $(go.Panel, "Auto", varDeclArgStyle())
+  var funParamCode =        $(go.Panel, "Auto", argStyle(true))
   //argument table style
   var argsTemplate =        $(go.Node, "Vertical", argsStyle());
   var varDeclArgsTemplate = $(go.Node, "Vertical", argsStyle()); //maybe change this??
   var varArgsTemplate =     $(go.Node, "Vertical", argsStyle());
   var getElemArgsTemplate = $(go.Node, "Vertical", argsStyle());
   
-  var funParamsTemplate = $(go.Node, "Vertical", parametersStyle());
+  var funParamsTemplate =   $(go.Node, "Vertical", parametersStyle());
   
   const settingsAdornmentMap = {
     "DEFAULT ARGUMENT" : 0,

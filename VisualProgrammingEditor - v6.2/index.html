@@ -11,6 +11,7 @@
     <script src="styles/ArgumentStyles/DeclArgumentStyle.js"></script>
     <script src="styles/ArgumentStyles/VarArgumentStyle.js"></script>
     <script src="styles/ArgumentStyles/GetElemArgumentStyle.js"></script>
+    <script src="styles/ArgumentStyles/FunParameterStyle.js"></script>
     <script src="styles/blockstyle.js"></script>
     <script src="textEditor/dropdownEditors.js"></script>
 
@@ -180,6 +181,8 @@
         myDiagram.nodeTemplateMap.add("var", varArgsTemplate);
         myDiagram.nodeTemplateMap.add("decl", varDeclArgsTemplate);
         myDiagram.nodeTemplateMap.add("obj", getElemArgsTemplate);
+
+        myDiagram.nodeTemplateMap.add("parameters", funParamsTemplate);
         //BLOCKS
         myDiagram.nodeTemplateMap.add("blocks", blocksTemplate);
         myDiagram.nodeTemplateMap.add("mainBlock", mainBlockTemplate);

@@ -7,9 +7,9 @@ function argShapeStyle() {
   };
 }
 
-function signsButton() {
+function signsButton(isHorizontal) {
 return [
-  $(go.Panel, "Horizontal",
+  $(go.Panel, isHorizontal ? "Horizontal" : "Vertical", //isHorizontal? "Horizontal" : "Vertical"
     new go.Binding("visible", "type", function(v, node) {
       const data = node.part.data;
       if(data.arity && (data.arity.from == data.arity.to)){
@@ -17,7 +17,10 @@ return [
       }
       return true;
     }),
-    {alignment: go.Spot.Left},
+    {
+      alignment: isHorizontal ? go.Spot.BottomLeft : go.Spot.BottomRight,
+      alignmentFocus: isHorizontal ? go.Spot.TopLeft : go.Spot.Left
+    },
     $("Button",
         {"ButtonBorder.fill": "lightgray",
         "_buttonFillNormal": "lightgray",
@@ -83,23 +86,25 @@ function argsStyle() {
   }).ofObject(),
   new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
   selectionStyle(), 
-  $(go.Panel, "Vertical", {name: "ARGS"},
-      new go.Binding("itemArray", "items"),
-      new go.Binding("itemTemplate", "type", function(v) {
-          if(v == "decl")
-              return varDeclArgTemplate;
-          else if(v == "obj")
-              return getElemArgTemplate;
-          else if(v == "var")
-              return varArgTemplate;
-          return argTemplate;
-      })
-  ),
-  signsButton()
+  $(go.Panel, "Spot",
+    $(go.Panel, "Vertical", {name: "ARGS"},
+        new go.Binding("itemArray", "items"),
+        new go.Binding("itemTemplate", "type", function(v) {
+            if(v == "decl")
+                return varDeclArgTemplate;
+            else if(v == "obj")
+                return getElemArgTemplate;
+            else if(v == "var")
+                return varArgTemplate;
+            return argTemplate;
+        })
+    ),
+    signsButton(true)
+  )
   ]
 }
 
-function argStyle() {
+function argStyle(isFunCode) {
   return [
       $(go.Shape, "Rectangle", argShapeStyle(),
         new go.Binding("fill", "itemIndex", function(v, shape) {
