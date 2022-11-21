@@ -11,7 +11,7 @@ function varDeclArgStyle() {
         $(go.RowColumnDefinition, { column: 2, width: 80 }),
         $(go.RowColumnDefinition, { column: 1, background: lightergray }),
         $(go.TextBlock,  //portId
-          {editable: true, row: 0, column: 0, width: 30},
+          {row: 0, column: 0, width: 30},
           {margin: new go.Margin(2, 5, 2, 5)},
           new go.Binding("text", "portId")
         ),

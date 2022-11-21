@@ -40,7 +40,12 @@
     return [
       selectionStyle(),
       functionBoxStyle(functionName, shapeColor, isGroup),
-      $(go.TextBlock, {text: functionName, width: 100, textAlign: "center"}, textStyle(), setOperationProp(functionName, isGroup))
+      $(go.TextBlock, 
+        {text: functionName, width: 100, textAlign: "center", editable: (functionName == "FUNCTION")},
+        textStyle(), 
+        setOperationProp(functionName, isGroup),
+        new go.Binding("text", "ident").makeTwoWay()
+      )
     ]
   }
 
@@ -50,16 +55,32 @@
 
   function nodeFunctionStyle(shapeColor, functionName) {
     return [
-      new go.Binding("visible", "key", function(v, node) {
+      new go.Binding("visible", "key", function(v, node) {// show when dropping function
         if(myDiagram.findNodeForKey(v)) {
           return true
         }
         return false;
       }).ofObject(),
+      { contextMenu: popupCommands },
       new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
       functionStyle(shapeColor, functionName, false),
-      $(go.Shape, "Ellipse", portStyle(true), 
+      $(go.Shape, "Ellipse", portStyle(true), // left in port
         { fill: "black", portId: "in", alignment: new go.Spot(0.05, 0.5) ,desiredSize: portIdSize(functionName.endsWith("OP") || (functionName == "BREAK") || (functionName == "CONTINUE") || (functionName == "RETURN"))}
+      ),
+      $("Button", 
+        {
+          height: 15, width: 15, alignment: new go.Spot(0.9 , 0.8)
+        },
+        new go.Binding("visible", "key", function(v) {
+          return (functionName == "FUNCTION")
+        }),
+        $(go.Picture, "./images/dots.png", { name: "SETTINGSPIC", width: 11, height: 11}),
+        {
+          click: function(e, obj) {
+            var node = obj.part;
+            e.diagram.commandHandler.showContextMenu(node);
+          }
+        }
       )
     ];
   }

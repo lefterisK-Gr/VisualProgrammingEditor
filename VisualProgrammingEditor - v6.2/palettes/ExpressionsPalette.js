@@ -42,7 +42,7 @@ var paletteComps2 = [
 
     {key: 38, type: "getElemGroup", isGroup: true},
     {key: 39, type: "getElem", group: 38},
-    {key: 40, type: "obj", arity: { "from" : 2 }, items: [
+    {key: 40, type: "propertyAccesors", arity: { "from" : 2 }, items: [
       {portId: "obj"},
       {portId: "key1"}
     ], group: 38},

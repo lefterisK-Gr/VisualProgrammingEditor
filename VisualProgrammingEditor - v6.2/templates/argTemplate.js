@@ -10,13 +10,13 @@
   const SelectedBrush = "orange";   // item appearance, if "selected"
   
   //argument row style
-  var argTemplate =         $(go.Panel, "Auto", argStyle(false));
+  var argTemplate =         $(go.Panel, "Auto", argStyle());
   var varDeclArgTemplate =  $(go.Panel, "Auto", varDeclArgStyle());//add parameter to varArg so change binding to parameter
   var varArgTemplate =      $(go.Panel, "Auto", varArgStyle());   
   var getElemArgTemplate =  $(go.Panel, "Auto", getElemArgStyle());
 
   var funParamTemplate =    $(go.Panel, "Auto", varDeclArgStyle())
-  var funParamCode =        $(go.Panel, "Auto", argStyle(true))
+  var funParamCodeTemplate =$(go.Panel, "Auto", funCodeParamStyle())
   //argument table style
   var argsTemplate =        $(go.Node, "Vertical", argsStyle());
   var varDeclArgsTemplate = $(go.Node, "Vertical", argsStyle()); //maybe change this??
@@ -43,6 +43,26 @@
     }
     return true;
   }
+
+  function editText(e, button) {
+    var node = button.part.adornedPart;
+    e.diagram.commandHandler.editTextBlock(node.findObject("TEXTBLOCK"));
+  }
+  
+  var popupCommands =
+    $("ContextMenu",
+      $("ContextMenuButton",
+        $(go.TextBlock, "Rename"),
+        { click: editText }),
+      $("ContextMenuButton",
+        $(go.TextBlock, "Delete"),
+        { click: function(e, button) {
+            var node = button.part.adornedPart;
+            e.diagram.select(node);
+            e.diagram.commandHandler.deleteSelection();
+          }
+        })
+    );
 
   function settingsAdornment(argType) {
     return [
@@ -181,8 +201,8 @@
     if (!isArgSelected(item.elt(0))) {
       // deselect all sibling items      
       myDiagram.nodes.each(function (n) {
-        if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl" || n.data.type == "obj") {
-          n.elt(0).elements.each(it => { //remove selection highlight
+        if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl" || n.data.type == "propertyAccesors" || n.data.type == "parameters") {
+          n.elt(0).elt(0).elements.each(it => { //remove selection highlight
             setArgSelected(it.elt(0), false);
           });
         }
@@ -194,6 +214,7 @@
       
       //settings adornment 
       if(varType == 0) {
+        console.log(node.part.data)
         argSettingsAdornment.adornedObject = node;
         node.part.addAdornment(mouseSettingsSelect, argSettingsAdornment);//argHoverAdornment
       }
@@ -220,7 +241,7 @@
     
     let i = 1;
     var name;
-    if(arg.data.type == "obj") {
+    if(arg.data.type == "propertyAccesors") {
       const objKeyStr = "key";
       while (arg.findPort( objKeyStr + i.toString() ) !== arg) 
       {

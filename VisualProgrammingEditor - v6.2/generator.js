@@ -70,13 +70,13 @@ function generateStatements(statements, stack, frame) {
     return lines.join("\n");
 }
 
-function varDeclaration(stmt, stack, frame)  {
+function varDeclaration(stmtItems, stack, frame) {
     var declarations = [];
-    const arguments = stmt.items.map((arg) => {
+    const arguments = stmtItems.map((arg) => {
         return generateExpressionFromArgument(arg, stack, frame)
     });
 
-    const variables = stmt.items.map((arg) => { 
+    const variables = stmtItems.map((arg) => { 
         return arg.variable ? arg.variable : null; 
     }); 
 
@@ -91,15 +91,31 @@ function varDeclaration(stmt, stack, frame)  {
         }
     }
     declarations = declarations.join(", ");
+    return declarations
+}
+
+function varDeclarationStmt(stmt, stack, frame)  {
+    const stmtItems = stmt.items;
+    var declarations = varDeclaration(stmtItems, stack, frame)
     return `var ${declarations};`;
 }
 
 function generateStatement(stmt, stack, frame) { // recursive function, building the line statement
     if(stmt.type == "function") {
-        return "( function() ) ()";
+        const functionName = stmt.ident ? stmt.ident : "";
+        const tempArgs = stmt.items.slice(0, stmt.items.length-1);
+        var declarations = varDeclaration(tempArgs, stack, frame);
+
+        const codeBlock = stmt.items[stmt.items.length - 1];
+        const funCode = generateExpressionFromArgument(codeBlock, stack, frame);
+
+        console.log(codeBlock)
+        console.log(funCode)
+
+        return `function ${functionName}( ${declarations} ) {\n${funCode}\n}`;
     }
     else if(stmt.type == "varsDecl") { //var i = 0
-        return varDeclaration(stmt, stack, frame)
+        return varDeclarationStmt(stmt, stack, frame)
     }
     else if(stmt.type == "print") {
         const arguments = stmt.items.map((arg) => {
@@ -216,7 +232,7 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
     else if(expr.type == "getElem") {
         const arguments = expr.items.map((arg, index) => { //take cases if number or string, if number no quotes
             const getElemIndex = generateExpressionFromArgument(arg, stack, frame)
-            return index ? `[${getElemIndex}]` : getElemIndex;
+            return index ? `[${getElemIndex}]` : getElemIndex.replace(/(^"|"$)/g, '');
         }).join('');
 
         if(changedFrame) {
@@ -259,11 +275,11 @@ function generateExpressionFromArgument(arg, stack, frame) {
     if(arg.isport || arg.connectedBlock){ //there is no need for connectedBlock
         if(arg.portId=="initialize" && arg.argument.type == "varsDecl") {
             console.log(arg.argument);
-            return varDeclaration(arg.argument, stack, frame);
+            return varDeclarationStmt(arg.argument, stack, frame);
         }
         return generateExpression(arg.argument, stack, frame);
     }
     else {
-        return arg.paramtext ? ( ((typeof arg.paramtext == 'number') || (arg.portId == "obj") || (arg.portId == "var")) ? `${arg.paramtext}` : `"${arg.paramtext}"`) : "";
+        return arg.paramtext ? ( ((typeof arg.paramtext == 'number') || (arg.portId == "propertyAccesors") || (arg.portId == "var")) ? `${arg.paramtext}` : `"${arg.paramtext}"`) : "";
     }
 }

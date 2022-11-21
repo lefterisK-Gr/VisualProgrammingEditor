@@ -19,7 +19,7 @@ return [
     }),
     {
       alignment: isHorizontal ? go.Spot.BottomLeft : go.Spot.BottomRight,
-      alignmentFocus: isHorizontal ? go.Spot.TopLeft : go.Spot.Left
+      alignmentFocus: isHorizontal ? go.Spot.TopLeft : go.Spot.BottomLeft
     },
     $("Button",
         {"ButtonBorder.fill": "lightgray",
@@ -92,7 +92,7 @@ function argsStyle() {
         new go.Binding("itemTemplate", "type", function(v) {
             if(v == "decl")
                 return varDeclArgTemplate;
-            else if(v == "obj")
+            else if(v == "propertyAccesors")
                 return getElemArgTemplate;
             else if(v == "var")
                 return varArgTemplate;
@@ -104,7 +104,7 @@ function argsStyle() {
   ]
 }
 
-function argStyle(isFunCode) {
+function argStyle() {
   return [
       $(go.Shape, "Rectangle", argShapeStyle(),
         new go.Binding("fill", "itemIndex", function(v, shape) {

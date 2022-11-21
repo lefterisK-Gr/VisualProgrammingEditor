@@ -22,8 +22,9 @@ function save() {
     myDiagram.isModified = false;
 
     savedModel = myDiagram.model.toJson();// gojs only accepted way of storing model
+    console.log(savedModel);
     astModel = parse(savedModel);
-
+    
     document.getElementById("mySavedModel").value = JSON.stringify(astModel, null, 2);
 
     generateCode();
@@ -71,7 +72,7 @@ function save() {
     if(n.data.type == "varsDecl") {
       myDiagram.nodes.each(function(n) {
         console.log(n.data);
-        if (n.data && (n.data.type == "var" || n.data.type == "obj") ) { n.updateTargetBindings("choices") }
+        if (n.data && (n.data.type == "var" || n.data.type == "propertyAccesors") ) { n.updateTargetBindings("choices") }
       });
     }
   }

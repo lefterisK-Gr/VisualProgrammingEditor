@@ -41,6 +41,11 @@ function createAST(nodes, links) {
                     parentItem.items = item.items;
                 }
                 else {
+                    console.log(index);
+                    console.log(parentItem.items.length)
+                    if(linkItem.fromPort == "( )") {
+                        parentItem.items.push({portId: "( )", connectedBlock: true})
+                    }
                     var index = parentItem.items.map(function(e) { return e.portId}).indexOf(linkItem.fromPort)
                     parentItem.items[index].argument = item; 
                 }

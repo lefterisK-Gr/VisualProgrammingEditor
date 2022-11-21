@@ -54,6 +54,20 @@
               "LinkDrawn": onLinkDrawVarUpdate, //it first updates model
               "undoManager.isEnabled": true,
               "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+              "dragSelectingTool.canStart": function() {
+                if (!this.isEnabled) return false;
+                const diagram = this.diagram;
+                if (!diagram.allowSelect) return false;
+                const e = diagram.lastInput;
+                if (!e.right) return false; // require left button
+                // don't include the following checks when this tool is running modally
+                if (diagram.currentTool !== this) {
+                  if (!this.isBeyondDragSize()) return false; // must not be a click
+                  // don't start if we're over a selectable part
+                  if (diagram.findPartAt(e.documentPoint, true) !== null) return false;
+                }
+                return e.right;  // only when the Shift key is also held down
+              },
 			  		  initialAutoScale: go.Diagram.Uniform,
 			  		  initialContentAlignment: go.Spot.Left,
               layout: $(go.LayeredDigraphLayout, { isInitial: false,isOngoing: false, layerSpacing: 50})
@@ -61,8 +75,8 @@
             {
               click: (e, obj) => { //make this function
                 myDiagram.nodes.each(function (n) {
-                  if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl" || n.data.type == "obj") {
-                    n.elt(0).elements.each(it => {
+                  if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl" || n.data.type == "propertyAccesors" || n.data.type == "parameters") {
+                    n.elt(0).elt(0).elements.each(it => {
                       setArgSelected(it.elt(0), false);
                     });
                     n.removeAdornment(mouseSettingsSelect);
@@ -71,6 +85,13 @@
                 })
               }
             });
+
+        myDiagram.add(
+          $(go.Part,  // this Part is not bound to any model data
+            { layerName: "Background", position: new go.Point(0, 0),scale: 0.5,
+              selectable: false, pickable: false },
+            $(go.Picture, "images/triangle-pattern.webp")
+          ));
 
         myDiagram.padding.right = 200;
         
@@ -179,9 +200,8 @@
         //ARGS
         myDiagram.nodeTemplateMap.add("args", argsTemplate);
         myDiagram.nodeTemplateMap.add("var", varArgsTemplate);
+        myDiagram.nodeTemplateMap.add("propertyAccesors", getElemArgsTemplate);//entries
         myDiagram.nodeTemplateMap.add("decl", varDeclArgsTemplate);
-        myDiagram.nodeTemplateMap.add("obj", getElemArgsTemplate);
-
         myDiagram.nodeTemplateMap.add("parameters", funParamsTemplate);
         //BLOCKS
         myDiagram.nodeTemplateMap.add("blocks", blocksTemplate);
