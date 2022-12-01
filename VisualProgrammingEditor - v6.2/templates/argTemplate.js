@@ -44,25 +44,6 @@
     return true;
   }
 
-  function editText(e, button) {
-    var node = button.part.adornedPart;
-    e.diagram.commandHandler.editTextBlock(node.findObject("TEXTBLOCK"));
-  }
-  
-  var popupCommands =
-    $("ContextMenu",
-      $("ContextMenuButton",
-        $(go.TextBlock, "Rename"),
-        { click: editText }),
-      $("ContextMenuButton",
-        $(go.TextBlock, "Delete"),
-        { click: function(e, button) {
-            var node = button.part.adornedPart;
-            e.diagram.select(node);
-            e.diagram.commandHandler.deleteSelection();
-          }
-        })
-    );
 
   function settingsAdornment(argType) {
     return [

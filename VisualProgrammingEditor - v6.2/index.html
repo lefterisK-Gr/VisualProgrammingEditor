@@ -47,6 +47,37 @@
     
       function init() {
         document.body.style.backgroundColor = "#36393f";
+
+        function makePattern() {
+          var patternCanvas = document.createElement('canvas');
+          patternCanvas.width = 40;
+          patternCanvas.height = 69.3;
+          var pctx = patternCanvas.getContext('2d');
+
+          // This creates a shape similar to a diamond leaf
+          pctx.beginPath();
+          pctx.moveTo(0.0, 34.1);
+          pctx.lineTo(40.0, 34.1);
+          pctx.lineTo(20.0, 0.0);
+          pctx.lineTo(0.0, 34.1);
+          pctx.lineTo(20.0, 69.3);
+          pctx.lineTo(40.0, 34.1);
+          pctx.moveTo(0.0, 69.3);
+          pctx.lineTo(40.0, 69.3);
+          pctx.moveTo(0.0, 0.0);
+          pctx.lineTo(40.0, 0.0);
+          pctx.closePath();
+          pctx.fillStyle = "#202020";
+          pctx.fill();
+          pctx.lineWidth = 0.8;
+          pctx.strokeStyle = "#E0E0E0";
+          pctx.lineJoin = "miter";
+          pctx.miterLimit = 4.0;
+          pctx.stroke();
+
+          return patternCanvas;
+        }
+
         myDiagram =
           $(go.Diagram, "myDiagramDiv",  // create a new Diagram in the HTML DIV element "myDiagramDiv"
             {
@@ -68,6 +99,10 @@
                 }
                 return e.right;  // only when the Shift key is also held down
               },
+              grid: $(go.Panel, "Grid",  // a simple 10x10 grid
+                { gridCellSize: new go.Size(40, 69.3) },
+                $(go.Shape, "BarH", { fill: $(go.Brush, "Pattern", { pattern: makePattern()}) }),
+              ),
 			  		  initialAutoScale: go.Diagram.Uniform,
 			  		  initialContentAlignment: go.Spot.Left,
               layout: $(go.LayeredDigraphLayout, { isInitial: false,isOngoing: false, layerSpacing: 50})
@@ -85,13 +120,6 @@
                 })
               }
             });
-
-        myDiagram.add(
-          $(go.Part,  // this Part is not bound to any model data
-            { layerName: "Background", position: new go.Point(0, 0),scale: 0.5,
-              selectable: false, pickable: false },
-            $(go.Picture, "images/triangle-pattern.webp")
-          ));
 
         myDiagram.padding.right = 200;
         
@@ -241,6 +269,26 @@
         myPalette2.model.nodeCategoryProperty = "type";
         myPalette3.model.nodeCategoryProperty = "type";
 
+        function editText(e, button) {
+          var node = button.part.adornedPart;
+          e.diagram.commandHandler.editTextBlock(node.findObject("TEXTBLOCK"));
+        }
+        
+        myDiagram.nodeTemplateMap.get("function").contextMenu =
+          $("ContextMenu",
+            $("ContextMenuButton",
+              $(go.TextBlock, "Rename"),
+              { click: editText }),
+            $("ContextMenuButton",
+              $(go.TextBlock, "Delete"),
+              { click: function(e, button) {
+                  var node = button.part.adornedPart;
+                  e.diagram.select(node);
+                  e.diagram.commandHandler.deleteSelection();
+                }
+              })
+          );
+
         function maybeChangeLinkCategory(e) {
           var link = e.subject;
           var blocktonode = false;
@@ -315,7 +363,7 @@
         </div>
       </div>
 
-      <div id="myDiagramDiv" style="flex-grow: 1; height: 500px; background-color: #e0e0e0; border: 1px solid black; position: relative;"></div>
+      <div id="myDiagramDiv" style="flex-grow: 1; height: 500px; background-color: #202020; border: 1px solid black; position: relative;"></div>
       
     </div>
     <div>

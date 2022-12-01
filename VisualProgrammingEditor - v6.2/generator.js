@@ -100,26 +100,30 @@ function varDeclarationStmt(stmt, stack, frame)  {
     return `var ${declarations};`;
 }
 
+function functionBlockGen(stmt, stack, frame) {
+    const functionName = stmt.ident ? stmt.ident : "";
+    const tempArgs = stmt.items.slice(0, stmt.items.length-1);
+    var declarations = varDeclaration(tempArgs, stack, frame);
+
+    const codeBlock = stmt.items[stmt.items.length - 1];
+    const funCode = generateExpressionFromArgument(codeBlock, stack, frame);
+
+    console.log(codeBlock)
+    console.log(funCode)
+
+    return `function ${functionName}( ${declarations} ) {\n${funCode}\n}`;
+}
+
 function generateStatement(stmt, stack, frame) { // recursive function, building the line statement
     if(stmt.type == "function") {
-        const functionName = stmt.ident ? stmt.ident : "";
-        const tempArgs = stmt.items.slice(0, stmt.items.length-1);
-        var declarations = varDeclaration(tempArgs, stack, frame);
-
-        const codeBlock = stmt.items[stmt.items.length - 1];
-        const funCode = generateExpressionFromArgument(codeBlock, stack, frame);
-
-        console.log(codeBlock)
-        console.log(funCode)
-
-        return `function ${functionName}( ${declarations} ) {\n${funCode}\n}`;
+        return functionBlockGen(stmt, stack, frame);
     }
     else if(stmt.type == "varsDecl") { //var i = 0
-        return varDeclarationStmt(stmt, stack, frame)
+        return varDeclarationStmt(stmt, stack, frame);
     }
     else if(stmt.type == "print") {
         const arguments = stmt.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frame)
+            return generateExpressionFromArgument(arg, stack, frame);
         }).join(" + ");
 
         return `console.log( ${arguments} );`;
@@ -184,7 +188,7 @@ function generateStatement(stmt, stack, frame) { // recursive function, building
 function generateExpression(expr, stack, frame) { // recursive function, building the expression
     if(!expr) return ""; //when having port but not connected
     else if(expr.type == "function") {
-        return "function";
+        return functionBlockGen(expr, stack, frame);
     }
     else if(expr.type == "arithmeticOperator" || expr.type == "relationalOperator" || expr.type == "unaryOperator" || expr.type == "binaryOperator") {
         const operator = operatorTypeMap[expr.type][expr.alias];

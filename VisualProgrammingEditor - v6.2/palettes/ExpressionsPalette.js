@@ -1,67 +1,67 @@
 var paletteComps2 = [
 
-    {key: 20, type: "arithmeticOperatorGroup", isGroup: true},
-    {key: 21, type: "arithmeticOperator", alias: "+", group: 20},
-    {key: 22, type: "args", arity: { "from" : 2 }, items: [ 
+    {key: 1, type: "arithmeticOperatorGroup", isGroup: true},
+    {key: 2, type: "arithmeticOperator", alias: "+", group: 1},
+    {key: 3, type: "args", arity: { "from" : 2 }, items: [ 
       {portId: "1"},
       {portId: "2"} 
-    ], group: 20},
+    ], group: 1},
 
-    {key: 23, type: "relationalOperatorGroup", isGroup: true},
-    {key: 24, type: "relationalOperator", alias: ">", group: 23},
-    {key: 25, type: "args", arity: { "from" : 2 }, items: [ 
+    {key: 4, type: "relationalOperatorGroup", isGroup: true},
+    {key: 5, type: "relationalOperator", alias: ">", group: 4},
+    {key: 6, type: "args", arity: { "from" : 2 }, items: [ 
       {portId: "1"},
       {portId: "2"} 
-    ], group: 23},
+    ], group: 4},
 
-    {key: 26, type: "unaryOperatorGroup", isGroup: true},
-    {key: 27, type: "unaryOperator", alias: "!", group: 26},
-    {key: 28, type: "args", arity: { "from" : 1, "to": 1 }, items: [ 
+    {key: 7, type: "unaryOperatorGroup", isGroup: true},
+    {key: 8, type: "unaryOperator", alias: "!", group: 7},
+    {key: 9, type: "args", arity: { "from" : 1, "to": 1 }, items: [ 
       {portId: "1"}
-    ], group: 26},
+    ], group: 7},
 
-    {key: 29, type: "binaryOperatorGroup", isGroup: true},
-    {key: 30, type: "binaryOperator", alias: "&&", group: 29},
-    {key: 31, type: "args", arity: { "from" : 2 }, items: [ 
+    {key: 10, type: "binaryOperatorGroup", isGroup: true},
+    {key: 11, type: "binaryOperator", alias: "&&", group: 10},
+    {key: 12, type: "args", arity: { "from" : 2 }, items: [ 
       {portId: "1"},
       {portId: "2"} 
-    ], group: 29},
+    ], group: 10},
 
-    {key: 32, type: "assignGroup", isGroup: true},
-    {key: 33, type: "assign", group: 32},
-    {key: 34, type: "args", arity: { "from" : 2 }, items: [ 
+    {key: 13, type: "assignGroup", isGroup: true},
+    {key: 14, type: "assign", group: 13},
+    {key: 15, type: "args", arity: { "from" : 2 }, items: [ 
       {portId: "lhs"},
       {portId: "rhs"}
-    ], group: 32},
+    ], group: 13},
 
-    {key: 35, type: "varsReferGroup", isGroup: true},
-    {key: 36, type: "varsRefer", group: 35},
-    {key: 37, type: "var", arity: { "from" : 1, "to": 1 }, items: [ //dont need to have items
+    {key: 16, type: "varsReferGroup", isGroup: true},
+    {key: 17, type: "varsRefer", group: 16},
+    {key: 18, type: "var", arity: { "from" : 1, "to": 1 }, items: [ //dont need to have items
       {portId: "var"}
-    ], group: 35},
+    ], group: 16},
 
-    {key: 38, type: "getElemGroup", isGroup: true},
-    {key: 39, type: "getElem", group: 38},
-    {key: 40, type: "propertyAccesors", arity: { "from" : 2 }, items: [
+    {key: 19, type: "getElemGroup", isGroup: true},
+    {key: 20, type: "getElem", group: 19},
+    {key: 21, type: "propertyAccesors", arity: { "from" : 2 }, items: [
       {portId: "obj"},
       {portId: "key1"}
-    ], group: 38},
+    ], group: 19},
 
-    {key: 41, type: "objectGroup", isGroup: true},
-    {key: 42, type: "object", group: 41},
-    {key: 43, type: "decl", items: [ 
+    {key: 22, type: "objectGroup", isGroup: true},
+    {key: 23, type: "object", group: 22},
+    {key: 24, type: "decl", items: [ 
       {portId: "1"},
       {portId: "2"}
-    ], group: 41}
+    ], group: 22}
 ]
 
 var paletteLinks2 = [
-    { category: "Reversed", from: 21, to: 22},
-    { category: "Reversed", from: 24, to: 25},
-    { category: "Reversed", from: 27, to: 28},
-    { category: "Reversed", from: 30, to: 31},
-    { category: "Reversed", from: 33, to: 34},
-    { category: "Reversed", from: 36, to: 37},
-    { category: "Reversed", from: 39, to: 40},
-    { category: "Reversed", from: 42, to: 43},
+    { category: "Reversed", from: 2, to: 3},
+    { category: "Reversed", from: 5, to: 6},
+    { category: "Reversed", from: 8, to: 9},
+    { category: "Reversed", from: 11, to: 12},
+    { category: "Reversed", from: 14, to: 15},
+    { category: "Reversed", from: 17, to: 18},
+    { category: "Reversed", from: 20, to: 21},
+    { category: "Reversed", from: 23, to: 24},
 ]

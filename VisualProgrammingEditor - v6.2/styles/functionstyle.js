@@ -40,8 +40,8 @@
     return [
       selectionStyle(),
       functionBoxStyle(functionName, shapeColor, isGroup),
-      $(go.TextBlock, 
-        {text: functionName, width: 100, textAlign: "center", editable: (functionName == "FUNCTION")},
+      $(go.TextBlock,
+        {name: "TEXTBLOCK", text: functionName, width: 100, textAlign: "center", editable: (functionName == "FUNCTION")},
         textStyle(), 
         setOperationProp(functionName, isGroup),
         new go.Binding("text", "ident").makeTwoWay()
@@ -61,7 +61,6 @@
         }
         return false;
       }).ofObject(),
-      { contextMenu: popupCommands },
       new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
       functionStyle(shapeColor, functionName, false),
       $(go.Shape, "Ellipse", portStyle(true), // left in port
