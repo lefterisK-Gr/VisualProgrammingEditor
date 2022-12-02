@@ -67,10 +67,10 @@
           pctx.moveTo(0.0, 0.0);
           pctx.lineTo(40.0, 0.0);
           pctx.closePath();
-          pctx.fillStyle = "#202020";
+          pctx.fillStyle = "#ffffff";
           pctx.fill();
           pctx.lineWidth = 0.8;
-          pctx.strokeStyle = "#E0E0E0";
+          pctx.strokeStyle = "#202020";
           pctx.lineJoin = "miter";
           pctx.miterLimit = 4.0;
           pctx.stroke();
@@ -81,7 +81,6 @@
         myDiagram =
           $(go.Diagram, "myDiagramDiv",  // create a new Diagram in the HTML DIV element "myDiagramDiv"
             {
-              "LinkDrawn": maybeChangeLinkCategory,
               "LinkDrawn": onLinkDrawVarUpdate, //it first updates model
               "undoManager.isEnabled": true,
               "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
@@ -123,7 +122,7 @@
 
         myDiagram.padding.right = 200;
         
-        // when the document is modified, add a "*" to the title and enable the "Save" button
+        // when the document is modified, enable the "Save" button
         myDiagram.addDiagramListener("Modified", e => { //name "Modified" is built-in
           var button = document.getElementById("saveModel");
           if (button) button.disabled = !myDiagram.isModified;
@@ -134,10 +133,7 @@
           if (myDiagram.currentTool instanceof go.TextEditingTool) {
             myDiagram.currentTool.acceptText(go.TextEditingTool.LostFocus);
           }
-          // expand any "macros"
-          //myDiagram.commandHandler.ungroupSelection();
-          //layout();
-          fading();
+          fading(); // expand any "macros"
         });
 
         function fading() {
@@ -155,6 +151,12 @@
           })
         });
 
+        var greenArrowBrush = "#006600";
+        var greenArrowHeadBrush = "#00FF00";
+        var blueArrowBrush = "#003366";
+        var blueArrowHeadBrush = "#3399FF";
+        var purpleArrowBrush = "#4C0099";
+
         // creates relinkable Links that will avoid crossing Nodes when possible and will jump over other Links in their paths
         myDiagram.linkTemplate =
           $(go.Link,
@@ -169,11 +171,11 @@
             },
             new go.Binding("isShadowed", "isSelected").ofObject(),
             $(go.Shape,
-              { name: "SHAPE", strokeWidth: 2, stroke: "blue", strokeDashArray:  [3,2]}
+              { name: "SHAPE", strokeWidth: 3, stroke: blueArrowBrush}
             ),
             $(go.Shape,
               { toArrow: "Standard"},
-              { name: "SHAPE", strokeWidth: 2, stroke: "blue" }
+              { name: "SHAPE", strokeWidth: 3, stroke: blueArrowHeadBrush , fill: blueArrowHeadBrush}
             )
             );
 
@@ -182,8 +184,8 @@
                 new go.Binding("isShadowed", "isSelected").ofObject(),
                 {selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
                 shadowOffset: new go.Point(0, 0), shadowBlur: 10, shadowColor: "red"},
-                $(go.Shape, { strokeWidth: 4, stroke: "green" }),
-                $(go.Shape, { fromArrow: "Backward" }),
+                $(go.Shape, { strokeWidth: 4, stroke: greenArrowBrush }),
+                $(go.Shape, { strokeWidth: 2, fromArrow: "Backward" , stroke: greenArrowHeadBrush, fill: greenArrowHeadBrush}),
               )
             );
 
@@ -192,7 +194,7 @@
               new go.Binding("isShadowed", "isSelected").ofObject(),
               {selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
               shadowOffset: new go.Point(0, 0), shadowBlur: 10, shadowColor: "red"},
-              $(go.Shape, { strokeWidth: 4, stroke: "purple" })
+              $(go.Shape, { strokeWidth: 4, stroke: purpleArrowBrush })
             )
           );
               
@@ -215,6 +217,7 @@
           "assign":             {"ASSIGN":        bluegrad},
           "object":             {"OBJECT":        browngrad},
           "function":           {"FUNCTION":      "white"},
+          "call":               {"CALL":          "white"},
         }
 
         //NODES
@@ -274,8 +277,7 @@
           e.diagram.commandHandler.editTextBlock(node.findObject("TEXTBLOCK"));
         }
         
-        myDiagram.nodeTemplateMap.get("function").contextMenu =
-          $("ContextMenu",
+        var renameContextMenu = $("ContextMenu",
             $("ContextMenuButton",
               $(go.TextBlock, "Rename"),
               { click: editText }),
@@ -289,9 +291,13 @@
               })
           );
 
+        myDiagram.nodeTemplateMap.get("function").contextMenu = renameContextMenu;
+        myDiagram.nodeTemplateMap.get("call").contextMenu = renameContextMenu;
+
         function maybeChangeLinkCategory(e) {
           var link = e.subject;
           var blocktonode = false;
+          console.log("in change link")
           if(link.fromNode.name == "blocks"){
             blocktonode = true;
           }
@@ -300,7 +306,7 @@
 
         function onLinkDrawVarUpdate(e){
           var link = e.subject;
-
+          maybeChangeLinkCategory(e)
           updateDecls();
           n = myDiagram.findNodeForKey(link.data.to); // get the node to where link drew
           updateVar(n);
@@ -363,7 +369,7 @@
         </div>
       </div>
 
-      <div id="myDiagramDiv" style="flex-grow: 1; height: 500px; background-color: #202020; border: 1px solid black; position: relative;"></div>
+      <div id="myDiagramDiv" style="flex-grow: 1; height: 500px; background-color: #ffffff; border: 1px solid black; position: relative;"></div>
       
     </div>
     <div>

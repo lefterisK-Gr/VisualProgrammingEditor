@@ -41,7 +41,7 @@
       selectionStyle(),
       functionBoxStyle(functionName, shapeColor, isGroup),
       $(go.TextBlock,
-        {name: "TEXTBLOCK", text: functionName, width: 100, textAlign: "center", editable: (functionName == "FUNCTION")},
+        {name: "TEXTBLOCK", text: functionName, width: 100, textAlign: "center", editable: ((functionName == "FUNCTION") || (functionName == "CALL"))},
         textStyle(), 
         setOperationProp(functionName, isGroup),
         new go.Binding("text", "ident").makeTwoWay()
@@ -71,7 +71,7 @@
           height: 15, width: 15, alignment: new go.Spot(0.9 , 0.8)
         },
         new go.Binding("visible", "key", function(v) {
-          return (functionName == "FUNCTION")
+          return ((functionName == "FUNCTION") || (functionName == "CALL"))
         }),
         $(go.Picture, "./images/dots.png", { name: "SETTINGSPIC", width: 11, height: 11}),
         {

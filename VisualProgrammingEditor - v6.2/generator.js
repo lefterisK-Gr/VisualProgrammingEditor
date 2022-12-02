@@ -190,6 +190,15 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
     else if(expr.type == "function") {
         return functionBlockGen(expr, stack, frame);
     }
+    else if (expr.type == "call") {
+        const functionName = expr.ident ? expr.ident : "";
+
+        const arguments = expr.items.map((arg) => {
+            return generateExpressionFromArgument(arg, stack, frame);
+        }).join(", ");
+
+        return `${functionName}( ${arguments} )`;
+    }
     else if(expr.type == "arithmeticOperator" || expr.type == "relationalOperator" || expr.type == "unaryOperator" || expr.type == "binaryOperator") {
         const operator = operatorTypeMap[expr.type][expr.alias];
         const arguments = expr.items.map((arg) => {
