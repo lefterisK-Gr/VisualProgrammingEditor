@@ -1,8 +1,9 @@
 "use strict";
 
 const editorEnum = {
-  varArg : 0,
-  operator : 1
+  varArg :    0,
+  operator :  1,
+  callName:   2
 }
 
 function editorShow(textBlock, diagram, tool, customSelectBox, selectEditor) {
@@ -54,6 +55,15 @@ function editorShow(textBlock, diagram, tool, customSelectBox, selectEditor) {
       customSelectBox.style.backgroundColor  = darkergray;
       customSelectBox.style.borderWidth  = "5px";
     }
+    else if (selectEditor == editorEnum.callName) {
+      customSelectBox.style.left = pos.x - 2 + "px";
+      customSelectBox.style.top  = pos.y - 2 + "px";
+      customSelectBox.style.width = "80px";
+      customSelectBox.style.position = 'absolute';
+      customSelectBox.style.borderColor  = "black";
+      customSelectBox.style.backgroundColor  = "white";
+      customSelectBox.style.borderWidth  = "3px";
+    }
     
     customSelectBox.style.zIndex = 100; // place it in front of the Diagram
 
@@ -95,4 +105,22 @@ function editorShow(textBlock, diagram, tool, customSelectBox, selectEditor) {
   varEditor.valueFunction = function() { return customSelectBox.value; }
 
   window.VarEditorSelectBox = varEditor;
+})(window);
+
+(function(window) {
+  var callEditor = new go.HTMLInfo();
+
+  var customSelectBox = document.createElement("select");
+
+  callEditor.show = function(textBlock, diagram, tool) {
+    editorShow(textBlock, diagram, tool, customSelectBox, editorEnum.callName);
+  }
+
+  callEditor.hide = function(diagram, tool) {
+    diagram.div.removeChild(customSelectBox);
+  }
+
+  callEditor.valueFunction = function() { return customSelectBox.value; }
+
+  window.CallEditorSelectBox = callEditor;
 })(window);

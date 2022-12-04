@@ -35,8 +35,10 @@ function indent(str) {
     return str.split("\n").map(line => "    " + line).join("\n");
 }
 
-var stackFrames = []; //stackFrames happening with references
+var stackFrames = []; //stackFrames happening with references, has variables that are initiallized
+var functionStackFrames = [];
 var changedFrame = false;
+var changedFunctionFrame = false;
 
 function setVariable(stack, variable, value) {
     stack[variable] = value ? value : null;
@@ -45,35 +47,60 @@ function setVariable(stack, variable, value) {
 function getVariable(stack, frame, varKey) {
     changedFrame = false;
     let frameVars = JSON.parse(JSON.stringify(stack));
-    if(stackFrames.length < (frame.id)) {
+    if(stackFrames.length < (frame.id)) { //check if its new frame
         stackFrames.push({refs: [], variables: frameVars});
     }
-    const idIndex = stackFrames?.[frame.id-1]; //check if there is stackframe for frameId
-    if(idIndex !== undefined && !stackFrames[frame.id-1].refs.includes(varKey)) {
+    const idIndex = stackFrames?.[frame.id-1]; //check if there is stackframe for frameId / check if its old frame 
+    if( (idIndex !== undefined) && !stackFrames[frame.id-1].refs.includes(varKey) ) {
         stackFrames[frame.id-1].refs.push(varKey);
     }
+    console.log(stackFrames);
+}
+
+function setFunctionName(functionStack, functionName) { //add function name to functionStack
+    if( !functionName || (functionStack.indexOf(functionName)==-1) ) functionStack.push(functionName);
+} //include warning message when declaring same function
+
+function getFunctionName(functionStack, functionFrame, callKey) { //when calling a function, for that key of the call(ref) push functionStack 
+    console.log(functionStackFrames);
+    console.log(functionStack);
+    console.log(functionFrame);
+    console.log(callKey);
+
+    let frameFunctions = JSON.parse(JSON.stringify(functionStack));
+    if(functionStackFrames.length < (functionFrame.id)) { // deeper into blocks
+        functionStackFrames.push({refs: [], variables: frameFunctions});
+        console.log(functionStackFrames);
+    }
+    const idIndex = functionStackFrames?.[functionFrame.id-1];
+    if( (idIndex !== undefined) && !functionStackFrames[functionFrame.id-1].refs.includes(callKey) ) {
+        functionStackFrames[functionFrame.id-1].refs.push(callKey);
+    }
+    console.log(functionStackFrames);
 }
 
 function generate(ast) { // go to style and enable deletable==false
     changedFrame = false;
     stackFrames = [];
+    functionStackFrames = [];
     var frame = { id : 0, maxId : 0};
-    return generateStatements(ast[0].items, {}, frame) //ast[0] represents main--is it ok to make assumption?
+    var functionFrame = { id: 1, maxId: 1};
+    return generateStatements(ast[0].items, {}, [], frame, functionFrame) //ast[0] represents main--is it ok to make assumption?
 }
 
-function generateStatements(statements, stack, frame) {
+function generateStatements(statements, stack, functionStack, frame, functionFrame) {
     const lines = [];
     for(let statement of statements) { 
-        const line = statement.argument ? generateStatement(statement.argument, stack, frame) : "";
+        const line = statement.argument ? generateStatement(statement.argument, stack, functionStack, frame, functionFrame) : "";
         lines.push(line);
     }
     return lines.join("\n");
 }
 
-function varDeclaration(stmtItems, stack, frame) {
+function varDeclaration(stmtItems, stack, functionStack, frame, functionFrame) {
     var declarations = [];
     const arguments = stmtItems.map((arg) => {
-        return generateExpressionFromArgument(arg, stack, frame)
+        return generateExpressionFromArgument(arg, stack, functionStack, frame, functionFrame)
     });
 
     const variables = stmtItems.map((arg) => { 
@@ -94,43 +121,56 @@ function varDeclaration(stmtItems, stack, frame) {
     return declarations
 }
 
-function varDeclarationStmt(stmt, stack, frame)  {
+function varDeclarationStmt(stmt, stack, functionStack, frame, functionFrame)  {
     const stmtItems = stmt.items;
-    var declarations = varDeclaration(stmtItems, stack, frame)
+    var declarations = varDeclaration(stmtItems, stack, functionStack, frame, functionFrame)
     return `var ${declarations};`;
 }
 
-function functionBlockGen(stmt, stack, frame) {
+function functionBoxGen(stmt, stack, functionStack, frame, functionFrame) {
     const functionName = stmt.ident ? stmt.ident : "";
+
+    setFunctionName(functionStack, functionName);
+
+    const tempStack =JSON.parse(JSON.stringify(stack));
+    const tempFrameId = frame.id;
+    const tempChangedFrame = changedFrame;
+    changedFrame = false;
+
+    functionFrame.maxId++;
+    const funcionFrameMaxId = functionFrame.maxId;
+    functionFrame.id = funcionFrameMaxId;
+
     const tempArgs = stmt.items.slice(0, stmt.items.length-1);
-    var declarations = varDeclaration(tempArgs, stack, frame);
+    var declarations = varDeclaration(tempArgs, tempStack, frame, functionFrame);
 
     const codeBlock = stmt.items[stmt.items.length - 1];
-    const funCode = generateExpressionFromArgument(codeBlock, stack, frame);
-
-    console.log(codeBlock)
-    console.log(funCode)
+    const funCode = generateExpressionFromArgument(codeBlock, tempStack, functionStack, frame, functionFrame);
+    
+    frame.id = tempFrameId;
+    changedFrame = tempChangedFrame;
+    functionFrame.id--;
 
     return `function ${functionName}( ${declarations} ) {\n${funCode}\n}`;
 }
 
-function generateStatement(stmt, stack, frame) { // recursive function, building the line statement
+function generateStatement(stmt, stack, functionStack, frame, functionFrame) { // recursive function, building the line statement
     if(stmt.type == "function") {
-        return functionBlockGen(stmt, stack, frame);
+        return functionBoxGen(stmt, stack, functionStack, frame, functionFrame);
     }
     else if(stmt.type == "varsDecl") { //var i = 0
-        return varDeclarationStmt(stmt, stack, frame);
+        return varDeclarationStmt(stmt, stack, functionStack, frame, functionFrame);
     }
     else if(stmt.type == "print") {
         const arguments = stmt.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frame);
+            return generateExpressionFromArgument(arg, stack, functionStack, frame, functionFrame);
         }).join(" + ");
 
         return `console.log( ${arguments} );`;
     }
     else if(stmt.type == "if") {
         const arguments = stmt.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frame)
+            return generateExpressionFromArgument(arg, stack, functionStack, frame, functionFrame)
         });
 
         const condition = arguments[0];
@@ -141,7 +181,7 @@ function generateStatement(stmt, stack, frame) { // recursive function, building
     } 
     else if(stmt.type == "while") {
         const arguments = stmt.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frame)
+            return generateExpressionFromArgument(arg, stack, functionStack, frame, functionFrame)
         });
         const condition = arguments[0];
         const if_true_part = arguments[1];
@@ -150,7 +190,7 @@ function generateStatement(stmt, stack, frame) { // recursive function, building
     } 
     else if(stmt.type == "for") {    
         const arguments = stmt.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frame)
+            return generateExpressionFromArgument(arg, stack, functionStack, frame, functionFrame)
         });
         
         const initialize = arguments[0].replace(/\;$/, '');;
@@ -163,60 +203,52 @@ function generateStatement(stmt, stack, frame) { // recursive function, building
         return `for ( ${initialize}; ${condition}; ${update} ) {\n${contains}\n}`;
     } 
     else if(stmt.type == "blocks") {
-        const tempStack =JSON.parse(JSON.stringify(stack));
-        const tempFrameId = frame.id;
-        const tempChangedFrame = changedFrame;
-        changedFrame = false;
-        const arguments = indent(generateStatements(stmt.items, tempStack, frame));
-        frame.id = tempFrameId;
-        changedFrame = tempChangedFrame;
+        const arguments = indent(generateStatements(stmt.items, stack, functionStack, frame, functionFrame));
+
         return `{\n${arguments}\n}`
     }
     else if((stmt.type == "break") || (stmt.type == "continue")) {
         return `${stmt.type};`
     }
     else if(stmt.type == "return") {
-        const argument = generateExpressionFromArgument(stmt.items[0], stack, frame);
+        const argument = generateExpressionFromArgument(stmt.items[0], stack, functionStack, frame, functionFrame);
         return `return ${argument};`;
     }
     else {
-        const expr = generateExpression(stmt, stack, frame);
+        const expr = generateExpression(stmt, stack, functionStack, frame, functionFrame);
         return `${expr};`
     }
 }
 
-function generateExpression(expr, stack, frame) { // recursive function, building the expression
+function generateExpression(expr, stack, functionStack, frame, functionFrame) { // recursive function, building the expression
     if(!expr) return ""; //when having port but not connected
     else if(expr.type == "function") {
-        return functionBlockGen(expr, stack, frame);
+        return functionBoxGen(expr, stack, functionStack, frame, functionFrame);
     }
     else if (expr.type == "call") {
         const functionName = expr.ident ? expr.ident : "";
-
         const arguments = expr.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frame);
+            return generateExpressionFromArgument(arg, stack, functionStack, frame, functionFrame);
         }).join(", ");
 
+        getFunctionName(functionStack, functionFrame, expr.key);
         return `${functionName}( ${arguments} )`;
     }
     else if(expr.type == "arithmeticOperator" || expr.type == "relationalOperator" || expr.type == "unaryOperator" || expr.type == "binaryOperator") {
         const operator = operatorTypeMap[expr.type][expr.alias];
         const arguments = expr.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frame)
+            return generateExpressionFromArgument(arg, stack, functionStack, frame, functionFrame)
         }).join(` ${operator} `);
 
         return `(${arguments})`
     } 
     else if(expr.type == "assign") { 
         const variables = expr.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frame)
+            return generateExpressionFromArgument(arg, stack, functionStack, frame, functionFrame)
         }); //only final argument has real value
 
         console.log(variables);
         variables.forEach(function (item, index) {
-            console.log(item);
-            console.log(stackFrames)
-            console.log(stackFrames.vari)
             if(index != variables.length && stack[item]) {
                 console.log(item);
                 setVariable(stack, item, variables[variables.length - 1]);
@@ -231,7 +263,7 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
     }
     else if(expr.type == "varsRefer") { // i - i,a,b
         const arguments = expr.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frame)
+            return generateExpressionFromArgument(arg, stack, functionStack, frame, functionFrame)
         }).join(`, `);
 
         if(changedFrame) {
@@ -244,7 +276,7 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
     }
     else if(expr.type == "getElem") {
         const arguments = expr.items.map((arg, index) => { //take cases if number or string, if number no quotes
-            const getElemIndex = generateExpressionFromArgument(arg, stack, frame)
+            const getElemIndex = generateExpressionFromArgument(arg, stack, functionStack, frame, functionFrame)
             return index ? `[${getElemIndex}]` : getElemIndex.replace(/(^"|"$)/g, '');
         }).join('');
 
@@ -258,7 +290,7 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
     }
     else if(expr.type == "object") {
         const arguments = expr.items.map((arg) => {
-            return generateExpressionFromArgument(arg, stack, frame)
+            return generateExpressionFromArgument(arg, stack, functionStack, frame, functionFrame)
         });
 
         const variables = expr.items.map((arg) => {
@@ -276,7 +308,7 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
         return `{\n${entries}\n}`;
     }
     else if(expr.type == "funBlocks") {
-        const arguments = indent(generateStatements(expr.items, stack, frame));
+        const arguments = indent(generateStatements(expr.items, stack, functionStack, frame, functionFrame));
         return `${arguments}`
     }
     else {
@@ -284,13 +316,13 @@ function generateExpression(expr, stack, frame) { // recursive function, buildin
     }
 }
 
-function generateExpressionFromArgument(arg, stack, frame) {
+function generateExpressionFromArgument(arg, stack, functionStack, frame, functionFrame) {
     if(arg.isport || arg.connectedBlock){ //there is no need for connectedBlock
         if(arg.portId=="initialize" && arg.argument.type == "varsDecl") {
             console.log(arg.argument);
-            return varDeclarationStmt(arg.argument, stack, frame);
+            return varDeclarationStmt(arg.argument, stack, functionStack, frame);
         }
-        return generateExpression(arg.argument, stack, frame);
+        return generateExpression(arg.argument, stack, functionStack, frame, functionFrame);
     }
     else {
         return arg.paramtext ? ( ((typeof arg.paramtext == 'number') || (arg.portId == "propertyAccesors") || (arg.portId == "var")) ? `${arg.paramtext}` : `"${arg.paramtext}"`) : "";

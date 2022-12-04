@@ -13,10 +13,11 @@
 	var lightergray = "#E9E9E9";
 	var darkergray = "#A0A0A0"
 
-	const operatorNameMap = {
+	const choicePropMap = {
 		"ARITHMETIC OP":    arithmOperatorMap,
 		"RELATIONAL OP":    relationalOperatorMap,
 		"UNARY OP":         unaryOperatorMap,
 		"BINARY OP":        binaryOperatorMap,
+		"CALL":							functionStackFrames,
 	}
 	

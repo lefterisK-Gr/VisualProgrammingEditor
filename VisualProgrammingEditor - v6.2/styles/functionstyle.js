@@ -16,8 +16,25 @@
         textEditor: window.OperatorEditorSelectBox,
         name: "OPERATION",
         editable: true,
-        choices: Object.getOwnPropertyNames(operatorNameMap[functionName]),
+        choices: Object.getOwnPropertyNames(choicePropMap[functionName]),
         width: 30, height: 30,
+        textAlign: "center",
+        verticalAlignment: go.Spot.Center,
+      },
+      new go.Binding("text", "alias")]
+    }
+    return {}
+  }
+
+  function setCallProp(functionName, isGroup) {
+    if( (functionName == "CALL") && !isGroup ) {
+      return [{
+        textEditor: window.CallEditorSelectBox,
+        name: "CALL",
+        editable: true,
+        choices: Object.getOwnPropertyNames(choicePropMap[functionName]),
+        width: 80, height: 20,
+        background: "lightgreen",
         textAlign: "center",
         verticalAlignment: go.Spot.Center,
       },
@@ -44,6 +61,7 @@
         {name: "TEXTBLOCK", text: functionName, width: 100, textAlign: "center", editable: ((functionName == "FUNCTION") || (functionName == "CALL"))},
         textStyle(), 
         setOperationProp(functionName, isGroup),
+        setCallProp(functionName, isGroup),
         new go.Binding("text", "ident").makeTwoWay()
       )
     ]
