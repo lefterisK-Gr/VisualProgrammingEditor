@@ -13,11 +13,24 @@
 	var lightergray = "#E9E9E9";
 	var darkergray = "#A0A0A0"
 
-	const choicePropMap = {
+	const choiceOperatorPropMap = {
 		"ARITHMETIC OP":    arithmOperatorMap,
 		"RELATIONAL OP":    relationalOperatorMap,
 		"UNARY OP":         unaryOperatorMap,
 		"BINARY OP":        binaryOperatorMap,
-		"CALL":							functionStackFrames,
 	}
 	
+	function levelFunctionNamesIntellisense(v, args) {
+		var fDeclared; //function Declared
+		console.log(functionStackFrames)
+		functionStackFrames.some(stackFrame => {
+			console.log(stackFrame)
+			if(stackFrame.refs.indexOf(args.part.data.key) >= 0)
+      { 
+        fDeclared = stackFrame.functions;
+      }
+		})
+		console.log(functionStackFrames[0].functions)
+		console.log(fDeclared)
+		return fDeclared ? fDeclared : null;
+	}

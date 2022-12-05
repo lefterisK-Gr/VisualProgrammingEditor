@@ -22,9 +22,7 @@ function varDeclArgStyle() {
             textEdited: function(tb, olds, news) {
               updateDecls();
 
-              myDiagram.nodes.each(function(n) {
-                updateVar(n);
-              });
+              updateVars();
             }
           },
           new go.Binding("text", "variable").makeTwoWay()

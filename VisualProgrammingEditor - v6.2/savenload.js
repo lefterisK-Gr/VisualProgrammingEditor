@@ -57,7 +57,7 @@ function save() {
   function updateDecls() {
     tempAstModel = parse(myDiagram.model.toJson());
     generate(tempAstModel); //upadte declared variables
-    console.log(stackFrames);
+    console.log(functionStackFrames);
   }
 
   function updateVar(n) {
@@ -68,13 +68,23 @@ function save() {
     }
   }
 
-  function updateVars(n) {
-    if(n.data.type == "varsDecl") {
-      myDiagram.nodes.each(function(n) {
-        console.log(n.data);
-        if (n.data && (n.data.type == "var" || n.data.type == "propertyAccesors") ) { n.updateTargetBindings("choices") }
-      });
+  function updateVars() {
+    myDiagram.nodes.each(function(n) {
+      console.log(n.data);
+      if (n.data && (n.data.type == "var" || n.data.type == "propertyAccesors") ) { n.updateTargetBindings("choices") }
+    });
+  }
+
+  function updateCall(n) {
+    if(n.data && (n.data.type == "call") ) {
+      n.updateTargetBindings(); //cant update with name but on var i can
     }
+  }
+
+  function updateCalls() {
+    myDiagram.nodes.each(function(n) {
+      updateCall(n)
+    });
   }
 
   function layout() {

@@ -16,7 +16,7 @@
         textEditor: window.OperatorEditorSelectBox,
         name: "OPERATION",
         editable: true,
-        choices: Object.getOwnPropertyNames(choicePropMap[functionName]),
+        choices: Object.getOwnPropertyNames(choiceOperatorPropMap[functionName]),
         width: 30, height: 30,
         textAlign: "center",
         verticalAlignment: go.Spot.Center,
@@ -30,15 +30,28 @@
     if( (functionName == "CALL") && !isGroup ) {
       return [{
         textEditor: window.CallEditorSelectBox,
-        name: "CALL",
+        name: "CALLTEXT",
         editable: true,
-        choices: Object.getOwnPropertyNames(choicePropMap[functionName]),
         width: 80, height: 20,
         background: "lightgreen",
         textAlign: "center",
         verticalAlignment: go.Spot.Center,
       },
-      new go.Binding("text", "alias")]
+      new go.Binding("choices", "key", levelFunctionNamesIntellisense).ofObject()
+    ]
+    }
+    return {}
+  }
+
+  function functionBoxTextUpdate(functionName) {
+    if(functionName == "FUNCTION") {
+      return[{
+        textEdited: function(tb, olds, news) {
+          updateDecls();
+          
+          updateCalls();
+        }
+      }]
     }
     return {}
   }
@@ -59,7 +72,8 @@
       functionBoxStyle(functionName, shapeColor, isGroup),
       $(go.TextBlock,
         {name: "TEXTBLOCK", text: functionName, width: 100, textAlign: "center", editable: ((functionName == "FUNCTION") || (functionName == "CALL"))},
-        textStyle(), 
+        textStyle(),
+        functionBoxTextUpdate(functionName),
         setOperationProp(functionName, isGroup),
         setCallProp(functionName, isGroup),
         new go.Binding("text", "ident").makeTwoWay()

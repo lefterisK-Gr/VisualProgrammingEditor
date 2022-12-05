@@ -310,7 +310,9 @@
           updateDecls();
           n = myDiagram.findNodeForKey(link.data.to); // get the node to where link drew
           updateVar(n);
-          updateVars(n);
+          if(n.data.type == "varsDecl") { updateVars() }
+          updateCall(n);
+          if(n.data.type == "function") { updateCalls() }
         }
         
         // load the initial diagram

@@ -346,7 +346,7 @@
       if(stackFrame.refs.indexOf(args.part.findLinksInto().first().data.from) >= 0)
       { 
         nDeclared = stackFrame.variables;
-        return true;
+        return true; //no need
       }
     });
     
@@ -360,7 +360,5 @@
       }
       i++;
     }
-    console.log(stackFrames);
-    console.log(nDeclared);
     return nDeclared ? Object.keys(nDeclared) : null;
   }

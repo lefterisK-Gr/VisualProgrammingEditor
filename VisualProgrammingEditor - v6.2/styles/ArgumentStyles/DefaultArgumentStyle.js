@@ -30,7 +30,7 @@ return [
           name: "PLUSBUTTON", 
           click: (e, button) => addArg(button.part)
         },
-        new go.Binding("isEnabled", "", function(v, shape) {
+        new go.Binding("isEnabled", "", function(v, shape) { //no source?
           return canHaveButton(shape.part, true);
         }).ofObject(),
     ),
