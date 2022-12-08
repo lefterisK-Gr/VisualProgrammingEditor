@@ -26,6 +26,7 @@
   }
   .tab-content {
     max-height: 0;
+    height: 75vh;
     color: #2c3e50;
     background: white;
   }

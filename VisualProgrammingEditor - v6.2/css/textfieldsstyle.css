@@ -1,3 +1,7 @@
+.boxes {
+  height: 90%;
+}
+
 .box-titles {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -11,7 +15,7 @@
   display: grid;
   grid-template-columns: 1fr 100px 1fr 100px 1fr;
   align-items: center;
-  height: 30vh;
+  height: 100%;
   box-sizing: border-box;
   gap: 20px;
 }
@@ -28,6 +32,21 @@
   transition: background 0.25s, color 0.25s;
 }
 
+.container textarea::-webkit-scrollbar-track{
+	background-color: rgb(215, 215, 215);
+}
+
+.container textarea::-webkit-scrollbar{
+	width: 10px;
+	background-color: #F5F5F5;
+}
+
+.container textarea::-webkit-scrollbar-thumb{
+	border-radius: 100px;
+	box-shadow: 3px 0px 12px 4px rgb(87, 87, 87);
+	background-color: #222a6c
+}
+
 .container textarea:hover,
 .container textarea:focus {
   background: #edefff;
@@ -39,10 +58,11 @@
   margin-bottom: 10px;
   margin-top: 10px;
   border-radius: 5px;
-  border: none;
+  border: solid white;
+  border-width: 2px;
   outline: none;
   cursor: pointer;
-  background: #5365f4;
+  background: #6600CC;
   color: #ffffff;
   font-weight: bold;
 }
@@ -52,6 +72,7 @@
 }
 
 .controls__button--layout {
+  border: none;
   background: #dd2c00;
 }
 
@@ -60,6 +81,7 @@
 }
 
 .controls__button:disabled {
+  border: none;
   cursor: not-allowed;
   background-color: #cccccc;
   color: #666666;

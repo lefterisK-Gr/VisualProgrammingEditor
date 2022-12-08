@@ -112,7 +112,38 @@
             e.diagram.commandHandler.showContextMenu(node);
           }
         }
-      )
+      ),
+      $("Button",
+        {
+          width: 12,
+          height: 12,
+          margin: 2,
+          // set properties on the border Shape of the "Button"
+          "ButtonBorder.figure": "Circle",
+          "ButtonBorder.fill": "red",
+          // set properties on the "Button" itself used by its event handlers
+          "_buttonFillOver": "red",
+          click: (e, obj) => activateBreakpoint(obj.part)
+        },
+        { alignment: new go.Spot(0.55, 0.8), visible: false},
+        new go.Binding("visible", "breakpoint")
+			),
+      {
+        mouseEnter: (e, obj) => {
+          var node = obj.part;
+          if(!node.data.breakpoint) {
+            nodeHoverAdornment.adornedObject = node;
+            node.addAdornment("mouseHover", nodeHoverAdornment);
+          }
+        }
+      },
+      {
+        mouseLeave: (e, obj) => {
+          var node = obj.part;
+          nodeHoverAdornment.adornedObject = node;
+          node.removeAdornment("mouseHover");
+        }
+      },
     ];
   }
 

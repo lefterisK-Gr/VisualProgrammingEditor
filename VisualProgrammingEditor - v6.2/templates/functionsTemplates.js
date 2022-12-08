@@ -20,6 +20,8 @@
 		"BINARY OP":        binaryOperatorMap,
 	}
 	
+	var breakpoints = [];
+
 	function levelFunctionNamesIntellisense(v, args) {
 		var fDeclared; //function Declared
 		console.log(functionStackFrames)
@@ -33,4 +35,63 @@
 		console.log(functionStackFrames[0].functions)
 		console.log(fDeclared)
 		return fDeclared ? fDeclared : null;
+	}
+
+	var nodeHoverAdornment =
+		$(go.Adornment, "Spot",
+			{
+				mouseEnter: (e, obj) => {
+					var ad = obj.part;
+					ad.adornedPart.addAdornment("mouseHover", nodeHoverAdornment);
+				}
+			},
+			{
+				mouseLeave: (e, obj) => {
+					var ad = obj.part;
+					ad.adornedPart.removeAdornment("mouseHover");
+				}
+			},
+			$(go.Placeholder,
+				{
+					//background: "transparent",  // to allow this Placeholder to be "seen" by mouse events
+					isActionable: true,  // needed because this is in a temporary Layer
+					click: (e, obj) => {
+						var node = obj.part.adornedPart;
+						node.diagram.select(node);
+					}
+				}),
+			$("Button",
+				{
+					width: 12,
+					height: 12,
+					margin: 2,
+					// set properties on the border Shape of the "Button"
+					"ButtonBorder.figure": "Circle",
+					"ButtonBorder.fill": "#FF6666",
+					// set properties on the "Button" itself used by its event handlers
+					"_buttonFillOver": "red",
+					click: (e, obj) => activateBreakpoint(obj.part.adornedObject)
+				},
+				{ alignment: new go.Spot(0.55, 0.8) }
+			),
+			// $(go.Shape, "Circle",
+			// 	{width: 12, height: 12, fill: "red"},
+			//   { alignment: new go.Spot(0.55, 0.8), alignmentFocus: go.Spot.Center })
+		);
+
+	function activateBreakpoint(arg) {
+		myDiagram.startTransaction("makeBreakpoint");
+		const data = arg.data;
+		if(data.breakpoint) {
+			const index = breakpoints.indexOf(data.key);
+			if (index > -1) {
+				breakpoints.splice(index, 1);
+			}
+			myDiagram.model.setDataProperty(data, "breakpoint", false);
+		}
+		else {
+			breakpoints.push(data.key);
+			myDiagram.model.setDataProperty(data, "breakpoint", true);
+		}
+		myDiagram.commitTransaction("makeBreakpoint");
 	}
