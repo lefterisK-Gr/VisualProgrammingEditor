@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/textfieldsstyle.css">
     <link rel="stylesheet" href="css/debugBar.css">
     <link rel="stylesheet" href="css/dropdown.css">
+    <link rel="stylesheet" href="css/overview.css">
 
     <style type="text/css">
     .tab-label::after {
@@ -300,6 +301,15 @@
         myDiagram.nodeTemplateMap.get("function").contextMenu = renameContextMenu;
         myDiagram.nodeTemplateMap.get("call").contextMenu = renameContextMenu;
 
+        // Overview
+        myOverview =
+          $(go.Overview, "myOverviewDiv",  // the HTML DIV element for the Overview
+            { 
+              observed: myDiagram, 
+              contentAlignment: go.Spot.Center,
+              drawsTemporaryLayers: false 
+            });   // tell it which Diagram to show and pan
+            
         function maybeChangeLinkCategory(e) {
           var link = e.subject;
           var blocktonode = false;
@@ -452,6 +462,9 @@
       <button class="controls__button controls__button--load" onclick="load()">Load</button>
       <button class="controls__button controls__button--layout" onclick="layout()">Do Layout</button>
     </div>
+
+    <div id="myOverviewDiv" style="-webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto;"><canvas tabindex="0" width="200" height="98" style="position: absolute; top: 0px; left: 0px; z-index: 2; user-select: none; touch-action: none; width: 198px; height: 98px; cursor: auto;">This text is displayed if your browser does not support the Canvas HTML element.</canvas><div style="position: absolute; overflow: auto; width: 198px; height: 98px; z-index: 1;"><div style="position: absolute; width: 1px; height: 1px;"></div></div></div> <!-- Styled in a <style> tag at the top of the html page -->
+      
     </pre></div>
     
   </body>

@@ -13,8 +13,11 @@ function createAST(nodes, links) {
     
     for (let i = 0; i < nodes.length; i += 1) { //reverse items and arguments
         const item = nodes[i];
+        delete item.breakpoint;
+
         if(item.items) {
             item.items.forEach( function(v) {
+                delete v.isport;
                 if(v.paramtext) {
                     value = parseInt(v.paramtext, 10);
                     if(!isNaN(value)){
