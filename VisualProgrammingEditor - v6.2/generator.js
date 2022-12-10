@@ -310,6 +310,13 @@ function generateExpression(expr, stack, frame, functionFrame) { // recursive fu
         entries = indent(entries);
         return `{\n${entries}\n}`;
     }
+    else if(expr.type == "array") {
+        const arguments = expr.items.map((arg) => {
+            return generateExpressionFromArgument(arg, stack, frame, functionFrame)
+        }).join(", ");
+
+        return `[${arguments}]`
+    }
     else if(expr.type == "funBlocks") {
         const arguments = indent(generateStatements(expr.items, stack, frame, functionFrame));
         return `${arguments}`
@@ -320,7 +327,7 @@ function generateExpression(expr, stack, frame, functionFrame) { // recursive fu
 }
 
 function generateExpressionFromArgument(arg, stack, frame, functionFrame) {
-    if(arg.isport || arg.connectedBlock){ //there is no need for connectedBlock
+    if(arg.argument || arg.connectedBlock){ //there is no need for connectedBlock
         if(arg.portId=="initialize" && arg.argument.type == "varsDecl") {
             console.log(arg.argument);
             return varDeclarationStmt(arg.argument, stack, frame);

@@ -18,8 +18,8 @@ return [
       return true;
     }),
     {
-      alignment: isHorizontal ? go.Spot.BottomLeft : go.Spot.BottomRight,
-      alignmentFocus: isHorizontal ? go.Spot.TopLeft : go.Spot.BottomLeft
+      alignment: isHorizontal ? go.Spot.BottomLeft : go.Spot.TopRight,
+      alignmentFocus: go.Spot.TopLeft
     },
     $("Button",
         {"ButtonBorder.fill": "lightgray",
@@ -86,21 +86,27 @@ function argsStyle() {
   }).ofObject(),
   new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
   selectionStyle(), 
-  $(go.Panel, "Spot",
-    $(go.Panel, "Vertical", {name: "ARGS"},
-        new go.Binding("itemArray", "items"),
-        new go.Binding("itemTemplate", "type", function(v) {
-            if(v == "decl")
-                return varDeclArgTemplate;
-            else if(v == "propertyAccesors")
-                return getElemArgTemplate;
-            else if(v == "var")
-                return varArgTemplate;
-            return argTemplate;
-        })
+  $(go.Panel, "Auto",
+    $(go.Shape, "Rectangle", 
+      new go.Binding("stroke", "isHighlighted", h => h ? "#7F00FF" : "darkslategray").ofObject(),
+      new go.Binding("strokeWidth", "isHighlighted", h => h ? 8 : 2).ofObject()
     ),
-    signsButton(true)
-  )
+    $(go.Panel, "Spot",
+      $(go.Panel, "Vertical", {name: "ARGS"},
+          new go.Binding("itemArray", "items"),
+          new go.Binding("itemTemplate", "type", function(v) {
+              if(v == "decl")
+                  return varDeclArgTemplate;
+              else if(v == "propertyAccesors")
+                  return getElemArgTemplate;
+              else if(v == "var")
+                  return varArgTemplate;
+              return argTemplate;
+          })
+      )
+    )
+  ),
+  signsButton(true)
   ]
 }
 

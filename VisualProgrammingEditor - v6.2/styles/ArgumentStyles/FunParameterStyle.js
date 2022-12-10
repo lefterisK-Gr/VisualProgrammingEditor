@@ -51,15 +51,21 @@ function parametersStyle() {
   }).ofObject(),
   new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
   selectionStyle(), 
-  $(go.Panel, "Spot",
-    $(go.Panel, "Vertical", {name: "ARGS"},
-        new go.Binding("itemArray", "items"),
-        new go.Binding("itemTemplate", "type", function(v) {
-          return funParamTemplate;
-        })
+  $(go.Panel, "Auto",
+    $(go.Shape, "Rectangle",
+      new go.Binding("stroke", "isHighlighted", h => h ? "#7F00FF" : "darkslategray").ofObject(),
+      new go.Binding("strokeWidth", "isHighlighted", h => h ? 8 : 2).ofObject()
     ),
-    signsButton(false),
-    funParamCodeTemplate
+    $(go.Panel, "Spot",
+      $(go.Panel, "Vertical", {name: "ARGS"},
+          new go.Binding("itemArray", "items"),
+          new go.Binding("itemTemplate", "type", function(v) {
+            return funParamTemplate;
+          })
+      ),
+      funParamCodeTemplate
+    )
   )
+  ,signsButton(false),
   ]
 }

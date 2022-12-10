@@ -52,7 +52,14 @@ var paletteComps2 = [
     {key: 24, type: "decl", items: [ 
       {portId: "1"},
       {portId: "2"}
-    ], group: 22}
+    ], group: 22},
+
+    {key: 25, type: "arrayGroup", isGroup: true},
+    {key: 26, type: "array", group: 25},
+    {key: 27, type: "args", items: [ 
+      {portId: "1"},
+      {portId: "2"}
+    ], group: 25},
 ]
 
 var paletteLinks2 = [
@@ -64,4 +71,5 @@ var paletteLinks2 = [
     { category: "Reversed", from: 17, to: 18},
     { category: "Reversed", from: 20, to: 21},
     { category: "Reversed", from: 23, to: 24},
+    { category: "Reversed", from: 26, to: 27},
 ]

@@ -1,13 +1,15 @@
   
   function nodeFunctionShapeStyle(isSmallerBox) {
-    return {
+    return [{
       name: "NODESHAPE",
       fill: "lightgray", //default color
-      stroke: "darkslategray",
       desiredSize: isSmallerBox ? new go.Size(105, 30) : new go.Size(105, 40),
       strokeWidth: 2,
       parameter1: 10
-    };
+    },
+    new go.Binding("stroke", "isHighlighted", h => h ? "#7F00FF" : "darkslategray").ofObject(),
+    new go.Binding("strokeWidth", "isHighlighted", h => h ? 8 : 2).ofObject()
+  ];
   }
 
   function setOperationProp(functionName, isGoup) {

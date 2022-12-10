@@ -23,7 +23,7 @@
   var varArgsTemplate =     $(go.Node, "Vertical", argsStyle());
   var getElemArgsTemplate = $(go.Node, "Vertical", argsStyle());
   
-  var funParamsTemplate =   $(go.Node, "Vertical", parametersStyle());
+  var funParamsTemplate =   $(go.Node, "Horizontal", parametersStyle());
   
   const settingsAdornmentMap = {
     "DEFAULT ARGUMENT" : 0,
@@ -183,7 +183,7 @@
       // deselect all sibling items      
       myDiagram.nodes.each(function (n) {
         if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl" || n.data.type == "propertyAccesors" || n.data.type == "parameters") {
-          n.elt(0).elt(0).elements.each(it => { //remove selection highlight
+          n.elt(0).elt(1).elt(0).elements.each(it => { //remove selection highlight
             setArgSelected(it.elt(0), false);
           });
         }

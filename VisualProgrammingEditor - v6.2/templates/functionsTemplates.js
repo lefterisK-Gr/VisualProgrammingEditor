@@ -10,6 +10,7 @@
 	var yellowbluegrad = $(go.Brush, "Linear", { 0: "rgb(255, 255, 0)", 1: "rgb(102, 102, 255)" });
 	var yellowredgrad = $(go.Brush, "Linear", { 0: "rgb(255, 255, 0)", 1: "rgb(255, 102, 102)" });
 	var browngrad = $(go.Brush, "Linear", { 0: "rgb(153, 102, 0)", 1: "rgb(204, 136, 0)" });
+	var lightbluegreengrad = $(go.Brush, "Linear", { 0: "#00CC66", 1: "#33FF99" })
 	var lightergray = "#E9E9E9";
 	var darkergray = "#A0A0A0"
 

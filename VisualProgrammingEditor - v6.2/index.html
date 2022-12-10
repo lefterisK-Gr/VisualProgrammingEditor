@@ -117,7 +117,7 @@
               click: (e, obj) => { //make this function
                 myDiagram.nodes.each(function (n) {
                   if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl" || n.data.type == "propertyAccesors" || n.data.type == "parameters") {
-                    n.elt(0).elt(0).elements.each(it => {
+                    n.elt(0).elt(1).elt(0).elements.each(it => {
                       setArgSelected(it.elt(0), false);
                     });
                     n.removeAdornment(mouseSettingsSelect);
@@ -223,6 +223,7 @@
           "return":             {"RETURN":        "white"},
           "assign":             {"ASSIGN":        bluegrad},
           "object":             {"OBJECT":        browngrad},
+          "array":              {"ARRAY":         lightbluegreengrad},
           "function":           {"FUNCTION":      "white"},
           "call":               {"CALL":          "white"},
         }
@@ -353,9 +354,51 @@
     <script>
       /* When the user clicks on the button, 
       toggle between hiding and showing the dropdown content */
-      function myFunction() {
+      function activateDropdown() {
         document.getElementById("myDropdown").classList.toggle("show");
       }
+
+      // the Search functionality highlights all of the nodes that have at least one data property match a RegExp
+      function searchDiagram() {  // called by button
+          var input = document.getElementById("mySearch");
+          if (!input) return;
+          myDiagram.focus();
+
+          myDiagram.startTransaction("highlight search");
+
+          if (input.value) {
+            // search four different data properties for the string, any of which may match for success
+            // create a case insensitive RegExp from what the user typed
+            var safe = input.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var regex = new RegExp(safe, "i");
+            var results = myDiagram.findNodesByExample(
+              { type: regex },
+              { alias: regex},
+              { items: function(n) {
+                if(n){
+                  let i = 0;
+                  console.log(n[0].portId);
+                  while(n[i]) {
+                    if(regex.test(n[i].portId) || regex.test(n[i].paramtext) || regex.test(n[i].variable))
+                    { return true; }
+                    i++;
+                  }
+                }
+              }
+              }
+);
+
+            console.log(results);
+            myDiagram.highlightCollection(results);
+            // try to center the diagram at the first node that was found
+            if (results.count > 0) myDiagram.centerRect(results.first().actualBounds);
+          } else {  // empty string only clears highlighteds collection
+            myDiagram.clearHighlighteds();
+          }
+
+          myDiagram.commitTransaction("highlight search");
+        }
+
     </script>
 
     <div id="sample" style="height: 92vh">
@@ -369,8 +412,13 @@
         <div class="redo-button"></div><!-- redo -->
       </div>
 
+      <div class="search-bar">
+        <input type="search" id="mySearch" placeholder="Find" onkeypress="if (event.keyCode === 13) searchDiagram()">
+        <button class="search-button" onclick="searchDiagram()"><div class="search-image" onclick="searchDiagram()"></div></button>
+      </div>
+
       <div class="dropdown">
-        <button onclick="myFunction()" class="dropbtn">
+        <button onclick="activateDropdown()" class="dropbtn">
           <div class="dropdown-icon"><div class="JSON-icon"></div></div>
           <div class="dropdown-icon"><div class="CODE-icon"></div></div>
           <div class="dropdown-icon"><div class="IO-text">IO</div></div>
@@ -464,7 +512,7 @@
     </div>
 
     <div id="myOverviewDiv" style="-webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto;"><canvas tabindex="0" width="200" height="98" style="position: absolute; top: 0px; left: 0px; z-index: 2; user-select: none; touch-action: none; width: 198px; height: 98px; cursor: auto;">This text is displayed if your browser does not support the Canvas HTML element.</canvas><div style="position: absolute; overflow: auto; width: 198px; height: 98px; z-index: 1;"><div style="position: absolute; width: 1px; height: 1px;"></div></div></div> <!-- Styled in a <style> tag at the top of the html page -->
-      
+    
     </pre></div>
     
   </body>
