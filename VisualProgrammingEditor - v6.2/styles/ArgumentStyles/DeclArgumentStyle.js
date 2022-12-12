@@ -1,6 +1,14 @@
 function varDeclArgStyle() {
   return [
-      $(go.Shape, "Rectangle", argShapeStyle()),
+      $(go.Shape, "Rectangle", argShapeStyle(),
+        { //the IN port, cant use portStyle because of desired size and strokeWidth/fill
+          fromLinkable: false,
+          toSpot: go.Spot.Left,
+          toLinkable: true,
+          cursor: "pointer"
+        },
+        new go.Binding("portId", "portId", function(v) { return ("inSlot" + v)})
+      ),
       $(go.Panel, "Table",
         {
           defaultAlignment: go.Spot.Left,
@@ -28,7 +36,7 @@ function varDeclArgStyle() {
           new go.Binding("text", "variable").makeTwoWay()
         ),
         $(go.Panel, "Auto",
-          {row: 0, column: 2,alignment: go.Spot.Right},
+          {row: 0, column: 2, alignment: go.Spot.Right},
           $(go.Shape, "TriangleLeft", portStyle(false),  // the rvalue port
             new go.Binding("portId", "portId"),
             { fill: "black", visible: false},

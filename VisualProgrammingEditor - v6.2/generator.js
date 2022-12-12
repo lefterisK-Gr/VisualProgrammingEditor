@@ -321,6 +321,9 @@ function generateExpression(expr, stack, frame, functionFrame) { // recursive fu
         const arguments = indent(generateStatements(expr.items, stack, frame, functionFrame));
         return `${arguments}`
     }
+    else if(expr.type == "decl") {
+        return `${expr.items[0].variable}`
+    }
     else {
         throw new Error(`Unhandled AST node type ${node.type}`)
     }
