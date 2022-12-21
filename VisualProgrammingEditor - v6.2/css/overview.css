@@ -5,6 +5,6 @@
   top: 71.3vh;
   left: 80vw;
   background-color: #f2f2f2;
-  z-index: 300; /* make sure its in front */
+  z-index: 10; /* make sure its in front */
   border: solid 1px #7986cb;
 }

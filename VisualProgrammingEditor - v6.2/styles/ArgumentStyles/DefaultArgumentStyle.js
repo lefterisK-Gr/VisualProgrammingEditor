@@ -3,7 +3,8 @@ function argShapeStyle() {
     name: "NODEARGSHAPE",
     fill:  argDefaultColor,
     stroke: argDefaultStroke,
-    strokeWidth: 2
+    strokeWidth: 2,
+    toSpot: go.Spot.Left
   };
 }
 
@@ -112,7 +113,20 @@ function argsStyle() {
 
 function argStyle() {
   return [
-      $(go.Shape, "Rectangle", argShapeStyle(),
+      $(go.Shape, "Rectangle", argShapeStyle(), 
+        new go.Binding("toLinkable", "itemIndex", function(v, shape) {
+          const inLinks = shape.part.findLinksInto();
+          var linkIterator = inLinks.iterator;
+
+          while(linkIterator.next()) {
+            var i_item = linkIterator.value;
+            parentNode = myDiagram.findNodeForKey(i_item.data.from)
+
+            if(i_item.data.type != "Reversed") {continue;}
+          }
+          return (parentNode.data.type == "array");
+        }).ofObject(),
+        new go.Binding("portId", "portId", function(v) { return ("inSlot" + v)}),
         new go.Binding("fill", "itemIndex", function(v, shape) {
             if( v < shape.part.data.arity.from)
                 return argFixedColor;

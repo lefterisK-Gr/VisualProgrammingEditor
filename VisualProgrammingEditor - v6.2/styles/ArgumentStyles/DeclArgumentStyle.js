@@ -2,7 +2,6 @@ function varDeclArgStyle() {
   return [
       $(go.Shape, "Rectangle", argShapeStyle(),
         { //the IN port, cant use portStyle because of desired size and strokeWidth/fill
-          fromLinkable: false,
           toSpot: go.Spot.Left,
           toLinkable: true,
           cursor: "pointer"

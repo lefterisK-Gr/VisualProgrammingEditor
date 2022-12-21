@@ -78,7 +78,7 @@
   }
   .tab-content {
     max-height: 0;
-    height: 75vh;
+    height: calc(92vh - 283px);
     color: #2c3e50;
     background: white;
   }

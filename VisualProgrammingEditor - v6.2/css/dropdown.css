@@ -66,11 +66,11 @@
   position: absolute;
   background-color: #141414;
   width: calc(100vw - 17px);
-  height: 84vh;
+  height: calc(92vh - 65px);
   overflow: auto;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   right: 0;
-  z-index: 10;
+  z-index: 20;
 }
 
 .dropdown-content a {

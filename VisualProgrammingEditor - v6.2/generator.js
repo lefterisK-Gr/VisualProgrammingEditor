@@ -324,6 +324,9 @@ function generateExpression(expr, stack, frame, functionFrame) { // recursive fu
     else if(expr.type == "decl") {
         return `${expr.items[0].variable}`
     }
+    else if(expr.type == "args") {
+        return `${expr.items[0].variable}`
+    }
     else {
         throw new Error(`Unhandled AST node type ${node.type}`)
     }
@@ -338,6 +341,6 @@ function generateExpressionFromArgument(arg, stack, frame, functionFrame) {
         return generateExpression(arg.argument, stack, frame, functionFrame);
     }
     else {
-        return arg.paramtext ? ( ((typeof arg.paramtext == 'number') || (arg.portId == "propertyAccesors") || (arg.portId == "var")) ? `${arg.paramtext}` : `"${arg.paramtext}"`) : "";
+        return (arg.paramtext || arg.paramtext == '0')  ? ( ((typeof arg.paramtext == 'number') || (arg.portId == "propertyAccesors") || (arg.portId == "var")) ? `${arg.paramtext}` : `"${arg.paramtext}"`) : "";
     }
 }

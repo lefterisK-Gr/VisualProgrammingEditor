@@ -47,11 +47,13 @@ function createAST(nodes, links) {
         const linkItem = myLinkMap.get(item.key);
 
         if(linkItem) {
+            let cloneItem;
+            let transformedDecl;
             for(j=0 ; j < linkItem.length; j++) {
-                const parentItem = myNodeMap.get(linkItem[j].from);
+                var parentItem = myNodeMap.get(linkItem[j].from);
                 console.log(parentItem)
-                if(parentItem) { // Built-In
-                    if (linkItem[j].category == "Reversed") {
+                if(parentItem) { 
+                    if (linkItem[j].category == "Reversed") {// Built-In Link
                         parentItem.items = [];
                         parentItem.items = item.items;
                     }
@@ -60,10 +62,13 @@ function createAST(nodes, links) {
                             parentItem.items.push({portId: "( )", connectedBlock: true})
                         }
                         var index = parentItem.items.map(function(e) { return e.portId}).indexOf(linkItem[j].fromPort)
-                        if(item.type == "decl") {
-                            parentItem.items[index].argument = convertItemToRef(item, linkItem[j]);
+
+                        if(item.type == "decl" || item.type == "args") {
+                            cloneItem = JSON.parse(JSON.stringify(item))
+                            transformedDecl = convertItemToRef(cloneItem, linkItem[j]);
+                            parentItem.items[index].argument = transformedDecl;
                         }
-                        else {
+                        else {// connection to functionbox
                             parentItem.items[index].argument = item; 
                         }
                     }
@@ -82,10 +87,10 @@ function convertItemToRef(item, link) {
 
     var tableIndex = Number(link.toPort.replace("inSlot",'')) - 1; 
 
-    const newParamText = item.items[tableIndex].variable; // get paramtext
-
     const functionNode = getParentNode(item); //get parent of decl node
 
+    const newParamText = (item.type == "decl") ? item.items[tableIndex].variable : tableIndex; // get paramtext
+    console.log(newParamText);
     item.key = getUniqueKey(); // set key
 
     if(functionNode.data.type == "varsDecl") {
@@ -104,8 +109,8 @@ function convertItemToRef(item, link) {
                 "paramtext": newParamText
             }
         ];
-        let inLinks = functionNode.findLinksInto(); // there is only one for function box
-        setGetElem_Items(inLinks.first(), item);
+        console.log(item.items)
+        setGetElem_Items(item, functionNode);
         setGetElem_PortIds(item);
     }
     return item;
@@ -123,7 +128,7 @@ function getParentNode(item) {
         var i_item = linkIterator.value;
         parentNode = myDiagram.findNodeForKey(i_item.data.from)
 
-        if(parentNode.data.type == "varsDecl" || parentNode.data.type == "object" ) { // dont forget assign
+        if(parentNode.data.type == "varsDecl" || parentNode.data.type == "object" || parentNode.data.type == "array") { // dont forget assign and array
             break;
         }
     }
@@ -139,24 +144,24 @@ function getUniqueKey() {
     return indexKey;
 }
 
-function setGetElem_Items(linkToParent, item) {
+function setGetElem_Items(item, functionItem) {
+    let linkToParentItem = functionItem.findLinksInto().first(); // there is only one for function box
+
     var parentNode;
     var parentFunctionNode;
-    var tableIndex = Number(linkToParent.data.fromPort) - 1; 
 
-    parentNode = myDiagram.findNodeForKey(linkToParent.data.from) // get parent of functionNode (decl arguments)
+    var tableIndex = Number(linkToParentItem.data.fromPort) - 1; // it is always a number for decls
+    parentNode = myDiagram.findNodeForKey(linkToParentItem.data.from) // get parent of functionNode (decl arguments)
     parentFunctionNode = getParentNode(parentNode); // get parent of parentNode ( Vars decl / Object )
 
-    console.log(tableIndex);
-    const newParamText = parentNode.data.items[tableIndex].variable; // get paramtext
-
+    const newParamText = (parentNode.data.type == "decl") ? parentNode.data.items[tableIndex].variable : tableIndex;
     item.items.unshift({
         "paramtext": newParamText
     }) // set item to beginning of items array
 
     if(parentFunctionNode.data.type == "varsDecl") { return; }
-    let inLinks = parentFunctionNode.findLinksInto(); // there is only one for function box
-    setGetElem_Items(inLinks.first(), item)
+
+    setGetElem_Items(item, parentFunctionNode)
 }
 
 function setGetElem_PortIds(item) {
@@ -165,8 +170,4 @@ function setGetElem_PortIds(item) {
     for(var i = 1; i < item.items.length; i++) {
         item.items[i].portId = keyPrefix + i;
     }
-}
-
-function convertItemToCall() {
-    
 }
