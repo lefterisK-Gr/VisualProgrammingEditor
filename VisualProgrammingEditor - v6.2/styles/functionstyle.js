@@ -19,7 +19,7 @@
         name: "OPERATION",
         editable: true,
         choices: Object.getOwnPropertyNames(choiceOperatorPropMap[functionName]),
-        width: 30, height: 30,
+        width: 20, height: 20,
         textAlign: "center",
         verticalAlignment: go.Spot.Center,
       },

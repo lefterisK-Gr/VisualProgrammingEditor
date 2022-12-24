@@ -38,31 +38,34 @@ function editorShow(textBlock, diagram, tool, customSelectBox, selectEditor) {
     var pos = diagram.transformDocToView(loc);
 
     if(selectEditor == editorEnum.operator) {
-      customSelectBox.style.left = pos.x - 10 + "px";
+      customSelectBox.style.left = pos.x - (diagram.scale * 10) + "px";
       customSelectBox.style.top  = pos.y - 5 + "px";
-      customSelectBox.style.width = "40px";
+      customSelectBox.style.width = diagram.scale * 40 + "px";
       customSelectBox.style.position = 'absolute';
       customSelectBox.style.borderColor  = "#FFDE36";
       customSelectBox.style.backgroundColor  = "#FFFF36";
       customSelectBox.style.borderWidth  = "5px";
+      customSelectBox.style.fontSize = diagram.scale + "rem";
     }
     else if (selectEditor == editorEnum.varArg) {
       customSelectBox.style.left = pos.x - 2 + "px";
       customSelectBox.style.top  = pos.y - 2 + "px";
-      customSelectBox.style.width = "100px";
+      customSelectBox.style.width = diagram.scale * 100 + "px";
       customSelectBox.style.position = 'absolute';
       customSelectBox.style.borderColor  = "white";
       customSelectBox.style.backgroundColor  = darkergray;
-      customSelectBox.style.borderWidth  = "5px";
+      customSelectBox.style.borderWidth  = "2px";
+      customSelectBox.style.fontSize = ( diagram.scale * 0.7 )+ "rem";
     }
     else if (selectEditor == editorEnum.callName) {
       customSelectBox.style.left = pos.x - 2 + "px";
       customSelectBox.style.top  = pos.y - 2 + "px";
-      customSelectBox.style.width = "80px";
+      customSelectBox.style.width = diagram.scale * 80 + "px";
       customSelectBox.style.position = 'absolute';
       customSelectBox.style.borderColor  = "black";
       customSelectBox.style.backgroundColor  = "white";
       customSelectBox.style.borderWidth  = "3px";
+      customSelectBox.style.fontSize = diagram.scale + "rem";
     }
     
     customSelectBox.style.zIndex = 100; // place it in front of the Diagram
