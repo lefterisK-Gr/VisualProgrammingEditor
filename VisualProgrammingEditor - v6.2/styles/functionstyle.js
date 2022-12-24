@@ -134,15 +134,15 @@
         mouseEnter: (e, obj) => {
           var node = obj.part;
           if(!node.data.breakpoint) {
-            nodeHoverAdornment.adornedObject = node;
-            node.addAdornment("mouseHover", nodeHoverAdornment);
+            nodeBreakpointAdornment.adornedObject = node;
+            node.addAdornment("mouseHover", nodeBreakpointAdornment);
           }
         }
       },
       {
         mouseLeave: (e, obj) => {
           var node = obj.part;
-          nodeHoverAdornment.adornedObject = node;
+          nodeBreakpointAdornment.adornedObject = node;
           node.removeAdornment("mouseHover");
         }
       },

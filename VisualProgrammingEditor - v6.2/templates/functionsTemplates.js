@@ -38,12 +38,12 @@
 		return fDeclared ? fDeclared : null;
 	}
 
-	var nodeHoverAdornment =
+	var nodeBreakpointAdornment =
 		$(go.Adornment, "Spot",
 			{
 				mouseEnter: (e, obj) => {
 					var ad = obj.part;
-					ad.adornedPart.addAdornment("mouseHover", nodeHoverAdornment);
+					ad.adornedPart.addAdornment("mouseHover", nodeBreakpointAdornment);
 				}
 			},
 			{

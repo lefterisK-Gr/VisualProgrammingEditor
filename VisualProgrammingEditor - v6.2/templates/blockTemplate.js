@@ -43,3 +43,55 @@
       myDiagram.model.removeArrayItem(arr);
       myDiagram.commitTransaction("remove block");
     }
+
+    function addTopBlock(block) {
+      addBlock(block)
+      myDiagram.startTransaction("add top block");
+      if (!(block instanceof go.Node)) return;
+      const outLink = block.findLinksOutOf();
+      const totalLinks = outLink.count;
+      console.log(outLink.count)
+      var linkIterator = outLink.iterator;
+      let i = 0;
+      while(linkIterator.first()) {
+        if( i == totalLinks) break;
+        var i_link = linkIterator.value;
+        console.log(i_link.data)
+        // myDiagram.model.set(i_link.data, "fromPort", (Number(i_link.data.fromPort) + 1))
+        // myDiagram.model.setFromPortIdForLinkData(i_link.data, (Number(i_link.data.fromPort) + 1) )
+        var linkdata = {fromPort: (Number(i_link.data.fromPort) + 1).toString(), toPort: "in", "category":"BlockToNode"};
+        linkdata[myDiagram.model.linkFromKeyProperty] = i_link.data.from;
+        linkdata[myDiagram.model.linkToKeyProperty] = i_link.data.to;
+        myDiagram.remove(i_link)
+        myDiagram.model.addLinkData(linkdata)
+        i++;
+      }
+
+      myDiagram.commitTransaction("add top block");
+    }
+
+    function removeTopBlock(block) {
+      myDiagram.startTransaction("remove top block");
+      if (!(block instanceof go.Node)) return;
+      const outLink = block.findLinksOutOf();
+      const totalLinks = outLink.count;
+      console.log(outLink.count);
+      var linkIterator = outLink.iterator;
+      let i = 0;
+      while(linkIterator.first()) {
+        if( i == totalLinks) break;
+        var i_link = linkIterator.value;
+        console.log(i_link.data)
+        if(Number(i_link.data.fromPort) > 1) {
+          var linkdata = {fromPort: (Number(i_link.data.fromPort) - 1).toString(), toPort: "in", "category":"BlockToNode"};
+          linkdata[myDiagram.model.linkFromKeyProperty] = i_link.data.from;
+          linkdata[myDiagram.model.linkToKeyProperty] = i_link.data.to;
+          myDiagram.model.addLinkData(linkdata)
+        }
+        myDiagram.remove(i_link)
+        i++;
+      }
+
+      myDiagram.commitTransaction("remove top block");
+      removeBlock(block);
+    }

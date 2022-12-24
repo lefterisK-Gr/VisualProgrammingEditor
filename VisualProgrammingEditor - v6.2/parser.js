@@ -62,13 +62,14 @@ function createAST(nodes, links) {
                             parentItem.items.push({portId: "( )", connectedBlock: true})
                         }
                         var index = parentItem.items.map(function(e) { return e.portId}).indexOf(linkItem[j].fromPort)
-
+                        console.log(linkItem[j])
                         if(item.type == "decl" || item.type == "args") {
                             cloneItem = JSON.parse(JSON.stringify(item))
                             transformedDecl = convertItemToRef(cloneItem, linkItem[j]);
                             parentItem.items[index].argument = transformedDecl;
                         }
                         else {// connection to functionbox
+                            console.log(parentItem)
                             parentItem.items[index].argument = item; 
                         }
                     }
