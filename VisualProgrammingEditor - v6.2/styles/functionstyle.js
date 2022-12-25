@@ -19,7 +19,7 @@
         name: "OPERATION",
         editable: true,
         choices: Object.getOwnPropertyNames(choiceOperatorPropMap[functionName]),
-        width: 20, height: 20,
+        width: 40, height: 20,
         textAlign: "center",
         verticalAlignment: go.Spot.Center,
       },
@@ -130,11 +130,17 @@
             e.diagram.startTransaction();
             var node = obj.part;
             console.log(node.data)
+            
             if (node.data.isCollapsed) {
-              
+              console.log("in expand")
               expandFrom(node, node);
             } else {
-              collapseFrom(node, node);
+              if(node.data.isCollapsed == undefined){
+                node.data.isCollapsed = false;
+                addNodeAndLink(e, obj)
+              }
+              else
+                collapseFrom(node, node);
             }
             e.diagram.commitTransaction("toggled visibility of dependencies");
           }

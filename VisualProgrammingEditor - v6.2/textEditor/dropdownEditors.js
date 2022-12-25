@@ -38,7 +38,7 @@ function editorShow(textBlock, diagram, tool, customSelectBox, selectEditor) {
     var pos = diagram.transformDocToView(loc);
 
     if(selectEditor == editorEnum.operator) {
-      customSelectBox.style.left = pos.x - (diagram.scale * 10) + "px";
+      customSelectBox.style.left = pos.x - (diagram.scale) + "px";
       customSelectBox.style.top  = pos.y - 5 + "px";
       customSelectBox.style.width = diagram.scale * 40 + "px";
       customSelectBox.style.position = 'absolute';

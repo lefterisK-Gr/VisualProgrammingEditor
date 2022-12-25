@@ -1,0 +1,1 @@
+var commentTemplate = $(go.Node, "Spot", commentStyle());

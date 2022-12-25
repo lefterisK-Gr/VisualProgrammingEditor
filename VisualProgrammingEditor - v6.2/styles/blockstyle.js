@@ -17,7 +17,7 @@ function blockStyle(block_kind) {
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
         selectionStyle(), 
         {name: "blocks",
-          deletable: (block_kind == block.stmt)
+          deletable: (block_kind != block.main)
         },
         $(go.Panel, "Vertical",
           new go.Binding("itemArray","items"),

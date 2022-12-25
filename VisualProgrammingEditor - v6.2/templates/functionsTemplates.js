@@ -103,12 +103,38 @@
 		if (node.data.isCollapsed || ((node !== start) && (node.data.type !== "Comment") )) return;
 		node.diagram.model.setDataProperty(node.data, "isCollapsed", true);
 		if (node !== start) node.diagram.model.setDataProperty(node.data, "visible", false);
-		node.findNodesInto().each(collapseFrom);
+		node.findNodesOutOf().each(collapseFrom);
 	}
 
 	function expandFrom(node, start) {
 		if (!node.data.isCollapsed || ((node !== start) && (node.data.type !== "Comment") )) return;
 		node.diagram.model.setDataProperty(node.data, "isCollapsed", false);
 		if (node !== start) node.diagram.model.setDataProperty(node.data, "visible", true);
-		node.findNodesInto().each(expandFrom);
+		node.findNodesOutOf().each(expandFrom);
+	}
+
+	function addNodeAndLink(e, obj) {
+		e.diagram.startTransaction("Add State");
+		// get the node data for which the user clicked the button
+		var fromNode = obj.part;
+		console.log(fromNode.data)
+		var fromData = fromNode.data;
+		// create a new "State" data object, positioned off to the right of the adorned Node
+		var toData = { type: "Comment", text: "new"};
+		var p = fromNode.location;
+		console.log(p)
+		toData.loc = p.x + 200 + " " + p.y;  // the "loc" property is a string, not a Point object
+		// add the new node data to the model
+		var model = myDiagram.model;
+		model.addNodeData(toData);
+		// create a link data from the old node data to the new node data
+		var linkdata = {category:"Comment"};
+		linkdata[model.linkFromKeyProperty] = model.getKeyForNodeData(fromData);
+		linkdata[model.linkToKeyProperty] = model.getKeyForNodeData(toData);
+		// and add the link data to the model
+		model.addLinkData(linkdata);
+		// select the new Node
+		var newnode = myDiagram.findNodeForData(toData);
+		myDiagram.select(newnode);
+		e.diagram.commitTransaction("Add State");
 	}
