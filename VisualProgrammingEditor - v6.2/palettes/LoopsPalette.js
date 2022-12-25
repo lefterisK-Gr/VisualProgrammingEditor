@@ -7,6 +7,7 @@ var loopsPaletteComps = [
   ], group: 1},
   {key: 4, type: "funBlocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true} 
   ], group: 1},
+  { key: -1, text: "Enter Comment", type: "Comment", group: 1 },
 
   {key: 5, type: "forGroup", isGroup: true},
   {key: 6, type: "for", group: 5},
@@ -18,20 +19,28 @@ var loopsPaletteComps = [
   ], group: 5},
   {key: 8, type: "funBlocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true} 
   ], group: 5},
+  { key: -2, text: "Enter Comment", type: "Comment", group: 5 },
 
   { key: 9, type: "breakGroup", isGroup: true },
   { key: 10, type: "break", group: 9 },
+  { key: -3, text: "Enter Comment", type: "Comment", group: 9 },
 
   { key: 11, type: "continueGroup", isGroup: true },
   { key: 12, type: "continue", group: 11 },
+  { key: -4, text: "Enter Comment", type: "Comment", group: 11 },
 ];
 
 var loopsPaletteLinks = [
 
   { category: "Reversed", from: 2, to: 3},
   { from: 3, to: 4 , fromPort: "if_true_part", toPort: "in"},
+  { from: -1, to: 2, category: "Comment" },
 
   { category: "Reversed", from: 6, to: 7},
   { from: 7, to: 8 , fromPort: "contains", toPort: "in"},
+  { from: -2, to: 6, category: "Comment" },
 
+  { from: -3, to: 10, category: "Comment" },
+
+  { from: -4, to: 12, category: "Comment" },
 ];

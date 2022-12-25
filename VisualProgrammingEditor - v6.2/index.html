@@ -245,6 +245,27 @@
         myDiagram.nodeTemplateMap.add("funBlocks", funBlocksTemplate);
 
         myDiagram.add(recycleTemplate);
+        myDiagram.nodeTemplateMap.add("Comment",
+        $(go.Node,  // this needs to act as a rectangular shape for BalloonLink,
+          { background: "lightyellow", visible: false },  // which can be accomplished by setting the background.
+          new go.Binding("visible"),
+          new go.Binding("visible", "key", function(v, node) {// show when dropping function
+          if(myDiagram.findNodeForKey(v)) {
+            return true
+          }
+          return false;
+        }).ofObject(),
+          $(go.TextBlock,
+            { stroke: "brown", margin: 3, editable: true, width: 90 },
+            new go.Binding("text"))
+        ));
+        myDiagram.linkTemplateMap.add("Comment",
+        // if the BalloonLink class has been loaded from the Extensions directory, use it
+        $(go.Link,
+          $(go.Shape,  // the Shape.geometry will be computed to surround the comment node and
+            // point all the way to the commented node
+            { stroke: "brown", strokeWidth: 1, fill: "lightyellow" })
+        ));
 
         function paletteProperties(paletteComps, paletteLinks) {
           return {

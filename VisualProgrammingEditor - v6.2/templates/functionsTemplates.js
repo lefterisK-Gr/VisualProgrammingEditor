@@ -96,3 +96,19 @@
 		}
 		myDiagram.commitTransaction("makeBreakpoint");
 	}
+
+	function collapseFrom(node, start) {
+		console.log(node.data)
+		console.log(start)
+		if (node.data.isCollapsed || ((node !== start) && (node.data.type !== "Comment") )) return;
+		node.diagram.model.setDataProperty(node.data, "isCollapsed", true);
+		if (node !== start) node.diagram.model.setDataProperty(node.data, "visible", false);
+		node.findNodesInto().each(collapseFrom);
+	}
+
+	function expandFrom(node, start) {
+		if (!node.data.isCollapsed || ((node !== start) && (node.data.type !== "Comment") )) return;
+		node.diagram.model.setDataProperty(node.data, "isCollapsed", false);
+		if (node !== start) node.diagram.model.setDataProperty(node.data, "visible", true);
+		node.findNodesInto().each(expandFrom);
+	}

@@ -1,37 +1,10 @@
-function nodeHoverAdornment() {
-    return [$(go.Adornment, "Spot",
-      {
-        //background: "transparent",
-        // hide the Adornment when the mouse leaves it
-        mouseLeave: (e, obj) => {
-          var ad = obj.part;
-          ad.adornedPart.removeAdornment("mouseBlockHover");
-        }
-      },
-      $(go.Placeholder,
-        {
-          //background: "transparent",  // to allow this Placeholder to be "seen" by mouse events
-          isActionable: true,  // needed because this is in a temporary Layer
-          click: (e, obj) => {
-            var node = obj.part.adornedPart;
-            node.diagram.select(node);
-          }
-        }),
-      $("Button",
-        { alignment: go.Spot.Left, alignmentFocus: go.Spot.Right },
-        { click: (e, obj) => alert("Hi!") },
-        $(go.TextBlock, "Hi!")),
-      $("Button",
-        { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left },
-        { click: (e, obj) => alert("Bye") },
-        $(go.TextBlock, "Bye"))
-    )];
-  }
 function adornmentHover(e, obj) {
-  var node = obj.part;
-  console.log(node.data);
+  var node = obj;
+  myDiagram.nodes.each(function (n) {
+    n.removeAdornment("mouseBlockHover");
+  })
   nodeHoverAdornment.adornedObject = node;
-  node.addAdornment("mouseBlockHover", nodeHoverAdornment);
+  node.part.addAdornment("mouseBlockHover", nodeHoverAdornment);
 }
 function blockStyle(block_kind) {
     return [
@@ -60,7 +33,7 @@ function blockStyle(block_kind) {
                   {stroke: blockTextStroke(block_kind)}
                 ),
                 {
-                  click: (e, obj) => {
+                  mouseEnter: (e, obj) => {
                     adornmentHover(e, obj);
                   }
                 }
@@ -82,23 +55,6 @@ function blockStyle(block_kind) {
             desiredSize: new go.Size(30, 30),
             alignment: go.Spot.Top, alignmentFocus: new go.Spot(0.5, 0.8)
           }
-        ),
-        $(go.Panel, "Horizontal", //add this to fun
-          {alignment: go.Spot.Bottom},
-          $("Button",
-            $(go.Shape, "PlusLine", { width: 10, height: 10 }),
-            {
-              name: "BUTTON", 
-              click: (e, button) => addBlock(button.part)
-            },
-          ),
-          $("Button",
-            $(go.Shape, "MinusLine", { width: 10, height: 10 }),
-            { 
-              name: "BUTTON2", 
-              click: (e, button) => removeBlock(button.part)
-            },
-          )   
         ),
         $(go.Panel, "Vertical", //add this to fun
           {alignment: go.Spot.TopRight},

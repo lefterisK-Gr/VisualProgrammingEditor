@@ -5,8 +5,10 @@ var ioPaletteComps = [
     {portId: "1"}, //remove portId, just args_via_object
     {portId: "2"} 
   ], group: 1},
+  { key: -1, text: "Enter Comment", type: "Comment", group: 1 },
 ];
 
 var ioPaletteLinks = [
   { category: "Reversed", from: 2, to: 3},
+  { from: -1, to: 2, category: "Comment" },
 ];

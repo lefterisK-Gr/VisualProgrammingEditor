@@ -115,6 +115,30 @@
           }
         }
       ),
+      $("Button",  // a replacement for "TreeExpanderButton" that works for non-tree-structured graphs
+        // assume initially not visible because there are no links coming out
+        // { visible: true },
+        // // bind the button visibility to whether it's not a leaf node
+        // new go.Binding("visible", "isTreeLeaf", leaf => !leaf).ofObject(),
+        {
+          alignment: new go.Spot(0.2, 0.2)
+        },
+        $(go.TextBlock, "i",
+        {desiredSize: new go.Size(5,10)}),
+        {
+          click: (e, obj) => {
+            e.diagram.startTransaction();
+            var node = obj.part;
+            console.log(node.data)
+            if (node.data.isCollapsed) {
+              
+              expandFrom(node, node);
+            } else {
+              collapseFrom(node, node);
+            }
+            e.diagram.commitTransaction("toggled visibility of dependencies");
+          }
+        }),
       $("Button",
         {
           width: 12,

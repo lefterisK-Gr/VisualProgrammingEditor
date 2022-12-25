@@ -1,7 +1,12 @@
 function parse(storeJSON) {
     const data = JSON.parse(storeJSON);
-
-    const ast = createAST(data.nodeDataArray, data.linkDataArray);
+    var nodeArray = data.nodeDataArray.filter(function( obj ) {
+        return obj.type !== 'Comment';
+    });
+    var linkArray = data.linkDataArray.filter(function(obj) {
+        return obj.category !== 'Comment';
+    });
+    const ast = createAST(nodeArray, data.linkDataArray);
 
     return ast;
 }

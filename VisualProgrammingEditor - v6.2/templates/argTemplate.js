@@ -196,6 +196,7 @@
       //settings adornment 
       if(varType == 0) {
         console.log(node.part.data)
+        console.log(argSettingsAdornment);
         argSettingsAdornment.adornedObject = node;
         node.part.addAdornment(mouseSettingsSelect, argSettingsAdornment);//argHoverAdornment
       }

@@ -5,8 +5,10 @@ var mathPaletteComps = [
     {portId: "1"},
     {portId: "2"} 
   ], group: 1},
+  { key: -1, text: "Enter Comment", type: "Comment", group: 1 },
 ];
 
 var mathPaletteLinks = [
   { category: "Reversed", from: 2, to: 3},
+  { from: -1, to: 2, category: "Comment" },
 ];
