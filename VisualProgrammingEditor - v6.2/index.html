@@ -427,6 +427,33 @@
         document.getElementById("myDropdown").classList.toggle("show");
       }
 
+      function export2txt() {
+        const originalData = {
+          members: [{
+              name: "cliff",
+              age: "34"
+            },
+            {
+              name: "ted",
+              age: "42"
+            },
+            {
+              name: "bob",
+              age: "12"
+            }
+          ]
+        };
+        console.log(savedModel);
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([savedModel], {
+          type: "text/plain"
+        }));
+        a.setAttribute("download", "data.txt");
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+
       // the Search functionality highlights all of the nodes that have at least one data property match a RegExp
       function searchDiagram() {  // called by button
           var input = document.getElementById("mySearch");
@@ -476,6 +503,7 @@
       <div class="editor-toolbar-logo">
         <img class="logo-image" src="logo/CodeChainsLogo.png" width="130" height="25">
       </div>
+      <button onclick="export2txt()">Export data to local txt file</button>
       <div class ="top-toolbar-buttons">
         <button class="undo-button" onclick="myDiagram.commandHandler.undo()"></button><!-- undo -->
         <div class="redo-button" onclick="myDiagram.commandHandler.redo()"></div><!-- redo -->

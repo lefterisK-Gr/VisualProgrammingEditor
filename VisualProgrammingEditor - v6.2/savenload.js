@@ -117,8 +117,10 @@ function save() {
     }
     else{
       const inLinks = n.findLinksInto().first();
-      const parentN = myDiagram.findNodeForKey(inLinks.data.from)
-      myDiagram.model.setDataProperty(parentN.data, "hasError", false)
+      if(inLinks) {
+        const parentN = myDiagram.findNodeForKey(inLinks.data.from)
+        myDiagram.model.setDataProperty(parentN.data, "hasError", false)
+      }
     }
   }
 
