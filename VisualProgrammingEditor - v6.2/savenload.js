@@ -86,6 +86,41 @@ function save() {
       updateCall(n)
     });
   }
+  const argsArray = ["args", "decl", "parameters", "propertyAccesors", "var"];
+  const statementArray = ["function", "varsDecl", "print", "if", "while", "for", "blocks", "break", "continue", "return"];
+
+  function isNodeArg(n, andBit) {
+    for(let i = 0; i < argsArray.length; i++){
+      if(argsArray[i] == n) {
+        return !andBit}
+    }
+    return andBit;
+  }
+
+  function inNodeFunction(n, andBit) {
+    for(let i = 0; i < statementArray.length; i++){
+      if(statementArray[i] == n) {
+        return !andBit
+      }
+    }
+    return andBit;
+  }
+  function errorChecking(link) {
+    const n = myDiagram.findNodeForKey(link.data.from)
+    const m = myDiagram.findNodeForKey(link.data.to)
+    console.log(n.data.type)
+    if(isNodeArg(n.data.type, false)
+      && inNodeFunction(m.data.type, false)) {
+        const inLinks = n.findLinksInto().first();
+        const parentN = myDiagram.findNodeForKey(inLinks.data.from)
+        myDiagram.model.setDataProperty(parentN.data, "hasError", true)
+    }
+    else{
+      const inLinks = n.findLinksInto().first();
+      const parentN = myDiagram.findNodeForKey(inLinks.data.from)
+      myDiagram.model.setDataProperty(parentN.data, "hasError", false)
+    }
+  }
 
   function layout() {
     myDiagram.layoutDiagram(true);

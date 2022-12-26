@@ -8,7 +8,7 @@
       parameter1: 10
     },
     new go.Binding("stroke", "isHighlighted", h => h ? "#7F00FF" : "darkslategray").ofObject(),
-    new go.Binding("strokeWidth", "isHighlighted", h => h ? 8 : 2).ofObject()
+    new go.Binding("strokeWidth", "isHighlighted", h => h ? 8 : 2).ofObject(),
   ];
   }
 
@@ -60,7 +60,11 @@
 
   function functionBoxStyle(functionName, shapeColor, isGroup) {
     if(functionName.endsWith("OP") && !isGroup) {
-      return $(go.Shape,"Circle", { width: 50, height: 50, fill: shapeColor});
+      return $(go.Shape,"Circle", 
+        { width: 50, height: 50, fill: shapeColor},
+        new go.Binding("stroke", "isHighlighted", h => h ? "#7F00FF" : "darkslategray").ofObject(),
+        new go.Binding("strokeWidth", "isHighlighted", h => h ? 8 : 2).ofObject()
+        );
     }
     if((functionName == "BREAK") || (functionName == "CONTINUE") || (functionName == "RETURN")) {
       return $(go.Shape, nodeFunctionShapeStyle(true),{ figure: "RoundedRectangle", fill: shapeColor })
@@ -160,6 +164,13 @@
         { alignment: new go.Spot(0.55, 0.8), visible: false},
         new go.Binding("visible", "breakpoint")
 			),
+      $(go.Picture, "./images/warning.png",
+        {
+          desiredSize: new go.Size(12, 12),
+        },
+        { alignment: new go.Spot(0.2, 0.8), visible: false},
+        new go.Binding("visible", "hasError")
+			),
       {
         mouseEnter: (e, obj) => {
           var node = obj.part;
@@ -176,6 +187,23 @@
           node.removeAdornment("mouseHover");
         }
       },
+      $(go.TextBlock,  // the error label
+        {
+          alignment: go.Spot.Bottom,
+          alignmentFocus: go.Spot.Top,
+          margin: 4,
+          width: 100,
+          stroke: "white",
+          font: "bold 12px sans-serif",
+          background: '#FF4444'
+        },
+        new go.Binding("visible", "isSelected", function (v, shape) {
+          console.log(shape.part.data.hasError)
+            return (shape.part.data.hasError && v) ? true : false
+        }).ofObject(),
+        new go.Binding("text", "hasError", function(v) {
+          return v ? "Error 3: Cant link statement to statement" : "";
+        }))
     ];
   }
 

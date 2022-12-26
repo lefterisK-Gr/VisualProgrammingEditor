@@ -80,6 +80,20 @@
 
           return patternCanvas;
         }
+        
+
+        function deleteGroupNodes(n) {
+          n.findNodesOutOf().each(v =>{
+          if(v.category == "funBlocks")
+            v.isSelected = true;
+          });
+          n.findNodesInto().each(v =>{
+          if(isNodeArg(v.category, true)) {
+            v.isSelected = true;
+          }
+          })
+        }
+
         var diagramHeight = 0;
         myDiagram =
           $(go.Diagram, "myDiagramDiv",  // create a new Diagram in the HTML DIV element "myDiagramDiv"
@@ -115,9 +129,19 @@
                     var node = p;
                     node.findNodesConnected().each(n => {
                       // remove every Comment Node that is connected with this node
-                      if (n.category === "Comment") {
-                        n.isSelected = true;  // include in normal deletion process
+                      if(isNodeArg(node.category, false)) {
+                        deleteGroupNodes(node)
                       }
+                      else {
+                        if (n.category === "Comment") {
+                          n.isSelected = true;  // include in normal deletion process
+                        }
+                        if(isNodeArg(n.category, false)) {
+                          deleteGroupNodes(n)
+                        }
+                        n.isSelected = true;
+                      }
+                      
                     });
                   } else if (p instanceof go.Link && p.category === "Comment") {
                     var comlink = p;  // a "Comment" Link
@@ -140,7 +164,9 @@
             {
               click: (e, obj) => { //make this function
                 myDiagram.nodes.each(function (n) {
-                  if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl" || n.data.type == "propertyAccesors" || n.data.type == "parameters") {
+                  if(isNodeArg(n.data.type, false)) {
+                    console.log(n)
+
                     n.elt(0).elt(1).elt(0).elements.each(it => {
                       setArgSelected(it.elt(0), false);
                     });
@@ -362,6 +388,7 @@
           var link = e.subject;
           maybeChangeLinkCategory(e)
           updateDecls();
+          errorChecking(link);
           n = myDiagram.findNodeForKey(link.data.to); // get the node to where link drew
           updateVar(n);
           if(n.data.type == "varsDecl") { updateVars() }
