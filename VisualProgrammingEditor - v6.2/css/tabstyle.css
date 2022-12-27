@@ -1,4 +1,4 @@
-  input {
+  .tab-input {
     position: absolute;
     opacity: 0;
     z-index: -1;
@@ -94,12 +94,12 @@
     background: #332271;
   }
   
-  input:checked + .tab-label {
+  .tab-input:checked + .tab-label {
     background: #332271;
   }
-  input:checked + .tab-label::after {
+  .tab-input:checked + .tab-label::after {
     transform: rotate(90deg);
   }
-  input:checked ~ .tab-content {
+  .tab-input:checked ~ .tab-content {
     max-height: 100vh;
   }

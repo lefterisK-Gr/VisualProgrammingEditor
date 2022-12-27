@@ -423,27 +423,15 @@
     <script>
       /* When the user clicks on the button, 
       toggle between hiding and showing the dropdown content */
+      function myFunction() {
+        document.getElementById("fileDropdown").classList.toggle("fileshow");
+      }
+
       function activateDropdown() {
         document.getElementById("myDropdown").classList.toggle("show");
       }
 
       function export2txt() {
-        const originalData = {
-          members: [{
-              name: "cliff",
-              age: "34"
-            },
-            {
-              name: "ted",
-              age: "42"
-            },
-            {
-              name: "bob",
-              age: "12"
-            }
-          ]
-        };
-        console.log(savedModel);
         const a = document.createElement("a");
         a.href = URL.createObjectURL(new Blob([savedModel], {
           type: "text/plain"
@@ -503,7 +491,17 @@
       <div class="editor-toolbar-logo">
         <img class="logo-image" src="logo/CodeChainsLogo.png" width="130" height="25">
       </div>
-      <button onclick="export2txt()">Export data to local txt file</button>
+      <div class="file-dropdown">
+        <button onclick="myFunction()" class="filedropbtn">File</button>
+        <div id="fileDropdown" class="file-dropdown-content">
+          <button class="saveFile" onclick="export2txt()">Export Visual Code</button>
+          <label for="upload" class="custom-file-upload">
+            Import Visual Code
+          </label>
+          <input class="loadFile" type="file" id="upload">
+        </div>
+      </div>
+      <script src="loadFile.js"></script>
       <div class ="top-toolbar-buttons">
         <button class="undo-button" onclick="myDiagram.commandHandler.undo()"></button><!-- undo -->
         <div class="redo-button" onclick="myDiagram.commandHandler.redo()"></div><!-- redo -->
@@ -577,49 +575,49 @@
     <div style="width: 100%; height: calc(100% - 65px); display: flex; justify-content: space-between">
       <div class="tabs">
         <div class="tab">
-          <input type="radio" id="rd1" name="rd" checked="true">
+          <input class="tab-input" type="radio" id="rd1" name="rd" checked="true">
           <label class="tab-label" for="rd1">Logic</label>
           <div class="tab-content">
             <div id="logicPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
           </div>
         </div>
         <div class="tab">
-          <input type="radio" id="rd2" name="rd">
+          <input class="tab-input" type="radio" id="rd2" name="rd">
           <label class="tab-label" for="rd2">Loops</label>
           <div class="tab-content">
             <div id="loopsPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
           </div>
         </div>
         <div class="tab">
-          <input type="radio" id="rd3" name="rd">
+          <input class="tab-input" type="radio" id="rd3" name="rd">
           <label class="tab-label" for="rd3">Math</label>
           <div class="tab-content">
             <div id="mathPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
           </div>
         </div>
         <div class="tab">
-          <input type="radio" id="rd4" name="rd">
+          <input class="tab-input" type="radio" id="rd4" name="rd">
           <label class="tab-label" for="rd4">Object/Array</label>
           <div class="tab-content">
             <div id="objectArrayPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
           </div>
         </div>
         <div class="tab">
-          <input type="radio" id="rd5" name="rd">
+          <input class="tab-input" type="radio" id="rd5" name="rd">
           <label class="tab-label" for="rd5">Variables</label>
           <div class="tab-content">
             <div id="variablesPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
           </div>
         </div>
         <div class="tab">
-          <input type="radio" id="rd6" name="rd">
+          <input class="tab-input" type="radio" id="rd6" name="rd">
           <label class="tab-label" for="rd6">IO</label>
           <div class="tab-content">
             <div id="ioPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
           </div>
         </div>
         <div class="tab">
-          <input type="radio" id="rd7" name="rd">
+          <input class="tab-input" type="radio" id="rd7" name="rd">
           <label class="tab-label" for="rd7">Functions</label>
           <div class="tab-content">
             <div id="functionsPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
