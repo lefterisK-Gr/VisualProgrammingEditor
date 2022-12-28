@@ -152,7 +152,10 @@ function getUniqueKey() {
 
 function setGetElem_Items(item, functionItem) {
     let linkToParentItem = functionItem.findLinksInto().first(); // there is only one for function box
-
+    console.log(linkToParentItem)
+    if(parentNode == null) {
+        return; // error code
+    }
     var parentNode;
     var parentFunctionNode;
 
