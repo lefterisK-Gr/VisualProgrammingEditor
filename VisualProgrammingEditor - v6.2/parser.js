@@ -6,7 +6,7 @@ function parse(storeJSON) {
     var linkArray = data.linkDataArray.filter(function(obj) {
         return obj.category !== 'Comment';
     });
-    const ast = createAST(nodeArray, data.linkDataArray);
+    const ast = createAST(nodeArray, linkArray);
 
     return ast;
 }
@@ -24,12 +24,9 @@ function createAST(nodes, links) {
     }
 
     const tree = [];
-    console.log(myLinkMap)
     for (let i = 0; i < nodes.length; i += 1) { //reverse items and arguments
         const item = nodes[i];
         delete item.breakpoint;
-
-        console.log(item)
 
         if(item.items) {
             item.items.forEach( function(v) {
@@ -56,7 +53,6 @@ function createAST(nodes, links) {
             let transformedDecl;
             for(j=0 ; j < linkItem.length; j++) {
                 var parentItem = myNodeMap.get(linkItem[j].from);
-                console.log(parentItem)
                 if(parentItem) { 
                     if (linkItem[j].category == "Reversed") {// Built-In Link
                         parentItem.items = [];
@@ -67,14 +63,12 @@ function createAST(nodes, links) {
                             parentItem.items.push({portId: "( )", connectedBlock: true})
                         }
                         var index = parentItem.items.map(function(e) { return e.portId}).indexOf(linkItem[j].fromPort)
-                        console.log(linkItem[j])
                         if(item.type == "decl" || item.type == "args") {
                             cloneItem = JSON.parse(JSON.stringify(item))
                             transformedDecl = convertItemToRef(cloneItem, linkItem[j]);
                             parentItem.items[index].argument = transformedDecl;
                         }
                         else {// connection to functionbox
-                            console.log(parentItem)
                             parentItem.items[index].argument = item; 
                         }
                     }
@@ -93,10 +87,9 @@ function convertItemToRef(item, link) {
 
     var tableIndex = Number(link.toPort.replace("inSlot",'')) - 1; 
 
-    const functionNode = getParentNode(item); //get parent of decl node
+    var functionNode = getParentNode(item); //get parent of decl node
 
     const newParamText = (item.type == "decl") ? item.items[tableIndex].variable : tableIndex; // get paramtext
-    console.log(newParamText);
     item.key = getUniqueKey(); // set key
 
     if(functionNode.data.type == "varsDecl") {
@@ -115,7 +108,6 @@ function convertItemToRef(item, link) {
                 "paramtext": newParamText
             }
         ];
-        console.log(item.items)
         setGetElem_Items(item, functionNode);
         setGetElem_PortIds(item);
     }
@@ -152,18 +144,50 @@ function getUniqueKey() {
 
 function setGetElem_Items(item, functionItem) {
     let linkToParentItem = functionItem.findLinksInto().first(); // there is only one for function box
-    console.log(linkToParentItem)
-    if(parentNode == null) {
+    if(linkToParentItem == null) {
+        myDiagram.model.setDataProperty(functionItem.data, "hasError", 2)
         return; // error code
     }
     var parentNode;
     var parentFunctionNode;
 
-    var tableIndex = Number(linkToParentItem.data.fromPort) - 1; // it is always a number for decls
+    const linkFromPort = linkToParentItem.data.fromPort;
+    var tableIndex = Number(linkFromPort) - 1; // it is always a number for decls, if it is string then its 
     parentNode = myDiagram.findNodeForKey(linkToParentItem.data.from) // get parent of functionNode (decl arguments)
     parentFunctionNode = getParentNode(parentNode); // get parent of parentNode ( Vars decl / Object )
+    const parentFunctionNodeType = parentFunctionNode.data.type;
 
-    const newParamText = (parentNode.data.type == "decl") ? parentNode.data.items[tableIndex].variable : tableIndex;
+    if(parentFunctionNodeType != "object" && parentFunctionNodeType != "varsDecl" && parentFunctionNodeType != "array") {
+        if(parentFunctionNodeType == "assign") {
+            if(linkFromPort != "rhs") { // it should be rhs
+                myDiagram.model.setDataProperty(functionItem.data, "hasError", 2)
+            }
+            else{ // it is rhs so check type of lhs
+                const assignLinks = parentNode.findLinksOutOf();
+                var linkIterator = assignLinks.iterator;
+
+                while(linkIterator.next()) {
+                  var i_item = linkIterator.value;
+                  if(i_item.data.fromPort == "lhs") {
+                    var lhsNode = myDiagram.findNodeForKey(i_item.data.to);
+                    break;
+                  }      
+                }
+                const varRefArgsAssigned = myDiagram.findNodeForKey(lhsNode.findLinksOutOf().first().data.to);
+                console.log(varRefArgsAssigned.data.items.length) // since there is assignment then it should be get elem
+                // it would be varRef if there wasnt in rhs object or array and only number, in that case link to rhs of assign.
+                for( let i = varRefArgsAssigned.data.items.length; i > 0; i--) {
+                    console.log(varRefArgsAssigned.data.items[varRefArgsAssigned.data.items.length - 1].paramtext);
+                    var newAssignParamText = varRefArgsAssigned.data.items[i - 1].paramtext
+                    item.items.unshift({
+                        "paramtext": newAssignParamText
+                    })
+                }
+            }
+        }
+        return;
+    }
+    const newParamText = (parentNode.data.type == "decl") ? parentNode.data.items[tableIndex].variable : tableIndex; // tableindex when its array
     item.items.unshift({
         "paramtext": newParamText
     }) // set item to beginning of items array

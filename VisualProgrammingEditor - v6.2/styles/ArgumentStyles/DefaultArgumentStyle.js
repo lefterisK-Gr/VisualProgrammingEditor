@@ -122,7 +122,7 @@ function argStyle() {
             var i_item = linkIterator.value;
             parentNode = myDiagram.findNodeForKey(i_item.data.from)
 
-            if(i_item.data.type != "Reversed") {continue;}
+            if(i_item.data.type == "Reversed") {break;}
           }
           return (parentNode.data.type == "array");
         }).ofObject(),

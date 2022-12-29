@@ -201,8 +201,6 @@ function generateStatement(stmt, stack, frame, functionFrame) { // recursive fun
         const update = arguments[2].replace(/\;$/, '');;
         const contains = arguments[3].replace(/\;$/, '');;
 
-        
-        console.log(`${initialize}`);
         return `for ( ${initialize}; ${condition}; ${update} ) {\n${contains}\n}`;
     } 
     else if(stmt.type == "blocks") {
@@ -250,10 +248,8 @@ function generateExpression(expr, stack, frame, functionFrame) { // recursive fu
             return generateExpressionFromArgument(arg, stack, frame, functionFrame)
         }); //only final argument has real value
 
-        console.log(variables);
         variables.forEach(function (item, index) {
             if(index != variables.length && stack[item]) {
-                console.log(item);
                 setVariable(stack, item, variables[variables.length - 1]);
                 if(!changedFrame) {
                     changedFrame = true;
@@ -335,7 +331,6 @@ function generateExpression(expr, stack, frame, functionFrame) { // recursive fu
 function generateExpressionFromArgument(arg, stack, frame, functionFrame) {
     if(arg.argument || arg.connectedBlock){ //there is no need for connectedBlock
         if(arg.portId=="initialize" && arg.argument.type == "varsDecl") {
-            console.log(arg.argument);
             return varDeclarationStmt(arg.argument, stack, frame);
         }
         return generateExpression(arg.argument, stack, frame, functionFrame);

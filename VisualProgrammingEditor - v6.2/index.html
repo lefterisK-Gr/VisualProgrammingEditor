@@ -127,7 +127,7 @@
                 parts.copy().each(p => {
                   if (p instanceof go.Node) {
                     var node = p;
-                    node.findNodesConnected().each(n => {
+                    node.findNodesOutOf().each(n => {
                       // remove every Comment Node that is connected with this node
                       if(isNodeArg(node.category, false)) {
                         deleteGroupNodes(node)
@@ -165,7 +165,6 @@
               click: (e, obj) => { //make this function
                 myDiagram.nodes.each(function (n) {
                   if(isNodeArg(n.data.type, false)) {
-                    console.log(n)
 
                     n.elt(0).elt(1).elt(0).elements.each(it => {
                       setArgSelected(it.elt(0), false);
@@ -461,7 +460,7 @@
               { items: function(n) {
                 if(n){
                   let i = 0;
-                  console.log(n[0].portId);
+
                   while(n[i]) {
                     if(regex.test(n[i].portId) || regex.test(n[i].paramtext) || regex.test(n[i].variable))
                     { return true; }
@@ -472,7 +471,6 @@
               }
 );
 
-            console.log(results);
             myDiagram.highlightCollection(results);
             // try to center the diagram at the first node that was found
             if (results.count > 0) myDiagram.centerRect(results.first().actualBounds);

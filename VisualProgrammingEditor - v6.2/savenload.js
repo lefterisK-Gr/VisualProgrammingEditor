@@ -57,7 +57,6 @@ function save() {
   function updateDecls() {
     tempAstModel = parse(myDiagram.model.toJson());
     generate(tempAstModel); //upadte declared variables
-    console.log(functionStackFrames);
   }
 
   function updateVar(n) {
@@ -70,7 +69,6 @@ function save() {
 
   function updateVars() {
     myDiagram.nodes.each(function(n) {
-      console.log(n.data);
       if (n.data && (n.data.type == "var" || n.data.type == "propertyAccesors") ) { n.updateTargetBindings("choices") }
     });
   }
@@ -108,19 +106,11 @@ function save() {
   function errorChecking(link) {
     const n = myDiagram.findNodeForKey(link.data.from)
     const m = myDiagram.findNodeForKey(link.data.to)
-    console.log(n.data.type)
     if(isNodeArg(n.data.type, false)
       && inNodeFunction(m.data.type, false)) {
         const inLinks = n.findLinksInto().first();
         const parentN = myDiagram.findNodeForKey(inLinks.data.from)
-        myDiagram.model.setDataProperty(parentN.data, "hasError", true)
-    }
-    else{
-      const inLinks = n.findLinksInto().first();
-      if(inLinks) {
-        const parentN = myDiagram.findNodeForKey(inLinks.data.from)
-        myDiagram.model.setDataProperty(parentN.data, "hasError", false)
-      }
+        myDiagram.model.setDataProperty(parentN.data, "hasError", 1)
     }
   }
 

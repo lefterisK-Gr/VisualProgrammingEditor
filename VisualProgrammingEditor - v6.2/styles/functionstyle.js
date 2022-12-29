@@ -108,9 +108,7 @@
         {
           height: 15, width: 15, alignment: new go.Spot(0.9 , 0.8)
         },
-        new go.Binding("visible", "key", function(v) {
-          return ((functionName == "FUNCTION") || (functionName == "CALL"))
-        }),
+        new go.Binding("visible", "key"),
         $(go.Picture, "./images/dots.png", { name: "SETTINGSPIC", width: 11, height: 11}),
         {
           click: function(e, obj) {
@@ -133,10 +131,8 @@
           click: (e, obj) => {
             e.diagram.startTransaction();
             var node = obj.part;
-            console.log(node.data)
             
             if (node.data.isCollapsed) {
-              console.log("in expand")
               expandFrom(node, node);
             } else {
               if(node.data.isCollapsed == undefined){
@@ -198,11 +194,10 @@
           background: '#FF4444'
         },
         new go.Binding("visible", "isSelected", function (v, shape) {
-          console.log(shape.part.data.hasError)
             return (shape.part.data.hasError && v) ? true : false
         }).ofObject(),
         new go.Binding("text", "hasError", function(v) {
-          return v ? "Error 3: Cant link statement to statement" : "";
+          return v ? "Error " + v + errorTypes[v] : "";
         }))
     ];
   }

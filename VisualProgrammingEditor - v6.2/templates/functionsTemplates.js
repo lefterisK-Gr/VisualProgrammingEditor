@@ -23,18 +23,19 @@
 	
 	var breakpoints = [];
 
+	var errorTypes = {
+		1: ": Can't link statement to statement",
+		2: ": There is no declaration, can't direct link to argument"
+	}
+
 	function levelFunctionNamesIntellisense(v, args) {
 		var fDeclared; //function Declared
-		console.log(functionStackFrames)
 		functionStackFrames.some(stackFrame => {
-			console.log(stackFrame)
 			if(stackFrame.refs.indexOf(args.part.data.key) >= 0)
       { 
         fDeclared = stackFrame.functions;
       }
 		})
-		console.log(functionStackFrames[0].functions)
-		console.log(fDeclared)
 		return fDeclared ? fDeclared : null;
 	}
 
@@ -98,8 +99,7 @@
 	}
 
 	function collapseFrom(node, start) {
-		console.log(node.data)
-		console.log(start)
+
 		if (node.data.isCollapsed || ((node !== start) && (node.data.type !== "Comment") )) return;
 		node.diagram.model.setDataProperty(node.data, "isCollapsed", true);
 		if (node !== start) node.diagram.model.setDataProperty(node.data, "visible", false);
@@ -117,12 +117,10 @@
 		e.diagram.startTransaction("Add State");
 		// get the node data for which the user clicked the button
 		var fromNode = obj.part;
-		console.log(fromNode.data)
 		var fromData = fromNode.data;
 		// create a new "State" data object, positioned off to the right of the adorned Node
 		var toData = { type: "Comment", text: "new"};
 		var p = fromNode.location;
-		console.log(p)
 		toData.loc = p.x + 200 + " " + p.y;  // the "loc" property is a string, not a Point object
 		// add the new node data to the model
 		var model = myDiagram.model;

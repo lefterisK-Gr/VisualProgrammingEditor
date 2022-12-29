@@ -45,19 +45,16 @@
     }
 
     function addTopBlock(block) {
-      console.log(block.data)
       addBlock(block)
       myDiagram.startTransaction("add top block");
       if (!(block instanceof go.Node)) return;
       const outLink = block.findLinksOutOf();
       const totalLinks = outLink.count;
-      console.log(outLink.count)
       var linkIterator = outLink.iterator;
       let i = 0;
       while(linkIterator.first()) {
         if( i == totalLinks) break;
         var i_link = linkIterator.value;
-        console.log(i_link.data)
 
         var linkdata = {fromPort: (Number(i_link.data.fromPort) + 1).toString(), toPort: "in", "category":"BlockToNode"};
         linkdata[myDiagram.model.linkFromKeyProperty] = i_link.data.from;
@@ -75,13 +72,11 @@
       if (!(block instanceof go.Node)) return;
       const outLink = block.findLinksOutOf();
       const totalLinks = outLink.count;
-      console.log(outLink.count);
       var linkIterator = outLink.iterator;
       let i = 0;
       while(linkIterator.first()) {
         if( i == totalLinks) break;
         var i_link = linkIterator.value;
-        console.log(i_link.data)
         if(Number(i_link.data.fromPort) > 1) {
           var linkdata = {fromPort: (Number(i_link.data.fromPort) - 1).toString(), toPort: "in", "category":"BlockToNode"};
           linkdata[myDiagram.model.linkFromKeyProperty] = i_link.data.from;
@@ -97,20 +92,17 @@
     }
 
     function addBetweenBlock(block) {
-      console.log(block.data.portId)
       const allBlocks = block.adornedObject.part
       addBlock(allBlocks)
       myDiagram.startTransaction("add top block");
       if (!(allBlocks instanceof go.Node)) return;
       const outLink = allBlocks.findLinksOutOf();
       const totalLinks = outLink.count;
-      console.log(outLink.count)
       var linkIterator = outLink.iterator;
       let i = 0;
       while(linkIterator.first()) {
         if( i == totalLinks) break;
         var i_link = linkIterator.value;
-        console.log(i_link.data)
 
         if(Number(i_link.data.fromPort) > block.data.portId) {
           var linkdata = {fromPort: (Number(i_link.data.fromPort) + 1).toString(), toPort: "in", "category":"BlockToNode"};
@@ -131,13 +123,11 @@
       if (!(allBlocks instanceof go.Node)) return;
       const outLink = allBlocks.findLinksOutOf();
       const totalLinks = outLink.count;
-      console.log(outLink.count);
       var linkIterator = outLink.iterator;
       let i = 0;
       while(linkIterator.first()) {
         if( i == totalLinks) break;
         var i_link = linkIterator.value;
-        console.log(i_link.data)
         if(Number(i_link.data.fromPort) > (block.data.portId + 1)) {
           var linkdata = {fromPort: (Number(i_link.data.fromPort) - 1).toString(), toPort: "in", "category":"BlockToNode"};
           linkdata[myDiagram.model.linkFromKeyProperty] = i_link.data.from;
