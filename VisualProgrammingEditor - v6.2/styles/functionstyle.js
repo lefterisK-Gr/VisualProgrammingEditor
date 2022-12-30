@@ -132,12 +132,12 @@
             e.diagram.startTransaction();
             var node = obj.part;
             
-            if (node.data.isCollapsed) {
+            if (node.data.isCommentCollapsed) {
               expandFrom(node, node);
             } else {
-              if(node.data.isCollapsed == undefined){
-                node.data.isCollapsed = false;
-                addNodeAndLink(e, obj)
+              if(node.data.isCommentCollapsed == undefined){
+                node.data.isCommentCollapsed = false;
+                addCommentAndLink(e, obj)
               }
               else
                 collapseFrom(node, node);

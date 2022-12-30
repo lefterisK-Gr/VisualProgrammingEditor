@@ -127,22 +127,28 @@
                 parts.copy().each(p => {
                   if (p instanceof go.Node) {
                     var node = p;
-                    node.findNodesOutOf().each(n => {
+                    if(isNodeArg(node.category, false)) {
+                      deleteGroupNodes(node)
+                    }
+                    else if(isNodeFunBlock(node.category)) {
+                      console.log("FunBlocks")
+                      let nodeArgs = node.findNodesInto().first();
+                      deleteGroupNodes(nodeArgs);
+                      nodeArgs.isSelected = true;
+                    }
+                    else{
+                      node.findNodesOutOf().each(n => {
                       // remove every Comment Node that is connected with this node
-                      if(isNodeArg(node.category, false)) {
-                        deleteGroupNodes(node)
+                      if (n.category === "Comment") {
+                        n.isSelected = true;  // include in normal deletion process
                       }
-                      else {
-                        if (n.category === "Comment") {
-                          n.isSelected = true;  // include in normal deletion process
-                        }
-                        if(isNodeArg(n.category, false)) {
-                          deleteGroupNodes(n)
-                        }
-                        n.isSelected = true;
+                      if(isNodeArg(n.category, false)) {
+                        deleteGroupNodes(n)
                       }
-                      
+                      n.isSelected = true;
                     });
+                    }
+                    
                   } else if (p instanceof go.Link && p.category === "Comment") {
                     var comlink = p;  // a "Comment" Link
                     var comnode = comlink.fromNode;
@@ -212,6 +218,7 @@
         var blueArrowBrush = "#003366";
         var blueArrowHeadBrush = "#3399FF";
         var purpleArrowBrush = "#4C0099";
+        var orangeArrowBrush = "#FF8000";
 
         // creates relinkable Links that will avoid crossing Nodes when possible and will jump over other Links in their paths
         myDiagram.linkTemplate =
@@ -232,25 +239,258 @@
             )
             );
 
-          myDiagram.linkTemplateMap.add("Reversed",
-              $(go.Link,
-                new go.Binding("isShadowed", "isSelected").ofObject(),
-                {selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
-                shadowOffset: new go.Point(0, 0), shadowBlur: 10, shadowColor: "red"},
-                $(go.Shape, { strokeWidth: 4, stroke: greenArrowBrush }),
-                $(go.Shape, { strokeWidth: 2, fromArrow: "Backward" , stroke: greenArrowHeadBrush, fill: greenArrowHeadBrush}),
-              )
-            );
-
-          myDiagram.linkTemplateMap.add("BlockToNode",
+        myDiagram.linkTemplateMap.add("Reversed",
             $(go.Link,
               new go.Binding("isShadowed", "isSelected").ofObject(),
               {selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
               shadowOffset: new go.Point(0, 0), shadowBlur: 10, shadowColor: "red"},
-              $(go.Shape, { strokeWidth: 4, stroke: purpleArrowBrush })
+              $(go.Shape, { strokeWidth: 4, stroke: greenArrowBrush }),
+              $(go.Shape, { strokeWidth: 2, fromArrow: "Backward" , stroke: greenArrowHeadBrush, fill: greenArrowHeadBrush}),
             )
           );
-              
+
+        myDiagram.linkTemplateMap.add("BlockToNode",
+          $(go.Link,
+            new go.Binding("isShadowed", "isSelected").ofObject(),
+            {selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
+            shadowOffset: new go.Point(0, 0), shadowBlur: 10, shadowColor: "red"},
+            $(go.Shape, { strokeWidth: 4, stroke: purpleArrowBrush })
+          )
+        );
+
+        myDiagram.linkTemplateMap.add("CollapseLink",
+          $(go.Link,
+            new go.Binding("isShadowed", "isSelected").ofObject(),
+            {selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
+            shadowOffset: new go.Point(0, 0), shadowBlur: 10, shadowColor: "red"},
+            $(go.Shape, { strokeWidth: 3, stroke: orangeArrowBrush, strokeDashArray: [3, 2]}),
+            $(go.Panel, "Auto",
+              $(go.Shape,  // the label background, which becomes transparent around the edges
+                {
+                  fill: $(go.Brush, "Radial",
+                    { 0: "rgb(240, 240, 240)", 0.3: "rgb(240, 240, 240)", 1: "rgba(240, 240, 240, 0)" }),
+                  stroke: null
+                }),
+              $(go.TextBlock, "transition",  // the label text
+                {
+                  textAlign: "center",
+                  font: "10pt helvetica, arial, sans-serif",
+                  stroke: "black",
+                  margin: 4,
+                },
+                new go.Binding("text", "text"))
+            )
+          )
+        );
+
+        function makeButton(text, action, visiblePredicate) {
+          return $("ContextMenuButton",
+            $(go.TextBlock, text),
+            { click: action },
+            // don't bother with binding GraphObject.visible if there's no predicate
+            visiblePredicate ? new go.Binding("visible", "", (o, e) => o.diagram ? visiblePredicate(o, e) : false).ofObject() : {});
+        }
+
+        function selectNodesReachButton() {
+          return $("ContextMenuButton",
+            $(go.TextBlock, "Select SubChains"),
+            { click: function(e, button) {
+              const node = button.part.adornedPart;
+              if (node !== null) {
+                myDiagram.startTransaction("select subtree");
+                myDiagram.selectCollection(node.findTreeParts());
+                myDiagram.commitTransaction("select subtree");
+              }
+              }
+            })
+        }
+
+        function selectNodesGroupButton() {
+          return $("ContextMenuButton",
+            $(go.TextBlock, "Select Group"),
+            { click: function(e, button) {
+              const node = button.part.adornedPart;
+              var nodeSelectArray = [];
+              if (node !== null) {
+                myDiagram.startTransaction("select group");
+                nodeSelectArray.push(node);
+                var selectArgs = node.findNodesOutOf().first();
+                nodeSelectArray.push(selectArgs);
+                var nodesOutOfArgs = selectArgs.findNodesOutOf();
+                nodesOutOfArgs.each(function(n) {
+                  console.log(n.data)
+                  if(n.data.type == "funBlocks") {
+                    nodeSelectArray.push(n);
+                  }
+                })
+                myDiagram.selectCollection(nodeSelectArray)
+                myDiagram.commitTransaction("select group");
+              }
+              }
+            })
+        }
+
+        function deleteButton() {
+          return $("ContextMenuButton",
+            $(go.TextBlock, "Delete"),
+            { click: function(e, button) {
+                var node = button.part.adornedPart;
+                e.diagram.select(node);
+                e.diagram.commandHandler.deleteSelection();
+              }
+            })
+        }
+
+        function addArgParamText(node, arg, i) {
+          myDiagram.startTransaction("Add Param");
+          console.log(toData)
+          // get the node data for which the user clicked the button
+          var fromData = node.data;
+          // create a new "State" data object, positioned off to the right of the adorned Node
+          var toData = { type: "ParamText", text: arg.paramtext};
+          var p = node.location;
+          const pYseperator = i * 100;
+          toData.loc = p.x + 200 + " " + Number(pYseperator + p.y) ;  // the "loc" property is a string, not a Point object
+          // add the new node data to the model
+          var model = myDiagram.model;
+          console.log(toData)
+          model.addNodeData(toData);
+          // create a link data from the old node data to the new node data
+          var linkdata = {category:"CollapseLink", text: arg.variable ? arg.variable : ( arg.parameter ? arg.parameter : arg.portId) };
+          linkdata[model.linkFromKeyProperty] = model.getKeyForNodeData(fromData);
+          linkdata[model.linkToKeyProperty] = model.getKeyForNodeData(toData);
+          // and add the link data to the model
+          model.addLinkData(linkdata);
+          // select the new Node
+          var newnode = myDiagram.findNodeForData(toData);
+          myDiagram.select(newnode);
+          myDiagram.commitTransaction("Add Param");
+        }
+        
+        function collapseArgs(node, args) {
+          if (node.data.isArgsCollapsed) return;
+          let outLinks = args.findLinksOutOf();
+          const totalOutLinks = outLinks.count;
+          let l_item;
+          let model = myDiagram.model;
+          let outLinksIterator = outLinks.iterator;
+          let i = 0;
+          while(outLinksIterator.next()) {
+            if(i == totalOutLinks) break;
+            l_item = outLinksIterator.value;
+            console.log(l_item.data)
+            var collapseLinkData = {category: "CollapseLink", toPort: "in", text: l_item.data.fromPort};
+            collapseLinkData[model.linkFromKeyProperty] = node.data.key;
+            collapseLinkData[model.linkToKeyProperty] = l_item.data.to;
+            model.addLinkData(collapseLinkData);
+            i++;
+          }
+          for(i = 0; i < args.data.items.length; i++) {
+            console.log(args.data.items)
+            if(args.data.items[i].paramtext) {
+              console.log(args.data.items[i])
+              addArgParamText(node, args.data.items[i], i)
+            }
+          }
+          myDiagram.model.setDataProperty(node.data, "isArgsCollapsed", true);
+          myDiagram.model.setDataProperty(args.data, "isArgsCollapsed", true);
+          myDiagram.model.setDataProperty(args.data, "visible", false);
+        }
+
+        function expandArgs(node, args) {
+          if (!node.data.isArgsCollapsed) return;
+          var linksToDelete = [];
+          node.findLinksOutOf().each(v=>{
+            console.log(v.data);
+            if(v.data.category== "CollapseLink") linksToDelete.push(v);
+          });
+          node.findNodesOutOf().each(v=>{
+            if(v.data.type == "ParamText") myDiagram.remove(v);
+          })
+          for(let i = 0; i < linksToDelete.length; i++) {
+            myDiagram.remove(linksToDelete[i]);
+          }
+          myDiagram.model.setDataProperty(node.data, "isArgsCollapsed", false);
+          myDiagram.model.setDataProperty(args.data, "isArgsCollapsed", false);
+          myDiagram.model.setDataProperty(args.data, "visible", true);
+        }
+
+        function collapseArgsButton() {
+          return $("ContextMenuButton",
+            new go.Binding("visible", "isArgsCollapsed", function(v) { return !v }),
+            $(go.TextBlock, "Collapse Arguments"),
+            { click: function(e, button) {
+                myDiagram.startTransaction("collapse args");
+                var node = button.part.adornedPart;
+                let nodeArgs = node.findNodesOutOf().first();
+                if(!node.data.isArgsCollapsed) {
+                  collapseArgs(node, nodeArgs);
+                }
+                myDiagram.commitTransaction("collapse args");
+              }
+            })
+        }
+
+        function expandArgsButton() {
+          return $("ContextMenuButton",
+            {visible: false},
+            new go.Binding("visible", "isArgsCollapsed"),
+            $(go.TextBlock, "Expand Arguments"),
+            { click: function(e, button) {
+                myDiagram.startTransaction("expand args");
+                var node = button.part.adornedPart;
+                let nodeArgs = node.findNodesOutOf().first();
+                if (node.data.isArgsCollapsed) {
+                  expandArgs(node, nodeArgs);
+                } 
+                myDiagram.commitTransaction("expand args");
+              }
+            })
+        }
+
+        var nodeContextMenu = $("ContextMenu",
+          deleteButton(),
+          selectNodesReachButton(),
+          selectNodesGroupButton(),
+          makeButton("Copy",
+            (e, obj) => e.diagram.commandHandler.copySelection(),
+            o => o.diagram.commandHandler.canCopySelection()),
+          makeButton("Paste",
+            (e, obj) => e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint),
+            o => o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint)),
+          collapseArgsButton(),
+          expandArgsButton()
+        );
+
+        var nodeFunContextMenu = $("ContextMenu",
+          $("ContextMenuButton",
+            $(go.TextBlock, "Rename"),
+            { click: editText }),
+          deleteButton(),
+          selectNodesReachButton(),
+          selectNodesGroupButton(),
+          makeButton("Copy",
+          (e, obj) => e.diagram.commandHandler.copySelection(),
+          o => o.diagram.commandHandler.canCopySelection()),
+          makeButton("Paste",
+            (e, obj) => e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint),
+            o => o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint)),
+          collapseArgsButton()
+        );
+
+        myDiagram.contextMenu =
+        $("ContextMenu",
+          makeButton("Paste",
+            (e, obj) => e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint),
+            o => o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint)),
+          makeButton("Undo",
+            (e, obj) => e.diagram.commandHandler.undo(),
+            o => o.diagram.commandHandler.canUndo()),
+          makeButton("Redo",
+            (e, obj) => e.diagram.commandHandler.redo(),
+            o => o.diagram.commandHandler.canRedo()),
+          collapseArgsButton()
+        );
         // add the templates created above to myDiagram and myPalette
         const objectsMap = {
           "arithmeticOperator": {"ARITHMETIC OP":	yellowgrad},
@@ -280,6 +520,7 @@
           let functionName = Object.keys(objectsMap[key])[0];
           myDiagram.nodeTemplateMap.add(key, $(go.Node, "Spot", nodeFunctionStyle(  shapeColor,  functionName  )));
           myDiagram.groupTemplateMap.add(key+"Group", $(go.Group, groupFunctionStyle(  shapeColor,  functionName  )));
+          myDiagram.nodeTemplateMap.get(key).contextMenu = (key == "function" || key == "call") ? nodeFunContextMenu : nodeContextMenu;
         })
         
         //ARGS
@@ -294,7 +535,8 @@
         myDiagram.nodeTemplateMap.add("funBlocks", funBlocksTemplate);
 
         myDiagram.add(recycleTemplate);
-        myDiagram.nodeTemplateMap.add("Comment", commentTemplate)
+        myDiagram.nodeTemplateMap.add("Comment", commentTemplate);
+        myDiagram.nodeTemplateMap.add("ParamText", paramtextTemplate);
         myDiagram.linkTemplateMap.add("Comment",
         // if the BalloonLink class has been loaded from the Extensions directory, use it
         $(go.Link,
@@ -348,22 +590,7 @@
           e.diagram.commandHandler.editTextBlock(node.findObject("TEXTBLOCK"));
         }
         
-        var renameContextMenu = $("ContextMenu",
-            $("ContextMenuButton",
-              $(go.TextBlock, "Rename"),
-              { click: editText }),
-            $("ContextMenuButton",
-              $(go.TextBlock, "Delete"),
-              { click: function(e, button) {
-                  var node = button.part.adornedPart;
-                  e.diagram.select(node);
-                  e.diagram.commandHandler.deleteSelection();
-                }
-              })
-          );
 
-        myDiagram.nodeTemplateMap.get("function").contextMenu = renameContextMenu;
-        myDiagram.nodeTemplateMap.get("call").contextMenu = renameContextMenu;
 
         // Overview
         myOverview =

@@ -99,21 +99,20 @@
 	}
 
 	function collapseFrom(node, start) {
-
-		if (node.data.isCollapsed || ((node !== start) && (node.data.type !== "Comment") )) return;
-		node.diagram.model.setDataProperty(node.data, "isCollapsed", true);
+		if (node.data.isCommentCollapsed || ((node !== start) && (node.data.type !== "Comment") )) return;
+		node.diagram.model.setDataProperty(node.data, "isCommentCollapsed", true);
 		if (node !== start) node.diagram.model.setDataProperty(node.data, "visible", false);
 		node.findNodesOutOf().each(collapseFrom);
 	}
 
 	function expandFrom(node, start) {
-		if (!node.data.isCollapsed || ((node !== start) && (node.data.type !== "Comment") )) return;
-		node.diagram.model.setDataProperty(node.data, "isCollapsed", false);
+		if (!node.data.isCommentCollapsed || ((node !== start) && (node.data.type !== "Comment") )) return;
+		node.diagram.model.setDataProperty(node.data, "isCommentCollapsed", false);
 		if (node !== start) node.diagram.model.setDataProperty(node.data, "visible", true);
 		node.findNodesOutOf().each(expandFrom);
 	}
 
-	function addNodeAndLink(e, obj) {
+	function addCommentAndLink(e, obj) {
 		e.diagram.startTransaction("Add State");
 		// get the node data for which the user clicked the button
 		var fromNode = obj.part;

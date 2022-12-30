@@ -95,7 +95,7 @@ function save() {
     return andBit;
   }
 
-  function inNodeFunction(n, andBit) {
+  function isNodeFunction(n, andBit) {
     for(let i = 0; i < statementArray.length; i++){
       if(statementArray[i] == n) {
         return !andBit
@@ -103,11 +103,17 @@ function save() {
     }
     return andBit;
   }
+
+  function isNodeFunBlock(n) {
+    console.log("ok")
+    return n == "funBlocks"
+  }
+
   function errorChecking(link) {
     const n = myDiagram.findNodeForKey(link.data.from)
     const m = myDiagram.findNodeForKey(link.data.to)
     if(isNodeArg(n.data.type, false)
-      && inNodeFunction(m.data.type, false)) {
+      && isNodeFunction(m.data.type, false)) {
         const inLinks = n.findLinksInto().first();
         const parentN = myDiagram.findNodeForKey(inLinks.data.from)
         myDiagram.model.setDataProperty(parentN.data, "hasError", 1)

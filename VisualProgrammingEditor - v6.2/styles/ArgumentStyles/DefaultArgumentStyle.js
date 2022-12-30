@@ -79,6 +79,7 @@ return [
 
 function argsStyle() {
   return [
+  new go.Binding("visible"),
   new go.Binding("visible", "key", function(v, node) {
     if(myDiagram.findNodeForKey(v)) {
       return true

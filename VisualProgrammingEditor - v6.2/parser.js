@@ -4,7 +4,7 @@ function parse(storeJSON) {
         return obj.type !== 'Comment';
     });
     var linkArray = data.linkDataArray.filter(function(obj) {
-        return obj.category !== 'Comment';
+        return (obj.category !== 'Comment') && (obj.category !== "CollapseLink");
     });
     const ast = createAST(nodeArray, linkArray);
 
