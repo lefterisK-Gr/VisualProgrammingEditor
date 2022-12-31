@@ -417,7 +417,6 @@
 
         function collapseArgsButton() {
           return $("ContextMenuButton",
-            new go.Binding("visible", "isArgsCollapsed", function(v) { return !v }),
             $(go.TextBlock, "Collapse Arguments"),
             { click: function(e, button) {
                 myDiagram.startTransaction("collapse args");
@@ -433,8 +432,7 @@
 
         function expandArgsButton() {
           return $("ContextMenuButton",
-            {visible: false},
-            new go.Binding("visible", "isArgsCollapsed"),
+            {visible: true},
             $(go.TextBlock, "Expand Arguments"),
             { click: function(e, button) {
                 myDiagram.startTransaction("expand args");
@@ -475,7 +473,8 @@
           makeButton("Paste",
             (e, obj) => e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint),
             o => o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint)),
-          collapseArgsButton()
+          collapseArgsButton(),
+          expandArgsButton()
         );
 
         myDiagram.contextMenu =
@@ -488,8 +487,7 @@
             o => o.diagram.commandHandler.canUndo()),
           makeButton("Redo",
             (e, obj) => e.diagram.commandHandler.redo(),
-            o => o.diagram.commandHandler.canRedo()),
-          collapseArgsButton()
+            o => o.diagram.commandHandler.canRedo())
         );
         // add the templates created above to myDiagram and myPalette
         const objectsMap = {

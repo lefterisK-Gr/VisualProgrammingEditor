@@ -96,17 +96,33 @@
               node.diagram.select(node);
           }
           }),
-        $("Button",
-          { alignment: go.Spot.Right, alignmentFocus: go.Spot.BottomLeft },
-          new go.Binding("visible", "color", function(v) { return false;}),
-          { click: (e, obj) => activatePort(obj.part.adornedObject) },
-          $(go.TextBlock, "Add port")),
-        $("Button",
-          { alignment: go.Spot.Right, alignmentFocus: go.Spot.TopLeft },
-          { click: (e, obj) => {
-            activateTextField(obj.part.adornedObject)} 
-          },
-          $(go.TextBlock, "Add variable/value"))
+          $(go.Panel, "Vertical",
+            { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left },
+            $("Button",
+              {width: 100},
+              new go.Binding("visible", "color", function(v) { return false;}),
+              { click: (e, obj) => activatePort(obj.part.adornedObject) },
+              $(go.TextBlock, "Add port")),
+            $("Button",
+              {width: 100},
+              { click: (e, obj) => {
+                activateTextField(obj.part.adornedObject)} 
+              },
+              $(go.TextBlock, "Add variable/value")),
+            $("Button",
+              {width: 100},
+              { click: (e, obj) => {
+                moveArg(obj.part.adornedObject, true)} 
+              },
+              $(go.TextBlock, "Move Arg Up")),
+            $("Button",
+              {width: 100},
+              { click: (e, obj) => {
+                moveArg(obj.part.adornedObject, false)} 
+              },
+              $(go.TextBlock, "Move Arg Down"))
+          )
+        
       );
 
   var varArgHoverAdornment =
@@ -120,17 +136,20 @@
               node.diagram.select(node);
           }
       }),
-      $("Button", //make these function
-          { alignment: go.Spot.Right, alignmentFocus: go.Spot.BottomLeft },
-          new go.Binding("visible", "color", function(v) { return false;}),
-          { click: (e, obj) => activateExistingVar(obj.part.adornedObject) },
-          $(go.TextBlock, "Add existing variable")),
-      $("Button",
-          { alignment: go.Spot.Right, alignmentFocus: go.Spot.TopLeft },
-          { click: (e, obj) => {
-            activateNewVar(obj.part.adornedObject)} 
-          },
-          $(go.TextBlock, "Add new variable"))
+      $(go.Panel, "Vertical",
+        { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left },
+        $("Button", //make these function
+            {width: 100},
+            new go.Binding("visible", "color", function(v) { return false;}),
+            { click: (e, obj) => activateExistingVar(obj.part.adornedObject) },
+            $(go.TextBlock, "Add existing variable")),
+        $("Button",
+            {width: 100},
+            { click: (e, obj) => {
+              activateNewVar(obj.part.adornedObject)} 
+            },
+            $(go.TextBlock, "Add new variable"))
+      )
       );
 
   var getElemArgHoverAdornment =
@@ -144,22 +163,25 @@
               node.diagram.select(node);
           }
       }),
-      $("Button", //make these function
-          { alignment: new go.Spot(1, 0.1), alignmentFocus: go.Spot.BottomLeft },
-          new go.Binding("visible", "color", function(v) { return false;}),
-          { click: (e, obj) => activateExistingVar(obj.part.adornedObject) },
-          $(go.TextBlock, "Add suggested variable")),
-      $("Button",
-          { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left },
-          new go.Binding("visible", "color", function(v) { return false;}),
-          { click: (e, obj) => activatePort(obj.part.adornedObject) },
-          $(go.TextBlock, "Add port")),
-      $("Button",
-          { alignment: new go.Spot(1, 0.9), alignmentFocus: go.Spot.TopLeft },
-          { click: (e, obj) => {
-            activateNewVar(obj.part.adornedObject)} 
-          },
-          $(go.TextBlock, "Add new variable"))
+      $(go.Panel, "Vertical",
+        { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left },
+        $("Button", //make these function
+            {width: 100},
+            new go.Binding("visible", "color", function(v) { return false;}),
+            { click: (e, obj) => activateExistingVar(obj.part.adornedObject) },
+            $(go.TextBlock, "Add suggested variable")),
+        $("Button",
+            {width: 100},
+            new go.Binding("visible", "color", function(v) { return false;}),
+            { click: (e, obj) => activatePort(obj.part.adornedObject) },
+            $(go.TextBlock, "Add port")),
+        $("Button",
+            {width: 100},
+            { click: (e, obj) => {
+              activateNewVar(obj.part.adornedObject)} 
+            },
+            $(go.TextBlock, "Add new variable"))
+      )
       );
 
   function isArgSelected(item) {
@@ -334,6 +356,47 @@
     myDiagram.model.setDataProperty(data, "isExistingVar", false);
     myDiagram.model.setDataProperty(data, "paramtext", "");
     myDiagram.commitTransaction("makeTextField1");
+  }
+
+  function moveArg(arg, up) {
+    myDiagram.startTransaction("move argument");
+    const data = arg.data;	
+    const allArgs = arg.part;
+    
+    for(let i = 0; i < allArgs.data.items.length; i++) {
+      var upperArg = up ? allArgs.data.items[i-1] : data;
+      var underArg = up ? data : allArgs.data.items[i+1];
+      if( (allArgs.data.items[i].portId == data.portId) && (up ? (i > 0) : (i < allArgs.data.items.length - 1) )) {
+        const sourceParamtext = data.paramtext;	
+        var upperArgLink;	
+        var downArgLink;
+        const targetParamText = underArg.paramtext;
+        myDiagram.model.setDataProperty(data, "paramtext", targetParamText);
+        myDiagram.model.setDataProperty(up ? upperArg : underArg, "paramtext", sourceParamtext);
+        if(underArg.isport || upperArg.isport) {
+          allArgs.findLinksOutOf().each(v=>{	
+            if(v.data.fromPort == upperArg.portId) {	
+              upperArgLink = v;	
+            }	
+            if(v.data.fromPort == underArg.portId) {	
+              downArgLink = v;	
+            }	
+          })
+        }
+        if(upperArgLink) {	
+          myDiagram.model.setFromPortIdForLinkData(upperArgLink.data, underArg.portId)	
+          myDiagram.model.setDataProperty(underArg, "isport", true);	
+          myDiagram.model.setDataProperty(upperArg, "isport", false);	
+        }	
+        if(downArgLink) {	
+          myDiagram.model.setFromPortIdForLinkData(downArgLink.data, upperArg.portId)	
+          myDiagram.model.setDataProperty(upperArg, "isport", true);	
+          if(!upperArgLink) myDiagram.model.setDataProperty(underArg, "isport", false);	
+        }
+        break;
+      }
+    }
+    myDiagram.commitTransaction("move argument");
   }
 
   function argChoicesIntellisense(v, args) {
