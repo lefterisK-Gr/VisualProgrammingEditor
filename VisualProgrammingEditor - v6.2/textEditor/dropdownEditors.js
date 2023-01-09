@@ -28,9 +28,9 @@ function editorShow(textBlock, diagram, tool, customSelectBox, selectEditor) {
 
     // After the list is populated, set the value:
     customSelectBox.value = textBlock.text;
-
     customSelectBox.addEventListener("change", function(e) { 
       tool.acceptText(go.TextEditingTool.tab);
+      console.log(textBlock.part.data)
       diagram.model.setDataProperty(textBlock.part.data, "alias", customSelectBox.value);
     },false)
 

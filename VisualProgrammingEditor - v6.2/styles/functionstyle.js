@@ -14,6 +14,7 @@
 
   function setOperationProp(functionName, isGoup) {
     if(functionName.endsWith("OP") && !isGoup) {
+      console.log("wtf")
       return [{
         textEditor: window.OperatorEditorSelectBox,
         name: "OPERATION",
@@ -39,7 +40,8 @@
         textAlign: "center",
         verticalAlignment: go.Spot.Center,
       },
-      new go.Binding("choices", "key", levelFunctionNamesIntellisense).ofObject()
+      new go.Binding("choices", "key", levelFunctionNamesIntellisense).ofObject(),
+      new go.Binding("text", "ident").makeTwoWay()
     ]
     }
     return {}
@@ -82,7 +84,6 @@
         functionBoxTextUpdate(functionName),
         setOperationProp(functionName, isGroup),
         setCallProp(functionName, isGroup),
-        new go.Binding("text", "ident").makeTwoWay()
       )
     ]
   }
