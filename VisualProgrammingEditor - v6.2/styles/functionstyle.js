@@ -14,7 +14,6 @@
 
   function setOperationProp(functionName, isGoup) {
     if(functionName.endsWith("OP") && !isGoup) {
-      console.log("wtf")
       return [{
         textEditor: window.OperatorEditorSelectBox,
         name: "OPERATION",
@@ -24,7 +23,7 @@
         textAlign: "center",
         verticalAlignment: go.Spot.Center,
       },
-      new go.Binding("text", "alias")]
+      new go.Binding("text", "alias").makeTwoWay()]
     }
     return {}
   }

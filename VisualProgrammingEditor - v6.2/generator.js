@@ -235,7 +235,7 @@ function generateExpression(expr, stack, frame, functionFrame) { // recursive fu
         getFunctionName(functionFrame, expr.key);
         return `${functionName}( ${arguments} )`;
     }
-    else if(expr.type == "arithmeticOperator" || expr.type == "relationalOperator" || expr.type == "unaryOperator" || expr.type == "binaryOperator") {
+    else if(expr.type == "arithmeticOperator" || expr.type == "relationalOperator" || expr.type == "binaryOperator") {
         const operator = operatorTypeMap[expr.type][expr.alias];
         const arguments = expr.items.map((arg) => {
             return generateExpressionFromArgument(arg, stack, frame, functionFrame)
@@ -243,6 +243,14 @@ function generateExpression(expr, stack, frame, functionFrame) { // recursive fu
 
         return `(${arguments})`
     } 
+    else if(expr.type == "unaryOperator") {
+        const operator = operatorTypeMap[expr.type][expr.alias];
+        const arguments = expr.items.map((arg) => {
+            return generateExpressionFromArgument(arg, stack, frame, functionFrame)
+        }).join();
+
+        return `${operator}${arguments}`
+    }
     else if(expr.type == "assign") { 
         const variables = expr.items.map((arg) => {
             return generateExpressionFromArgument(arg, stack, frame, functionFrame)

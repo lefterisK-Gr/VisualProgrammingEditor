@@ -31,7 +31,6 @@ function editorShow(textBlock, diagram, tool, customSelectBox, selectEditor) {
     customSelectBox.addEventListener("change", function(e) { 
       tool.acceptText(go.TextEditingTool.tab);
       console.log(textBlock.part.data)
-      diagram.model.setDataProperty(textBlock.part.data, "alias", customSelectBox.value);
     },false)
 
     var loc = textBlock.getDocumentPoint(go.Spot.TopLeft);
