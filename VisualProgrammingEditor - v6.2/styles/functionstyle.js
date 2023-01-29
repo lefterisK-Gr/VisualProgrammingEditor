@@ -31,11 +31,12 @@
   function setCallProp(functionName, isGroup) {
     if( (functionName == "CALL") && !isGroup ) {
       return [{
+        text: "NAME",
         textEditor: window.CallEditorSelectBox,
         name: "CALLTEXT",
         editable: true,
         width: 80, height: 20,
-        background: "lightgreen",
+        background: "white",
         textAlign: "center",
         verticalAlignment: go.Spot.Center,
       },
@@ -46,9 +47,16 @@
     return {}
   }
 
-  function functionBoxTextUpdate(functionName) {
-    if(functionName == "FUNCTION") {
+  function functionBoxTextUpdate(functionName, isGroup) {
+    if((functionName == "FUNCTION") && !isGroup) {
       return[
+        {
+          text: "NAME",
+          width: 80, height: 20,
+          background: "white",
+          textAlign: "center",
+          verticalAlignment: go.Spot.Center
+        },
         new go.Binding("text", "ident").makeTwoWay(),
         {
         textEdited: function(tb, olds, news) {
@@ -57,6 +65,38 @@
           updateCalls();
         }
       }]
+    }
+    return {}
+  }
+
+  function setCallBorder(functionName, isGroup) {
+    if( ((functionName == "CALL") || (functionName == "FUNCTION")) && !isGroup ) {
+      return [
+        $(go.Shape, "Rectangle",
+        { 
+          strokeWidth: 4,
+          spot1: new go.Spot(0, 0), spot2: new go.Spot(1, 1) 
+        }),
+    ]
+    }
+    return {}
+  }
+
+  function setNodeTopName(functionName, isGroup) {
+    if( ((functionName == "CALL") || (functionName == "FUNCTION")) && !isGroup ) {
+      return [
+        $(go.TextBlock,
+          {
+            name: "NONETOPNAMETEXTBLOCK",
+            text: functionName,
+            width: 100,
+            textAlign: "center",
+            alignment: new go.Spot(0.5, 0.1),
+            font: "bold 9pt Lato, Helvetica, Arial, sans-serif",
+            stroke: "#636363"
+          },
+        ),
+    ]
     }
     return {}
   }
@@ -79,13 +119,18 @@
     return [
       selectionStyle(),
       functionBoxStyle(functionName, shapeColor, isGroup),
-      $(go.TextBlock,
-        {name: "TEXTBLOCK", text: functionName, width: 100, textAlign: "center", editable: ((functionName == "FUNCTION") || (functionName == "CALL"))},
-        textStyle(),
-        functionBoxTextUpdate(functionName),
-        setOperationProp(functionName, isGroup),
-        setCallProp(functionName, isGroup),
-      )
+      setNodeTopName(functionName, isGroup),
+      $(go.Panel, "Auto",
+        setCallBorder(functionName, isGroup), 
+        $(go.TextBlock,
+          {name: "TEXTBLOCK", text: functionName, width: 100, textAlign: "center", editable: ((functionName == "FUNCTION") || (functionName == "CALL"))},
+          textStyle(),
+          functionBoxTextUpdate(functionName, isGroup),
+          setOperationProp(functionName, isGroup),
+          setCallProp(functionName, isGroup),
+        )
+        )
+      
     ]
   }
 
