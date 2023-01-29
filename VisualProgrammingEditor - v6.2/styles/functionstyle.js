@@ -48,7 +48,9 @@
 
   function functionBoxTextUpdate(functionName) {
     if(functionName == "FUNCTION") {
-      return[{
+      return[
+        new go.Binding("text", "ident").makeTwoWay(),
+        {
         textEdited: function(tb, olds, news) {
           updateDecls();
           
@@ -108,7 +110,6 @@
         {
           height: 15, width: 15, alignment: new go.Spot(0.9 , 0.8)
         },
-        new go.Binding("visible", "key"),
         $(go.Picture, "./images/dots.png", { name: "SETTINGSPIC", width: 11, height: 11}),
         {
           click: function(e, obj) {
