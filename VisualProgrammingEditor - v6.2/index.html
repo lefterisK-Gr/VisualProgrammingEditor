@@ -51,37 +51,6 @@
       function init() {
         document.body.style.backgroundColor = "#505050";
 
-        function makePattern() {
-          var patternCanvas = document.createElement('canvas');
-          patternCanvas.width = 40;
-          patternCanvas.height = 69.3;
-          var pctx = patternCanvas.getContext('2d');
-
-          // This creates a shape similar to a diamond leaf
-          pctx.beginPath();
-          pctx.moveTo(0.0, 34.1);
-          pctx.lineTo(40.0, 34.1);
-          pctx.lineTo(20.0, 0.0);
-          pctx.lineTo(0.0, 34.1);
-          pctx.lineTo(20.0, 69.3);
-          pctx.lineTo(40.0, 34.1);
-          pctx.moveTo(0.0, 69.3);
-          pctx.lineTo(40.0, 69.3);
-          pctx.moveTo(0.0, 0.0);
-          pctx.lineTo(40.0, 0.0);
-          pctx.closePath();
-          pctx.fillStyle = "#ffffff";
-          pctx.fill();
-          pctx.lineWidth = 0.8;
-          pctx.strokeStyle = "#202020";
-          pctx.lineJoin = "miter";
-          pctx.miterLimit = 4.0;
-          pctx.stroke();
-
-          return patternCanvas;
-        }
-        
-
         function deleteGroupNodes(n) {
           n.findNodesOutOf().each(v =>{
           if(v.category == "funBlocks")
@@ -159,10 +128,13 @@
                   }
                 });
               },
-              grid: $(go.Panel, "Grid",  // a simple 10x10 grid
-                { gridCellSize: new go.Size(40, 69.3) },
-                $(go.Shape, "BarH", { fill: $(go.Brush, "Pattern", { pattern: makePattern()}) }),
+              grid: $(go.Panel, "Grid",
+                $(go.Shape, "LineH", { stroke: "lightgray", strokeWidth: 0.5 }),
+                $(go.Shape, "LineH", { stroke: "gray", strokeWidth: 0.5, interval: 10 }),
+                $(go.Shape, "LineV", { stroke: "lightgray", strokeWidth: 0.5 }),
+                $(go.Shape, "LineV", { stroke: "gray", strokeWidth: 0.5, interval: 10 })
               ),
+              "draggingTool.isGridSnapEnabled": true,
 			  		  initialAutoScale: go.Diagram.Uniform,
 			  		  initialContentAlignment: go.Spot.Left,
               layout: $(go.LayeredDigraphLayout, { isInitial: false,isOngoing: false, layerSpacing: 50})
