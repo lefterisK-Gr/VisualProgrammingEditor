@@ -64,6 +64,7 @@
         }
 
         var diagramHeight = 0;
+        var changeGridSize = false;
         myDiagram =
           $(go.Diagram, "myDiagramDiv",  // create a new Diagram in the HTML DIV element "myDiagramDiv"
             {
@@ -129,12 +130,13 @@
                 });
               },
               grid: $(go.Panel, "Grid",
-                $(go.Shape, "LineH", { stroke: "lightgray", strokeWidth: 0.5 }),
+                $(go.Shape, "LineH", 
+                  { stroke: "lightgray", strokeWidth: 0.5, interval: changeGridSize ? 1 : 5 },
+                ),
                 $(go.Shape, "LineH", { stroke: "gray", strokeWidth: 0.5, interval: 10 }),
-                $(go.Shape, "LineV", { stroke: "lightgray", strokeWidth: 0.5 }),
+                $(go.Shape, "LineV", { stroke: "lightgray", strokeWidth: 0.5, interval: changeGridSize ? 1 : 5 }),
                 $(go.Shape, "LineV", { stroke: "gray", strokeWidth: 0.5, interval: 10 })
               ),
-              "draggingTool.isGridSnapEnabled": true,
 			  		  initialAutoScale: go.Diagram.Uniform,
 			  		  initialContentAlignment: go.Spot.Left,
               layout: $(go.LayeredDigraphLayout, { isInitial: false,isOngoing: false, layerSpacing: 50})
@@ -144,7 +146,7 @@
                 myDiagram.nodes.each(function (n) {
                   if(isNodeArg(n.data.type, false)) {
 
-                    n.elt(0).elt(1).elt(0).elements.each(it => {
+                    n.elt(0).elt(1).elements.each(it => {
                       setArgSelected(it.elt(0), false);
                     });
                     n.removeAdornment(mouseSettingsSelect);
@@ -154,6 +156,8 @@
               }
             });
 
+        myDiagram.grid.gridCellSize = new go.Size(20, 20);
+        
         myDiagram.padding.right = 200;
         
         // when the document is modified, enable the "Save" button
@@ -701,7 +705,10 @@
         <button class="undo-button" onclick="myDiagram.commandHandler.undo()"></button><!-- undo -->
         <div class="redo-button" onclick="myDiagram.commandHandler.redo()"></div><!-- redo -->
       </div>
-
+      <select name="cars" id="cars">
+        <option value="5x5">5x5</option>
+        <option value="20x20">20x20</option>
+      </select>
       <div class="search-bar">
         <input type="search" id="mySearch" placeholder="Find" onkeypress="if (event.keyCode === 13) searchDiagram()">
         <button class="search-button" onclick="searchDiagram()"><div class="search-image" onclick="searchDiagram()"></div></button>

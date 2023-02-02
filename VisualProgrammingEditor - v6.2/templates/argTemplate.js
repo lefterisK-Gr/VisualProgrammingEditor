@@ -10,7 +10,7 @@
   const SelectedBrush = "orange";   // item appearance, if "selected"
   
   //argument row style
-  var argTemplate =         $(go.Panel, "Auto", argStyle());
+  var argTemplate =         $(go.Panel, "TableRow", argStyle());
   var varDeclArgTemplate =  $(go.Panel, "Auto", varDeclArgStyle());//add parameter to varArg so change binding to parameter
   var varArgTemplate =      $(go.Panel, "Auto", varArgStyle());   
   var getElemArgTemplate =  $(go.Panel, "Auto", getElemArgStyle());
@@ -185,27 +185,28 @@
       );
 
   function isArgSelected(item) {
-    return item.stroke !== argDefaultStroke;
+    return item.fill !== null;
   }
       
   function setArgSelected(item, sel) {
     if (sel) {
-      item.stroke = SelectedBrush; //override
+      item.fill = SelectedBrush; //override
     } 
     else {
-      item.stroke = argDefaultStroke;
+      item.fill = null;
     }
   }
   
   function onArgClick(e, item, varType) {
     var oldskips = item.diagram.skipsUndoManager;
     var node = item; 
+    console.log(node);
     item.diagram.skipsUndoManager = true;
     if (!isArgSelected(item.elt(0))) {
       // deselect all sibling items      
       myDiagram.nodes.each(function (n) {
         if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl" || n.data.type == "propertyAccesors" || n.data.type == "parameters") {
-          n.elt(0).elt(1).elt(0).elements.each(it => { //remove selection highlight
+          n.elt(0).elt(1).elements.each(it => { //remove selection highlight
             setArgSelected(it.elt(0), false);
           });
         }
@@ -325,6 +326,11 @@
     myDiagram.startTransaction("makePort");
     const data = arg.data;
     myDiagram.model.setDataProperty(data, "isport", true);
+
+    const tool = myDiagram.toolManager.linkingTool;
+    tool.startObject = arg.part.findPort("condition")
+    myDiagram.currentTool = tool;
+    tool.doActivate();
     myDiagram.commitTransaction("makePort");
   }
 
