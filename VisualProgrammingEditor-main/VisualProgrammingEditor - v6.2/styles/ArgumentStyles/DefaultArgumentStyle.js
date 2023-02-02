@@ -87,7 +87,7 @@ function argsStyle() {
   new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
   selectionStyle(), 
   $(go.Panel, "Auto",
-    $(go.Shape, "Rectangle", {fill: 'white'},
+    $(go.Shape, "Rectangle", 
       new go.Binding("stroke", "isHighlighted", h => h ? "#7F00FF" : "darkslategray").ofObject(),
       new go.Binding("strokeWidth", "isHighlighted", h => h ? 8 : 2).ofObject()
     ),
@@ -118,7 +118,7 @@ function argsStyle() {
 
 function argStyle() {
   return [
-      $(go.Shape, "TriangleRight", { desiredSize: new go.Size(10, 10), fill: "white", stroke: null, fill: null, column: 0 }),
+      $(go.Shape, "Circle", { desiredSize: new go.Size(10, 10), fill: "white", stroke: null, fill: null, column: 0 }),
       argShapeStyle(), 
       new go.Binding("toLinkable", "itemIndex", function(v, shape) {
         const inLinks = shape.part.findLinksInto();
@@ -155,7 +155,7 @@ function argStyle() {
 
       $(go.Panel, "Auto",
         { alignment: go.Spot.Right, column: 3},
-        $(go.Shape, "Circle", portStyle(false),  // the rvalue port
+        $(go.Shape, "TriangleLeft", portStyle(false),  // the rvalue port
           new go.Binding("portId", "portId"),
           { fill: "black", visible: false},
           new go.Binding("visible", "isport")

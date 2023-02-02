@@ -64,6 +64,7 @@
         }
 
         var diagramHeight = 0;
+        var changeGridSize = false;
         myDiagram =
           $(go.Diagram, "myDiagramDiv",  // create a new Diagram in the HTML DIV element "myDiagramDiv"
             {
@@ -128,6 +129,14 @@
                   }
                 });
               },
+              grid: $(go.Panel, "Grid",
+                $(go.Shape, "LineH", 
+                  { stroke: "lightgray", strokeWidth: 0.5, interval: changeGridSize ? 1 : 5 },
+                ),
+                $(go.Shape, "LineH", { stroke: "gray", strokeWidth: 0.5, interval: 10 }),
+                $(go.Shape, "LineV", { stroke: "lightgray", strokeWidth: 0.5, interval: changeGridSize ? 1 : 5 }),
+                $(go.Shape, "LineV", { stroke: "gray", strokeWidth: 0.5, interval: 10 })
+              ),
 			  		  initialAutoScale: go.Diagram.Uniform,
 			  		  initialContentAlignment: go.Spot.Left,
               layout: $(go.LayeredDigraphLayout, { isInitial: false,isOngoing: false, layerSpacing: 50})
@@ -146,12 +155,11 @@
                 })
               }
             });
+
+        myDiagram.grid.gridCellSize = new go.Size(20, 20);
         
         myDiagram.padding.right = 200;
-        myDiagram.grid.visible = true;
-        myDiagram.grid.gridCellSize = new go.Size(10, 10);
-        myDiagram.toolManager.draggingTool.isGridSnapEnabled = true;
-        myDiagram.toolManager.resizingTool.isGridSnapEnabled = true;
+        
         // when the document is modified, enable the "Save" button
         myDiagram.addDiagramListener("Modified", e => { //name "Modified" is built-in
           var button = document.getElementById("saveModel");
@@ -615,7 +623,7 @@
     <script>
       /* When the user clicks on the button, 
       toggle between hiding and showing the dropdown content */
-      function fileDrop() {
+      function myFunction() {
         document.getElementById("fileDropdown").classList.toggle("fileshow");
       }
 
@@ -674,16 +682,6 @@
           myDiagram.commitTransaction("highlight search");
         }
 
-        // var gridSizeValue = document.getElementById("cellSizeDropdown");
-
-        // gridSizeValue.onchange = function(e) {
-        //   console.log("called")
-        //   myDiagram.grid.gridCellSize = new go.Size(gridSizeValue, gridSizeValue);
-        // }
-        function changeGrid() {
-          var gridSizeValue = document.getElementById("cellSizeDropdown").value;
-          myDiagram.grid.gridCellSize = new go.Size(gridSizeValue-0, gridSizeValue-0);
-        }
     </script>
 
     <div id="sample" style="height: calc( 100vh - 60px)">
@@ -693,7 +691,7 @@
         <img class="logo-image" src="logo/CodeChainsLogo.png" width="130" height="25">
       </div>
       <div class="file-dropdown">
-        <button onclick="fileDrop()" class="filedropbtn">File</button>
+        <button onclick="myFunction()" class="filedropbtn">File</button>
         <div id="fileDropdown" class="file-dropdown-content">
           <button class="saveFile" onclick="export2txt()">Export Visual Code</button>
           <label for="upload" class="custom-file-upload">
@@ -707,13 +705,10 @@
         <button class="undo-button" onclick="myDiagram.commandHandler.undo()"></button><!-- undo -->
         <div class="redo-button" onclick="myDiagram.commandHandler.redo()"></div><!-- redo -->
       </div>
-      <select id="cellSizeDropdown" onchange="changeGrid()">
-        <option value="10">10x10</option>
-        <option value="20">20x20</option>
-        <option value="50">50x50</option>
-        <option value="100">100x100</option>
+      <select name="cars" id="cars">
+        <option value="5x5">5x5</option>
+        <option value="20x20">20x20</option>
       </select>
-      <button onclick="changeGrid()">Click me!</button>
       <div class="search-bar">
         <input type="search" id="mySearch" placeholder="Find" onkeypress="if (event.keyCode === 13) searchDiagram()">
         <button class="search-button" onclick="searchDiagram()"><div class="search-image" onclick="searchDiagram()"></div></button>

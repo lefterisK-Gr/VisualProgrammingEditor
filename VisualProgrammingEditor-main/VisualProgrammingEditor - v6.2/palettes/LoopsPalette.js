@@ -3,7 +3,7 @@ var loopsPaletteComps = [
   {key: 2, type: "while", group: 1},
   {key: 3, type: "args", arity: { "from" : 2 , "to": 2}, items: [ 
     {portId: "condition"},
-    {portId: "action", connectedBlock: true} 
+    {portId: "if_true_part", connectedBlock: true} 
   ], group: 1},
   {key: 4, type: "funBlocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true} 
   ], group: 1},
@@ -14,7 +14,7 @@ var loopsPaletteComps = [
     {portId: "initialize"},
     {portId: "condition"},
     {portId: "update"},
-    {portId: "action"},
+    {portId: "contains"},
   ], group: 5},
   {key: 8, type: "funBlocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true} 
   ], group: 5},
@@ -29,9 +29,9 @@ var loopsPaletteComps = [
 var loopsPaletteLinks = [
 
   { category: "Reversed", from: 2, to: 3},
-  { from: 3, to: 4 , fromPort: "if true part", toPort: "in"},
+  { from: 3, to: 4 , fromPort: "if_true_part", toPort: "in"},
 
   { category: "Reversed", from: 6, to: 7},
-  { from: 7, to: 8 , fromPort: "action", toPort: "in"},
+  { from: 7, to: 8 , fromPort: "contains", toPort: "in"},
 
 ];

@@ -99,29 +99,28 @@
           $(go.Panel, "Vertical",
             { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left },
             $("Button",
-              {width: 60},
+              {width: 100},
               new go.Binding("visible", "color", function(v) { return false;}),
               { click: (e, obj) => activatePort(obj.part.adornedObject) },
-              $(go.Picture, "./images/arrow.png", { name: "LINKCHAINPIC", width: 30, height: 11})
-            ),
+              $(go.TextBlock, "Add port")),
             $("Button",
-              {width: 60},
+              {width: 100},
               { click: (e, obj) => {
                 activateTextField(obj.part.adornedObject)} 
               },
-              $(go.TextBlock, "value")),
+              $(go.TextBlock, "Add variable/value")),
             $("Button",
-              {width: 60},
+              {width: 100},
               { click: (e, obj) => {
                 moveArg(obj.part.adornedObject, true)} 
               },
-              $(go.Shape, "Triangle", {width: 15, height: 15})),
+              $(go.TextBlock, "Move Arg Up")),
             $("Button",
-              {width: 60},
+              {width: 100},
               { click: (e, obj) => {
                 moveArg(obj.part.adornedObject, false)} 
               },
-              $(go.Shape, "TriangleDown", {width: 15, height: 15}))
+              $(go.TextBlock, "Move Arg Down"))
           )
         
       );
@@ -327,11 +326,6 @@
     myDiagram.startTransaction("makePort");
     const data = arg.data;
     myDiagram.model.setDataProperty(data, "isport", true);
-
-    const tool = myDiagram.toolManager.linkingTool;
-    tool.startObject = arg.part.findPort(data.portId)
-    myDiagram.currentTool = tool;
-    tool.doActivate();
     myDiagram.commitTransaction("makePort");
   }
 
