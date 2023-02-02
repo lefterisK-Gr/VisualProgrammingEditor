@@ -17,7 +17,7 @@ var savedModel = {
 var astModel;
 var tempAstModel;
 
-function save() {
+  function save() {
 
     myDiagram.isModified = false;
 

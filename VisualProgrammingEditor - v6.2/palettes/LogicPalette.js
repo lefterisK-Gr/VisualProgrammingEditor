@@ -4,8 +4,8 @@ var logicPaletteComps = [
   {key: 2, type: "if", group: 1},
   {key: 3, type: "args", arity: { "from" : 2 , "to": 3}, items: [ 
     {portId: "condition"},
-    {portId: "if_part", connectedBlock: true},
-    {portId: "else_part", connectedBlock: true}, 
+    {portId: "if part", connectedBlock: true},
+    {portId: "else part", connectedBlock: true}, 
   ], group: 1},
   {key: 4, type: "funBlocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true} 
   ], group: 1},

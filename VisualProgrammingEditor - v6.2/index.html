@@ -619,7 +619,7 @@
     <script>
       /* When the user clicks on the button, 
       toggle between hiding and showing the dropdown content */
-      function myFunction() {
+      function fileDrop() {
         document.getElementById("fileDropdown").classList.toggle("fileshow");
       }
 
@@ -678,6 +678,16 @@
           myDiagram.commitTransaction("highlight search");
         }
 
+        // var gridSizeValue = document.getElementById("cellSizeDropdown");
+
+        // gridSizeValue.onchange = function(e) {
+        //   console.log("called")
+        //   myDiagram.grid.gridCellSize = new go.Size(gridSizeValue, gridSizeValue);
+        // }
+        function changeGrid() {
+          var gridSizeValue = document.getElementById("cellSizeDropdown").value;
+          myDiagram.grid.gridCellSize = new go.Size(gridSizeValue-0, gridSizeValue-0);
+        }
     </script>
 
     <div id="sample" style="height: calc( 100vh - 60px)">
@@ -687,7 +697,7 @@
         <img class="logo-image" src="logo/CodeChainsLogo.png" width="130" height="25">
       </div>
       <div class="file-dropdown">
-        <button onclick="myFunction()" class="filedropbtn">File</button>
+        <button onclick="fileDrop()" class="filedropbtn">File</button>
         <div id="fileDropdown" class="file-dropdown-content">
           <button class="saveFile" onclick="export2txt()">Export Visual Code</button>
           <label for="upload" class="custom-file-upload">
@@ -701,7 +711,13 @@
         <button class="undo-button" onclick="myDiagram.commandHandler.undo()"></button><!-- undo -->
         <div class="redo-button" onclick="myDiagram.commandHandler.redo()"></div><!-- redo -->
       </div>
-
+      <select id="cellSizeDropdown" onchange="changeGrid()">
+        <option value="10">10x10</option>
+        <option value="20">20x20</option>
+        <option value="50">50x50</option>
+        <option value="100">100x100</option>
+      </select>
+      <button onclick="changeGrid()">Click me!</button>
       <div class="search-bar">
         <input type="search" id="mySearch" placeholder="Find" onkeypress="if (event.keyCode === 13) searchDiagram()">
         <button class="search-button" onclick="searchDiagram()"><div class="search-image" onclick="searchDiagram()"></div></button>

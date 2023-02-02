@@ -89,23 +89,29 @@ function argsStyle() {
   new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
   selectionStyle(), 
   $(go.Panel, "Auto",
-    $(go.Shape, "Rectangle", 
+    $(go.Shape, "Rectangle", {fill: 'white'},
       new go.Binding("stroke", "isHighlighted", h => h ? "#7F00FF" : "darkslategray").ofObject(),
       new go.Binding("strokeWidth", "isHighlighted", h => h ? 8 : 2).ofObject()
     ),
-    $(go.Panel, "Spot",
-      $(go.Panel, "Vertical", {name: "ARGS"},
-          new go.Binding("itemArray", "items"),
-          new go.Binding("itemTemplate", "type", function(v) {
-              if(v == "decl")
-                  return varDeclArgTemplate;
-              else if(v == "propertyAccesors")
-                  return getElemArgTemplate;
-              else if(v == "var")
-                  return varArgTemplate;
-              return argTemplate;
-          })
-      )
+    $(go.Panel, "Table",
+      {
+        name: "TABLE", stretch: go.GraphObject.Horizontal,
+        minSize: new go.Size(100, 10),
+        defaultAlignment: go.Spot.Left,
+        defaultStretch: go.GraphObject.Horizontal,
+        defaultColumnSeparatorStroke: "gray",
+        defaultRowSeparatorStroke: "gray",
+      },
+      new go.Binding("itemArray", "items"),
+      new go.Binding("itemTemplate", "type", function(v) {
+          if(v == "decl")
+              return varDeclArgTemplate;
+          else if(v == "propertyAccesors")
+              return getElemArgTemplate;
+          else if(v == "var")
+              return varArgTemplate;
+          return argTemplate;
+      })
     )
   ),
   signsButton(true)
@@ -114,54 +120,29 @@ function argsStyle() {
 
 function argStyle() {
   return [
-      $(go.Shape, "Rectangle", argShapeStyle(), 
-        new go.Binding("toLinkable", "itemIndex", function(v, shape) {
-          const inLinks = shape.part.findLinksInto();
-          var linkIterator = inLinks.iterator;
 
-          while(linkIterator.next()) {
-            var i_item = linkIterator.value;
-            parentNode = myDiagram.findNodeForKey(i_item.data.from)
-
-            if(i_item.data.type == "Reversed") {break;}
-          }
-          return (parentNode.data.type == "array");
-        }).ofObject(),
-        new go.Binding("portId", "portId", function(v) { return ("inSlot" + v)}),
-        new go.Binding("fill", "itemIndex", function(v, shape) {
-            if( v < shape.part.data.arity.from)
-                return argFixedColor;
-            return argDefaultColor;
-        }).ofObject()
-      ),
-      $(go.Panel, "Table",
-        {
-          defaultAlignment: go.Spot.Left,
-          defaultColumnSeparatorStroke: "gray" //overriden by stroke of shape
-        },
-        $(go.RowColumnDefinition, { column: 0, width: 40 }),
-        $(go.RowColumnDefinition, { column: 1, width: 80 }),
-        $(go.TextBlock, //portId lport
-          {row: 0, column: 0, width: 30 }, //width less than 40 cause of margin
-          {margin: new go.Margin(2, 5, 2, 5)},
-          new go.Binding("text", "portId")
-        ),
-        $(go.Panel, "Auto",
-          {row: 0, column: 1, alignment: go.Spot.Right},
-          $(go.Shape, "TriangleLeft", portStyle(false),  // the rvalue port
-            new go.Binding("portId", "portId"),
-            { fill: "black", visible: false},
-            new go.Binding("visible", "isport")
-          )
-        ),
-        $(go.Panel, "Auto", //textfield
-          {row:0, column: 1, alignment: go.Spot.Center},
-          $(go.TextBlock, {editable: true, visible: false, background: "white", width: 50},
+        $(go.Panel, "TableRow",
+          $(go.TextBlock, //portId lport
+            {
+              column: 0,
+              margin: new go.Margin(2, 5, 2, 5),
+              width: 60
+            },
+            new go.Binding("text", "portId")
+          ),
+          
+          $(go.TextBlock, {column: 1,editable: true, visible: false, background: "white",  minSize: new go.Size( 150, 15 ),},
             new go.Binding("text", "paramtext").makeTwoWay(),
             new go.Binding("visible", "isport", function(v) {return !v})
           ),
+          $(go.Shape, "TriangleLeft", portStyle(false),  // the rvalue port  
+          new go.Binding("portId", "portId"),
+            { fill: "black", visible: false, column: 2,},
+            new go.Binding("visible", "isport")
+          )
         ),
-      ),
+
+      
       {
         click: (e, obj) => {
           onArgClick(e, obj, settingsAdornmentMap["DEFAULT ARGUMENT"]);
