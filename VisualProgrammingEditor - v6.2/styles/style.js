@@ -19,7 +19,7 @@ function selectionStyle() {
 
   function portStyle(input) {
     return {
-      desiredSize: new go.Size(20, 20),
+      desiredSize: new go.Size(10, 10),
       fill: "white",
       strokeWidth: 0,
       fromSpot: go.Spot.Right, //no need for this, tree layout makes that for nodes automatically
