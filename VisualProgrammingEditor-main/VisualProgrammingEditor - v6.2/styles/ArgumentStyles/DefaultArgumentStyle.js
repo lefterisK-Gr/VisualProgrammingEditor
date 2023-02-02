@@ -118,6 +118,7 @@ function argsStyle() {
 
 function argStyle() {
   return [
+      $(go.Shape, "Circle", { desiredSize: new go.Size(10, 10), fill: "white", stroke: null, fill: null, column: 0 }),
       argShapeStyle(), 
       new go.Binding("toLinkable", "itemIndex", function(v, shape) {
         const inLinks = shape.part.findLinksInto();
@@ -132,31 +133,33 @@ function argStyle() {
         return (parentNode.data.type == "array");
       }).ofObject(),
       new go.Binding("portId", "portId", function(v) { return ("inSlot" + v)}),
-      new go.Binding("fill", "itemIndex", function(v, shape) {
+      new go.Binding("background", "itemIndex", function(v, shape) {
           if( v < shape.part.data.arity.from)
               return argFixedColor;
           return argDefaultColor;
       }).ofObject(),
       
       $(go.TextBlock, //portId lport
-        {width: 30, column: 0 }, //width less than 40 cause of margin
+        {width: 30, column: 1 }, //width less than 40 cause of margin
         {margin: new go.Margin(2, 5, 2, 5), width: 60},
         new go.Binding("text", "portId")
       ),
+
+      $(go.Panel, "Auto", //textfield
+        { alignment: go.Spot.Center, column: 2, minSize: new go.Size(50, NaN)},
+        $(go.TextBlock, {editable: true, visible: false, background: "white", stretch: go.GraphObject.Horizontal,},
+          new go.Binding("text", "paramtext").makeTwoWay(),
+          new go.Binding("visible", "isport", function(v) {return !v})
+        ),
+      ),
+
       $(go.Panel, "Auto",
-        { alignment: go.Spot.Right, column: 2},
+        { alignment: go.Spot.Right, column: 3},
         $(go.Shape, "TriangleLeft", portStyle(false),  // the rvalue port
           new go.Binding("portId", "portId"),
           { fill: "black", visible: false},
           new go.Binding("visible", "isport")
         )
-      ),
-      $(go.Panel, "Auto", //textfield
-        { alignment: go.Spot.Center, column: 1, minSize: new go.Size(50, NaN)},
-        $(go.TextBlock, {editable: true, visible: false, background: "white", stretch: go.GraphObject.Horizontal,},
-          new go.Binding("text", "paramtext").makeTwoWay(),
-          new go.Binding("visible", "isport", function(v) {return !v})
-        ),
       ),
       {
         click: (e, obj) => {

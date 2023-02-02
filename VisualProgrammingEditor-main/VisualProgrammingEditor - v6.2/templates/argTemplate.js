@@ -185,21 +185,22 @@
       );
 
   function isArgSelected(item) {
-    return item.stroke !== argDefaultStroke;
+    return item.fill !== null;
   }
       
   function setArgSelected(item, sel) {
     if (sel) {
-      item.stroke = SelectedBrush; //override
+      item.fill = SelectedBrush; //override
     } 
     else {
-      item.stroke = argDefaultStroke;
+      item.fill = null;
     }
   }
   
   function onArgClick(e, item, varType) {
     var oldskips = item.diagram.skipsUndoManager;
     var node = item; 
+    console.log(node);
     item.diagram.skipsUndoManager = true;
     if (!isArgSelected(item.elt(0))) {
       // deselect all sibling items      
