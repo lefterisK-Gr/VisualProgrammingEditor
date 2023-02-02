@@ -1,0 +1,844 @@
+
+  <!DOCTYPE html>
+  <html lang="en" xmlns = "http://www.w3.org/1999/xhtml">
+  <head>
+    <script src="https://unpkg.com/gojs@2.2.13/release/go.js"></script>
+    <script src="parser.js"></script>
+    <script src="generator.js"></script>
+    <script src="styles/style.js"></script>
+    <script src="styles/functionstyle.js"></script>
+    <script src="styles/ArgumentStyles/DefaultArgumentStyle.js"></script>
+    <script src="styles/ArgumentStyles/DeclArgumentStyle.js"></script>
+    <script src="styles/ArgumentStyles/VarArgumentStyle.js"></script>
+    <script src="styles/ArgumentStyles/GetElemArgumentStyle.js"></script>
+    <script src="styles/ArgumentStyles/FunParameterStyle.js"></script>
+    <script src="styles/blockstyle.js"></script>
+    <script src="styles/CommentStyle.js"></script>
+    <script src="textEditor/dropdownEditors.js"></script>
+
+    <link rel="stylesheet" type="text/css"href="css/tabstyle.css">
+    <link rel="stylesheet" href="css/textfieldsstyle.css">
+    <link rel="stylesheet" href="css/debugBar.css">
+    <link rel="stylesheet" href="css/dropdown.css">
+    <link rel="stylesheet" href="css/overview.css">
+
+    <style type="text/css">
+    .tab-label::after {
+      content: "❯";
+      width: 1em;
+      height: 1em;
+      text-align: center;
+      transition: all 0.35s;
+    }
+    </style>
+
+    <script id="code">
+    
+      const resultLines = [];
+      var resultStore = false;
+      
+      //remove comments for printing result
+      /*console.oldLog = console.log;
+      console.log = function(value)
+      {
+        console.oldLog(value);
+        resultStore ? resultLines.push(value) : null;
+        return value;
+      };*/
+      
+      const $ = go.GraphObject.make;  // for conciseness in defining templates
+    
+      function init() {
+        document.body.style.backgroundColor = "#505050";
+
+        function deleteGroupNodes(n) {
+          n.findNodesOutOf().each(v =>{
+          if(v.category == "funBlocks")
+            v.isSelected = true;
+          });
+          n.findNodesInto().each(v =>{
+          if(isNodeArg(v.category, true)) {
+            v.isSelected = true;
+          }
+          })
+        }
+
+        var diagramHeight = 0;
+        var changeGridSize = false;
+        myDiagram =
+          $(go.Diagram, "myDiagramDiv",  // create a new Diagram in the HTML DIV element "myDiagramDiv"
+            {
+              "InitialLayoutCompleted": function(e) {
+                var dia = e.diagram;
+                // add height for horizontal scrollbar
+                diagramHeight = dia.viewportBounds.height;
+              },
+              "LinkDrawn": onLinkDrawVarUpdate, //it first updates model
+              "undoManager.isEnabled": true,
+              "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+              "dragSelectingTool.canStart": function() {
+                if (!this.isEnabled) return false;
+                const diagram = this.diagram;
+                if (!diagram.allowSelect) return false;
+                const e = diagram.lastInput;
+                if (!e.right) return false; // require left button
+                // don't include the following checks when this tool is running modally
+                if (diagram.currentTool !== this) {
+                  if (!this.isBeyondDragSize()) return false; // must not be a click
+                  // don't start if we're over a selectable part
+                  if (diagram.findPartAt(e.documentPoint, true) !== null) return false;
+                }
+                return e.right;  // only when the Shift key is also held down
+              },
+              "SelectionDeleting": e => {
+                var parts = e.subject;  // the collection of Parts to be deleted, the Diagram.selection
+                // iterate over a copy of this collection,
+                // because we may add to the collection by selecting more Parts
+                parts.copy().each(p => {
+                  if (p instanceof go.Node) {
+                    var node = p;
+                    if(isNodeArg(node.category, false)) {
+                      deleteGroupNodes(node)
+                    }
+                    else if(isNodeFunBlock(node.category)) {
+                      console.log("FunBlocks")
+                      let nodeArgs = node.findNodesInto().first();
+                      deleteGroupNodes(nodeArgs);
+                      nodeArgs.isSelected = true;
+                    }
+                    else{
+                      node.findNodesOutOf().each(n => {
+                      // remove every Comment Node that is connected with this node
+                      if (n.category === "Comment") {
+                        n.isSelected = true;  // include in normal deletion process
+                      }
+                      if(isNodeArg(n.category, false)) {
+                        deleteGroupNodes(n)
+                      }
+                      n.isSelected = true;
+                    });
+                    }
+                    
+                  } else if (p instanceof go.Link && p.category === "Comment") {
+                    var comlink = p;  // a "Comment" Link
+                    var comnode = comlink.fromNode;
+                    // remove the Comment Node that is associated with this Comment Link,
+                    if (comnode.category === "Comment") {
+                      comnode.isSelected = true;  // include in normal deletion process
+                    }
+                  }
+                });
+              },
+              grid: $(go.Panel, "Grid",
+                $(go.Shape, "LineH", 
+                  { stroke: "lightgray", strokeWidth: 0.5, interval: changeGridSize ? 1 : 5 },
+                ),
+                $(go.Shape, "LineH", { stroke: "gray", strokeWidth: 0.5, interval: 10 }),
+                $(go.Shape, "LineV", { stroke: "lightgray", strokeWidth: 0.5, interval: changeGridSize ? 1 : 5 }),
+                $(go.Shape, "LineV", { stroke: "gray", strokeWidth: 0.5, interval: 10 })
+              ),
+			  		  initialAutoScale: go.Diagram.Uniform,
+			  		  initialContentAlignment: go.Spot.Left,
+              layout: $(go.LayeredDigraphLayout, { isInitial: false,isOngoing: false, layerSpacing: 50})
+            },
+            {
+              click: (e, obj) => { //make this function
+                myDiagram.nodes.each(function (n) {
+                  if(isNodeArg(n.data.type, false)) {
+
+                    n.elt(0).elt(1).elements.each(it => {
+                      setArgSelected(it.elt(0), false);
+                    });
+                    n.removeAdornment(mouseSettingsSelect);
+                    n.removeAdornment(settingsMenuSelect);
+                  }
+                })
+              }
+            });
+
+        myDiagram.grid.gridCellSize = new go.Size(20, 20);
+        
+        myDiagram.padding.right = 200;
+        
+        // when the document is modified, enable the "Save" button
+        myDiagram.addDiagramListener("Modified", e => { //name "Modified" is built-in
+          var button = document.getElementById("saveModel");
+          if (button) button.disabled = !myDiagram.isModified;
+        });
+
+        myDiagram.addDiagramListener("ExternalObjectsDropped", e => {
+          // stop any ongoing text editing
+          if (myDiagram.currentTool instanceof go.TextEditingTool) {
+            myDiagram.currentTool.acceptText(go.TextEditingTool.LostFocus);
+          }
+          fading(); // expand any "macros"
+        });
+
+        function fading() {
+          setTimeout(() => {myDiagram.commandHandler.ungroupSelection()}, 0)
+        }
+
+        myDiagram.addDiagramListener("ViewportBoundsChanged", function(e) {
+          // only iterates through simple Parts in the diagram, not Nodes or Links
+          myDiagram.parts.each(function(part) {
+            // and only on those that have the "_viewPosition" property set to a Point
+            if (part._viewPosition) {
+              part.position = myDiagram.transformViewToDoc(new go.Point(50, diagramHeight-100));
+              part.scale = 1/myDiagram.scale;  // counteract any zooming
+            }
+          })
+        });
+
+        var greenArrowBrush = "#006600";
+        var greenArrowHeadBrush = "#00FF00";
+        var blueArrowBrush = "#003366";
+        var blueArrowHeadBrush = "#3399FF";
+        var purpleArrowBrush = "#4C0099";
+        var orangeArrowBrush = "#FF8000";
+
+        // creates relinkable Links that will avoid crossing Nodes when possible and will jump over other Links in their paths
+        myDiagram.linkTemplate =
+          $(go.Link,
+            new go.Binding("points").makeTwoWay(),
+            {
+              relinkableFrom: true, relinkableTo: true,
+              selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
+              shadowOffset: new go.Point(0, 0), shadowBlur: 5, shadowColor: "red"
+            },
+            new go.Binding("isShadowed", "isSelected").ofObject(),
+            $(go.Shape,
+              { name: "SHAPE", strokeWidth: 3, stroke: blueArrowBrush}
+            ),
+            $(go.Shape,
+              { toArrow: "Standard"},
+              { name: "SHAPE", strokeWidth: 3, stroke: blueArrowHeadBrush , fill: blueArrowHeadBrush}
+            )
+            );
+
+        myDiagram.linkTemplateMap.add("Reversed",
+            $(go.Link,
+              new go.Binding("isShadowed", "isSelected").ofObject(),
+              {selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
+              shadowOffset: new go.Point(0, 0), shadowBlur: 10, shadowColor: "red"},
+              $(go.Shape, { strokeWidth: 4, stroke: greenArrowBrush }),
+              $(go.Shape, { strokeWidth: 2, fromArrow: "Backward" , stroke: greenArrowHeadBrush, fill: greenArrowHeadBrush}),
+            )
+          );
+
+        myDiagram.linkTemplateMap.add("BlockToNode",
+          $(go.Link,
+            new go.Binding("isShadowed", "isSelected").ofObject(),
+            {selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
+            shadowOffset: new go.Point(0, 0), shadowBlur: 10, shadowColor: "red"},
+            $(go.Shape, { strokeWidth: 4, stroke: purpleArrowBrush })
+          )
+        );
+
+        myDiagram.linkTemplateMap.add("CollapseLink",
+          $(go.Link,
+            new go.Binding("isShadowed", "isSelected").ofObject(),
+            {selectionAdorned: false, // Links are not adorned when selected so that their color remains visible.
+            shadowOffset: new go.Point(0, 0), shadowBlur: 10, shadowColor: "red"},
+            $(go.Shape, { strokeWidth: 3, stroke: orangeArrowBrush, strokeDashArray: [3, 2]}),
+            $(go.Panel, "Auto",
+              $(go.Shape,  // the label background, which becomes transparent around the edges
+                {
+                  fill: $(go.Brush, "Radial",
+                    { 0: "rgb(240, 240, 240)", 0.3: "rgb(240, 240, 240)", 1: "rgba(240, 240, 240, 0)" }),
+                  stroke: null
+                }),
+              $(go.TextBlock, "transition",  // the label text
+                {
+                  textAlign: "center",
+                  font: "10pt helvetica, arial, sans-serif",
+                  stroke: "black",
+                  margin: 4,
+                },
+                new go.Binding("text", "text"))
+            )
+          )
+        );
+
+        function makeButton(text, action, visiblePredicate) {
+          return $("ContextMenuButton",
+            $(go.TextBlock, text),
+            { click: action },
+            // don't bother with binding GraphObject.visible if there's no predicate
+            visiblePredicate ? new go.Binding("visible", "", (o, e) => o.diagram ? visiblePredicate(o, e) : false).ofObject() : {});
+        }
+
+        function selectNodesReachButton() {
+          return $("ContextMenuButton",
+            $(go.TextBlock, "Select SubChains"),
+            { click: function(e, button) {
+              const node = button.part.adornedPart;
+              if (node !== null) {
+                myDiagram.startTransaction("select subtree");
+                myDiagram.selectCollection(node.findTreeParts());
+                myDiagram.commitTransaction("select subtree");
+              }
+              }
+            })
+        }
+
+        function selectNodesGroupButton() {
+          return $("ContextMenuButton",
+            $(go.TextBlock, "Select Group"),
+            { click: function(e, button) {
+              const node = button.part.adornedPart;
+              var nodeSelectArray = [];
+              if (node !== null) {
+                myDiagram.startTransaction("select group");
+                nodeSelectArray.push(node);
+                var selectArgs = node.findNodesOutOf().first();
+                nodeSelectArray.push(selectArgs);
+                var nodesOutOfArgs = selectArgs.findNodesOutOf();
+                nodesOutOfArgs.each(function(n) {
+                  console.log(n.data)
+                  if(n.data.type == "funBlocks") {
+                    nodeSelectArray.push(n);
+                  }
+                })
+                myDiagram.selectCollection(nodeSelectArray)
+                myDiagram.commitTransaction("select group");
+              }
+              }
+            })
+        }
+
+        function deleteButton() {
+          return $("ContextMenuButton",
+            $(go.TextBlock, "Delete"),
+            { click: function(e, button) {
+                var node = button.part.adornedPart;
+                e.diagram.select(node);
+                e.diagram.commandHandler.deleteSelection();
+              }
+            })
+        }
+
+        function addArgParamText(node, arg, i) {
+          myDiagram.startTransaction("Add Param");
+          console.log(toData)
+          // get the node data for which the user clicked the button
+          var fromData = node.data;
+          // create a new "State" data object, positioned off to the right of the adorned Node
+          var toData = { type: "ParamText", text: arg.paramtext};
+          var p = node.location;
+          const pYseperator = i * 100;
+          toData.loc = p.x + 200 + " " + Number(pYseperator + p.y) ;  // the "loc" property is a string, not a Point object
+          // add the new node data to the model
+          var model = myDiagram.model;
+          console.log(toData)
+          model.addNodeData(toData);
+          // create a link data from the old node data to the new node data
+          var linkdata = {category:"CollapseLink", text: arg.variable ? arg.variable : ( arg.parameter ? arg.parameter : arg.portId) };
+          linkdata[model.linkFromKeyProperty] = model.getKeyForNodeData(fromData);
+          linkdata[model.linkToKeyProperty] = model.getKeyForNodeData(toData);
+          // and add the link data to the model
+          model.addLinkData(linkdata);
+          // select the new Node
+          var newnode = myDiagram.findNodeForData(toData);
+          myDiagram.select(newnode);
+          myDiagram.commitTransaction("Add Param");
+        }
+        
+        function collapseArgs(node, args) {
+          if (node.data.isArgsCollapsed) return;
+          let outLinks = args.findLinksOutOf();
+          const totalOutLinks = outLinks.count;
+          let l_item;
+          let model = myDiagram.model;
+          let outLinksIterator = outLinks.iterator;
+          let i = 0;
+          while(outLinksIterator.next()) {
+            if(i == totalOutLinks) break;
+            l_item = outLinksIterator.value;
+            console.log(l_item.data)
+            var collapseLinkData = {category: "CollapseLink", toPort: "in", text: l_item.data.fromPort};
+            collapseLinkData[model.linkFromKeyProperty] = node.data.key;
+            collapseLinkData[model.linkToKeyProperty] = l_item.data.to;
+            model.addLinkData(collapseLinkData);
+            i++;
+          }
+          for(i = 0; i < args.data.items.length; i++) {
+            console.log(args.data.items)
+            if(args.data.items[i].paramtext) {
+              console.log(args.data.items[i])
+              addArgParamText(node, args.data.items[i], i)
+            }
+          }
+          myDiagram.model.setDataProperty(node.data, "isArgsCollapsed", true);
+          myDiagram.model.setDataProperty(args.data, "isArgsCollapsed", true);
+          myDiagram.model.setDataProperty(args.data, "visible", false);
+        }
+
+        function expandArgs(node, args) {
+          if (!node.data.isArgsCollapsed) return;
+          var linksToDelete = [];
+          node.findLinksOutOf().each(v=>{
+            console.log(v.data);
+            if(v.data.category== "CollapseLink") linksToDelete.push(v);
+          });
+          node.findNodesOutOf().each(v=>{
+            if(v.data.type == "ParamText") myDiagram.remove(v);
+          })
+          for(let i = 0; i < linksToDelete.length; i++) {
+            myDiagram.remove(linksToDelete[i]);
+          }
+          myDiagram.model.setDataProperty(node.data, "isArgsCollapsed", false);
+          myDiagram.model.setDataProperty(args.data, "isArgsCollapsed", false);
+          myDiagram.model.setDataProperty(args.data, "visible", true);
+        }
+
+        function collapseArgsButton() {
+          return $("ContextMenuButton",
+            $(go.TextBlock, "Collapse Arguments"),
+            { click: function(e, button) {
+                myDiagram.startTransaction("collapse args");
+                var node = button.part.adornedPart;
+                let nodeArgs = node.findNodesOutOf().first();
+                if(!node.data.isArgsCollapsed) {
+                  collapseArgs(node, nodeArgs);
+                }
+                myDiagram.commitTransaction("collapse args");
+              }
+            })
+        }
+
+        function expandArgsButton() {
+          return $("ContextMenuButton",
+            {visible: true},
+            $(go.TextBlock, "Expand Arguments"),
+            { click: function(e, button) {
+                myDiagram.startTransaction("expand args");
+                var node = button.part.adornedPart;
+                let nodeArgs = node.findNodesOutOf().first();
+                if (node.data.isArgsCollapsed) {
+                  expandArgs(node, nodeArgs);
+                } 
+                myDiagram.commitTransaction("expand args");
+              }
+            })
+        }
+
+        var nodeContextMenu = $("ContextMenu",
+          deleteButton(),
+          selectNodesReachButton(),
+          selectNodesGroupButton(),
+          makeButton("Copy",
+            (e, obj) => e.diagram.commandHandler.copySelection(),
+            o => o.diagram.commandHandler.canCopySelection()),
+          makeButton("Paste",
+            (e, obj) => e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint),
+            o => o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint)),
+          collapseArgsButton(),
+          expandArgsButton()
+        );
+
+        var nodeFunContextMenu = $("ContextMenu",
+          $("ContextMenuButton",
+            $(go.TextBlock, "Rename"),
+            { click: editText }),
+          deleteButton(),
+          selectNodesReachButton(),
+          selectNodesGroupButton(),
+          makeButton("Copy",
+          (e, obj) => e.diagram.commandHandler.copySelection(),
+          o => o.diagram.commandHandler.canCopySelection()),
+          makeButton("Paste",
+            (e, obj) => e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint),
+            o => o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint)),
+          collapseArgsButton(),
+          expandArgsButton()
+        );
+
+        myDiagram.contextMenu =
+        $("ContextMenu",
+          makeButton("Paste",
+            (e, obj) => e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint),
+            o => o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint)),
+          makeButton("Undo",
+            (e, obj) => e.diagram.commandHandler.undo(),
+            o => o.diagram.commandHandler.canUndo()),
+          makeButton("Redo",
+            (e, obj) => e.diagram.commandHandler.redo(),
+            o => o.diagram.commandHandler.canRedo())
+        );
+        // add the templates created above to myDiagram and myPalette
+        const objectsMap = {
+          "arithmeticOperator": {"ARITHMETIC OP":	yellowgrad},
+          "relationalOperator": {"RELATIONAL OP":	yellowgreengrad},
+          "unaryOperator":      {"UNARY OP":	    yellowbluegrad},
+          "binaryOperator":     {"BINARY OP":	    yellowredgrad},
+          "print":              {"PRINT":	        orangegrad},
+          "varsDecl":           {"VAR DECL":	    lightbluegrad},
+          "varsRefer":          {"VAR":	          purplegrad},
+          "getElem":            {"GET ELEM":      redpinkgrad},
+          "if":                 {"IF":	          greengrad},
+          "while":              {"WHILE":	        greengrad},
+          "for":                {"FOR":	          greengrad},
+          "break":              {"BREAK":         "white"},
+          "continue":           {"CONTINUE":      "white"},
+          "return":             {"RETURN":        "white"},
+          "assign":             {"ASSIGN":        bluegrad},
+          "object":             {"OBJECT":        browngrad},
+          "array":              {"ARRAY":         lightbluegreengrad},
+          "function":           {"FUNCTION":      "white"},
+          "call":               {"CALL":          "white"},
+        }
+
+        //NODES
+        Object.keys(objectsMap).forEach(key => {
+          let shapeColor = Object.values(objectsMap[key])[0];
+          let functionName = Object.keys(objectsMap[key])[0];
+          myDiagram.nodeTemplateMap.add(key, $(go.Node, "Spot", nodeFunctionStyle(  shapeColor,  functionName  )));
+          myDiagram.groupTemplateMap.add(key+"Group", $(go.Group, groupFunctionStyle(  shapeColor,  functionName  )));
+          myDiagram.nodeTemplateMap.get(key).contextMenu = (key == "function" || key == "call") ? nodeFunContextMenu : nodeContextMenu;
+        })
+        
+        //ARGS
+        myDiagram.nodeTemplateMap.add("args", argsTemplate);
+        myDiagram.nodeTemplateMap.add("var", varArgsTemplate);
+        myDiagram.nodeTemplateMap.add("propertyAccesors", getElemArgsTemplate);//entries
+        myDiagram.nodeTemplateMap.add("decl", varDeclArgsTemplate);
+        myDiagram.nodeTemplateMap.add("parameters", funParamsTemplate);
+        //BLOCKS
+        myDiagram.nodeTemplateMap.add("blocks", blocksTemplate);
+        myDiagram.nodeTemplateMap.add("mainBlock", mainBlockTemplate);
+        myDiagram.nodeTemplateMap.add("funBlocks", funBlocksTemplate);
+
+        myDiagram.add(recycleTemplate);
+        myDiagram.nodeTemplateMap.add("Comment", commentTemplate);
+        myDiagram.nodeTemplateMap.add("ParamText", paramtextTemplate);
+        myDiagram.linkTemplateMap.add("Comment",
+        // if the BalloonLink class has been loaded from the Extensions directory, use it
+        $(go.Link,
+          $(go.Shape,  // the Shape.geometry will be computed to surround the comment node and
+            // point all the way to the commented node
+            { stroke: "brown", strokeWidth: 1, fill: "lightyellow" })
+        ));
+
+        function paletteProperties(paletteComps, paletteLinks) {
+          return {
+            nodeTemplateMap: myDiagram.nodeTemplateMap,  // share the templates used by myDiagram
+            groupTemplateMap: myDiagram.groupTemplateMap,
+            //autoScale: go.Diagram.Uniform,
+
+            model: new go.GraphLinksModel(paletteComps,paletteLinks)
+          }
+        }
+        
+        logicPalette = $(go.Palette, "logicPaletteDiv",
+            paletteProperties(logicPaletteComps, logicPaletteLinks)
+          );
+        loopsPalette = $(go.Palette, "loopsPaletteDiv",
+            paletteProperties(loopsPaletteComps, loopsPaletteLinks)
+          );
+        mathPalette = $(go.Palette, "mathPaletteDiv",
+            paletteProperties(mathPaletteComps, mathPaletteLinks)
+          );
+        objectArrayPalette = $(go.Palette, "objectArrayPaletteDiv",
+            paletteProperties(objectArrayPaletteComps, objectArrayPaletteLinks)
+          );
+        variablesPalette = $(go.Palette, "variablesPaletteDiv",
+            paletteProperties(variablesPaletteComps, variablesPaletteLinks)
+          );
+        ioPalette = $(go.Palette, "ioPaletteDiv",
+            paletteProperties(ioPaletteComps, ioPaletteLinks)
+          );
+        functionsPalette = $(go.Palette, "functionsPaletteDiv",
+            paletteProperties(paletteComps3, paletteLinks3)
+          );
+
+        logicPalette.model.nodeCategoryProperty = "type";
+        loopsPalette.model.nodeCategoryProperty = "type";
+        mathPalette.model.nodeCategoryProperty = "type";
+        objectArrayPalette.model.nodeCategoryProperty = "type";
+        variablesPalette.model.nodeCategoryProperty = "type";
+        ioPalette.model.nodeCategoryProperty = "type";
+        functionsPalette.model.nodeCategoryProperty = "type";
+
+        function editText(e, button) {
+          var node = button.part.adornedPart;
+          e.diagram.commandHandler.editTextBlock(node.findObject("TEXTBLOCK"));
+        }
+        
+
+
+        // Overview
+        myOverview =
+          $(go.Overview, "myOverviewDiv",  // the HTML DIV element for the Overview
+            { 
+              observed: myDiagram, 
+              contentAlignment: go.Spot.Center,
+              drawsTemporaryLayers: false 
+            });   // tell it which Diagram to show and pan
+            
+        function maybeChangeLinkCategory(e) {
+          var link = e.subject;
+          var blocktonode = false;
+          if(link.fromNode.name == "blocks"){
+            blocktonode = true;
+          }
+          e.diagram.model.setCategoryForLinkData(link.data, (blocktonode ? "BlockToNode" : ""));
+        }
+
+        function onLinkDrawVarUpdate(e){
+          var link = e.subject;
+          maybeChangeLinkCategory(e)
+          updateDecls();
+          errorChecking(link);
+          n = myDiagram.findNodeForKey(link.data.to); // get the node to where link drew
+          updateVar(n);
+          if(n.data.type == "varsDecl") { updateVars() }
+          updateCall(n);
+          if(n.data.type == "function") { updateCalls() }
+        }
+        
+        // load the initial diagram
+        load();
+        save();
+        layout();
+      }
+    </script>
+
+    <script src="templates/functionsTemplates.js"></script>
+    <script src="templates/argTemplate.js"></script>
+    <script src="templates/blockTemplate.js"></script>
+    <script src="templates/recycleTemplate.js"></script>
+    <script src="templates/commentTemplate.js"></script>
+    <script src="palettes/FunctionsPalette.js"></script>
+    <script src="palettes/LogicPalette.js"></script>
+    <script src="palettes/LoopsPalette.js"></script>
+    <script src="palettes/MathPalette.js"></script>
+    <script src="palettes/ObjectArrayPalette.js"></script>
+    <script src="palettes/VariablesPalette.js"></script>
+    <script src="palettes/ioPalette.js"></script>
+    <script src="savenload.js"></script>
+
+  </head>
+
+  <body onload="init()">
+    <script>
+      /* When the user clicks on the button, 
+      toggle between hiding and showing the dropdown content */
+      function myFunction() {
+        document.getElementById("fileDropdown").classList.toggle("fileshow");
+      }
+
+      function activateDropdown() {
+        document.getElementById("myDropdown").classList.toggle("show");
+      }
+
+      function export2txt() {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([savedModel], {
+          type: "text/plain"
+        }));
+        a.setAttribute("download", "data.txt");
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+
+      // the Search functionality highlights all of the nodes that have at least one data property match a RegExp
+      function searchDiagram() {  // called by button
+          var input = document.getElementById("mySearch");
+          if (!input) return;
+          myDiagram.focus();
+
+          myDiagram.startTransaction("highlight search");
+
+          if (input.value) {
+            // search four different data properties for the string, any of which may match for success
+            // create a case insensitive RegExp from what the user typed
+            var safe = input.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var regex = new RegExp(safe, "i");
+            var results = myDiagram.findNodesByExample(
+              { type: regex },
+              { alias: regex},
+              { items: function(n) {
+                if(n){
+                  let i = 0;
+
+                  while(n[i]) {
+                    if(regex.test(n[i].portId) || regex.test(n[i].paramtext) || regex.test(n[i].variable))
+                    { return true; }
+                    i++;
+                  }
+                }
+              }
+              }
+);
+
+            myDiagram.highlightCollection(results);
+            // try to center the diagram at the first node that was found
+            if (results.count > 0) myDiagram.centerRect(results.first().actualBounds);
+          } else {  // empty string only clears highlighteds collection
+            myDiagram.clearHighlighteds();
+          }
+
+          myDiagram.commitTransaction("highlight search");
+        }
+
+    </script>
+
+    <div id="sample" style="height: calc( 100vh - 60px)">
+
+    <div class="editor-toolbar">
+      <div class="editor-toolbar-logo">
+        <img class="logo-image" src="logo/CodeChainsLogo.png" width="130" height="25">
+      </div>
+      <div class="file-dropdown">
+        <button onclick="myFunction()" class="filedropbtn">File</button>
+        <div id="fileDropdown" class="file-dropdown-content">
+          <button class="saveFile" onclick="export2txt()">Export Visual Code</button>
+          <label for="upload" class="custom-file-upload">
+            Import Visual Code
+          </label>
+          <input class="loadFile" type="file" id="upload">
+        </div>
+      </div>
+      <script src="loadFile.js"></script>
+      <div class ="top-toolbar-buttons">
+        <button class="undo-button" onclick="myDiagram.commandHandler.undo()"></button><!-- undo -->
+        <div class="redo-button" onclick="myDiagram.commandHandler.redo()"></div><!-- redo -->
+      </div>
+      <select name="cars" id="cars">
+        <option value="5x5">5x5</option>
+        <option value="20x20">20x20</option>
+      </select>
+      <div class="search-bar">
+        <input type="search" id="mySearch" placeholder="Find" onkeypress="if (event.keyCode === 13) searchDiagram()">
+        <button class="search-button" onclick="searchDiagram()"><div class="search-image" onclick="searchDiagram()"></div></button>
+      </div>
+
+      <div class="dropdown">
+        <button onclick="activateDropdown()" class="dropbtn">
+          <div class="dropdown-icon"><div class="JSON-icon"></div></div>
+          <div class="dropdown-icon"><div class="CODE-icon"></div></div>
+          <div class="dropdown-icon"><div class="IO-text">IO</div></div>
+          <div class="dropwdown-icon"><div class="dropwdown-arrow">▼</div></div>
+        </button>
+        <div id="myDropdown" class="dropdown-content">
+          <div class="boxes">
+            
+      
+            <div class="box-titles">
+              <strong>
+                Diagram Model saved in JSON format:
+              </strong>
+              <strong>
+                JSON code generation:
+              </strong>
+              <strong>
+                Result:
+             </strong>
+            </div>
+      
+            <div class="container">
+              <textarea readonly id="mySavedModel" >
+              </textarea>
+              <div class="controls">
+                <button type="button" class="controls__button controls__button--generate" onclick="generateCode()">Generate</button>
+              </div>
+              <textarea readonly id="generatedModel">
+              </textarea>
+      
+              <div class ="editor-toolbar-buttons">
+                <div class="editor-toolbar-button-category">
+                  <div class="play-button"></div><!-- play -->
+                  <div class="pause-button"></div><!-- pause -->
+                </div>
+                <div class="separator"></div>
+                <div class="editor-toolbar-button-category">
+                  <div class="step-over-button"></div><!-- step over -->
+                  <div class="step-into-button"></div><!-- step into -->
+                  <div class="step-out-button"></div><!-- step out -->
+                </div>
+                <div class="separator"></div>
+                <div class="editor-toolbar-button-category">
+                  <div class="restart-button"></div><!-- restart -->
+                  <div class="stop-button"></div><!-- stop -->
+                </div>
+              </div>
+      
+              <textarea readonly id="resultModel">
+              </textarea>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="width: 100%; height: calc(100% - 65px); display: flex; justify-content: space-between">
+      <div class="tabs">
+        <div class="tab">
+          <input class="tab-input" type="radio" id="rd1" name="rd" checked="true">
+          <label class="tab-label" for="rd1">Logic</label>
+          <div class="tab-content">
+            <div id="logicPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
+          </div>
+        </div>
+        <div class="tab">
+          <input class="tab-input" type="radio" id="rd2" name="rd">
+          <label class="tab-label" for="rd2">Loops</label>
+          <div class="tab-content">
+            <div id="loopsPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
+          </div>
+        </div>
+        <div class="tab">
+          <input class="tab-input" type="radio" id="rd3" name="rd">
+          <label class="tab-label" for="rd3">Math</label>
+          <div class="tab-content">
+            <div id="mathPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
+          </div>
+        </div>
+        <div class="tab">
+          <input class="tab-input" type="radio" id="rd4" name="rd">
+          <label class="tab-label" for="rd4">Object/Array</label>
+          <div class="tab-content">
+            <div id="objectArrayPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
+          </div>
+        </div>
+        <div class="tab">
+          <input class="tab-input" type="radio" id="rd5" name="rd">
+          <label class="tab-label" for="rd5">Variables</label>
+          <div class="tab-content">
+            <div id="variablesPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
+          </div>
+        </div>
+        <div class="tab">
+          <input class="tab-input" type="radio" id="rd6" name="rd">
+          <label class="tab-label" for="rd6">IO</label>
+          <div class="tab-content">
+            <div id="ioPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
+          </div>
+        </div>
+        <div class="tab">
+          <input class="tab-input" type="radio" id="rd7" name="rd">
+          <label class="tab-label" for="rd7">Functions</label>
+          <div class="tab-content">
+            <div id="functionsPaletteDiv" style="width: 120px; height: 100%; margin-right: 2px; background-color: whitesmoke; border: 1px solid black; position: relative;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="myDiagramDiv" style="flex-grow: 1; height: 100%; background-color: #ffffff; border: 1px solid black; position: relative;"></div>
+      
+    </div>
+    <div style="padding-top: 7px">
+      <button class="controls__button controls__button--load" id="saveModel" onclick="save()">Save</button>
+      <button class="controls__button controls__button--load" onclick="load()">Load</button>
+      <button class="controls__button controls__button--layout" onclick="layout()">Do Layout</button>
+    </div>
+
+    <div id="myOverviewDiv" style="-webkit-tap-highlight-color: rgba(255, 255, 255, 0); cursor: auto;"><canvas tabindex="0" width="200" height="98" style="position: absolute; top: 0px; left: 0px; z-index: 2; user-select: none; touch-action: none; width: 198px; height: 98px; cursor: auto;">This text is displayed if your browser does not support the Canvas HTML element.</canvas><div style="position: absolute; overflow: auto; width: 198px; height: 98px; z-index: 1;"><div style="position: absolute; width: 1px; height: 1px;"></div></div></div> <!-- Styled in a <style> tag at the top of the html page -->
+    
+    </pre></div>
+    
+  </body>
+  </html>
