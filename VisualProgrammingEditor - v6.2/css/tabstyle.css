@@ -103,3 +103,14 @@
   .tab-input:checked ~ .tab-content {
     max-height: 100vh;
   }
+  .custom-select-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    border-radius: 20px;
+  }
+  #cellSizeDropdown {
+    background-color:#999999;
+    border-radius: 4px;
+  }

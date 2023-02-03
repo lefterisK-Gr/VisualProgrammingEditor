@@ -707,13 +707,15 @@
         <button class="undo-button" onclick="myDiagram.commandHandler.undo()"></button><!-- undo -->
         <div class="redo-button" onclick="myDiagram.commandHandler.redo()"></div><!-- redo -->
       </div>
-      <select id="cellSizeDropdown" onchange="changeGrid()">
-        <option value="10">10x10</option>
-        <option value="20">20x20</option>
-        <option value="50">50x50</option>
-        <option value="100">100x100</option>
-      </select>
-      <button onclick="changeGrid()">Click me!</button>
+      <div class="custom-select-grid" style="padding: 5px; padding-left: 10px; background:#727272;  border:none; margin-right: 20px">
+        <img src="./images/grid.png" style="width: 15px;height: 15px;">
+        <select id="cellSizeDropdown" onchange="changeGrid()">
+          <option value="10">10x10</option>
+          <option value="20">20x20</option>
+          <option value="50">50x50</option>
+          <option value="100">100x100</option>
+        </select>
+      </div>
       <div class="search-bar">
         <input type="search" id="mySearch" placeholder="Find" onkeypress="if (event.keyCode === 13) searchDiagram()">
         <button class="search-button" onclick="searchDiagram()"><div class="search-image" onclick="searchDiagram()"></div></button>

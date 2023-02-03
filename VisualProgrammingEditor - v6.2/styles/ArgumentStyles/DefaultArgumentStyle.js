@@ -134,8 +134,13 @@ function argStyle() {
       }).ofObject(),
       new go.Binding("portId", "portId", function(v) { return ("inSlot" + v)}),
       new go.Binding("background", "itemIndex", function(v, shape) {
-          if( v < shape.part.data.arity.from)
-              return argFixedColor;
+        console.log(shape.data)
+          if(!shape.data.isport && !shape.data.parmtext && !shape.data.connectedBlock) {
+            return "#fc554c"
+          }
+          else if( v < shape.part.data.arity.from){
+            return argFixedColor;
+          }
           return argDefaultColor;
       }).ofObject(),
       
@@ -147,9 +152,10 @@ function argStyle() {
 
       $(go.Panel, "Auto", //textfield
         { alignment: go.Spot.Center, column: 2, minSize: new go.Size(50, NaN)},
-        $(go.TextBlock, {editable: true, visible: false, background: "white", stretch: go.GraphObject.Horizontal,},
+        $(go.TextBlock, {editable: true, background: "white", stretch: go.GraphObject.Horizontal,},
           new go.Binding("text", "paramtext").makeTwoWay(),
-          new go.Binding("visible", "isport", function(v) {return !v})
+          new go.Binding("editable", "isport", function(v) {return !v}),
+          new go.Binding("background", "isport", function(v) {return v ? "lightgray" : "white"})
         ),
       ),
 
