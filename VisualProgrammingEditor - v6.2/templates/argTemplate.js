@@ -74,6 +74,14 @@
     ]
   }
 
+  function canHaveValue(adorn) {
+    console.log(adorn.data)
+    if(adorn.data.isport) {
+      return true;
+    }
+    return false;
+  }
+
   var argSettingsAdornment = //adornment is on whole node
       $(go.Adornment, "Spot", settingsAdornment(settingsAdornmentMap["DEFAULT ARGUMENT"]));
 
@@ -109,7 +117,8 @@
               { click: (e, obj) => {
                 activateTextField(obj.part.adornedObject)} 
               },
-              $(go.TextBlock, "value")),
+              $(go.TextBlock, "="),
+              new go.Binding("visible", "", canHaveValue).ofObject()),
             $("Button",
               {width: 60},
               { click: (e, obj) => {
@@ -327,7 +336,8 @@
     myDiagram.startTransaction("makePort");
     const data = arg.data;
     myDiagram.model.setDataProperty(data, "isport", true);
-
+    console.log(arg)
+    arg.updateTargetBindings()
     const tool = myDiagram.toolManager.linkingTool;
     tool.startObject = arg.part.findPort(data.portId)
     myDiagram.currentTool = tool;
@@ -346,6 +356,7 @@
       }
     }
     myDiagram.model.setDataProperty(data, "isport", false);
+    arg.updateTargetBindings()
     myDiagram.commitTransaction("makeTextField");
   }
 

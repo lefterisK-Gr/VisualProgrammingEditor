@@ -3,9 +3,9 @@ var logicPaletteComps = [
   {key: 1, type: "ifGroup", isGroup: true},
   {key: 2, type: "if", group: 1},
   {key: 3, type: "args", arity: { "from" : 2 , "to": 3}, items: [ 
-    {portId: "condition"},
-    {portId: "if part", connectedBlock: true},
-    {portId: "else part", connectedBlock: true}, 
+    {portId: "condition", icon:"condition.png"},
+    {portId: "if part", icon:"whiteCircle.png", connectedBlock: true},
+    {portId: "else part",icon:"blackCircle.png", connectedBlock: true}, 
   ], group: 1},
   {key: 4, type: "funBlocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true} 
   ], group: 1},

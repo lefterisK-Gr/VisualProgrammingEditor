@@ -134,8 +134,7 @@ function argStyle() {
       }).ofObject(),
       new go.Binding("portId", "portId", function(v) { return ("inSlot" + v)}),
       new go.Binding("background", "itemIndex", function(v, shape) {
-        console.log(shape.data)
-          if(!shape.data.isport && !shape.data.parmtext && !shape.data.connectedBlock) {
+          if(!shape.data.isport && !shape.data.paramtext && !shape.data.connectedBlock) {
             return "#fc554c"
           }
           else if( v < shape.part.data.arity.from){
@@ -146,8 +145,18 @@ function argStyle() {
       
       $(go.TextBlock, //portId lport
         {width: 30, column: 1 }, //width less than 40 cause of margin
-        {margin: new go.Margin(2, 5, 2, 5), width: 60},
-        new go.Binding("text", "portId")
+        { width: 60,
+          font: "bold 12pt sans-serif"},
+        
+        new go.Binding("text", "portId"),
+        new go.Binding("visible", "icon", function(v) { return !v }),
+      ),
+      $(go.Picture, "",//portId lport
+        {column: 1 }, //width less than 40 cause of margin
+        {width: 20, height: 20},
+        new go.Binding("visible", "icon", function(v) { return v != "" }),
+        new go.Binding("source", "icon", function(v) { return "./images/" + v}),
+        
       ),
 
       $(go.Panel, "Auto", //textfield
@@ -155,6 +164,7 @@ function argStyle() {
         $(go.TextBlock, {editable: true, background: "white", stretch: go.GraphObject.Horizontal,},
           new go.Binding("text", "paramtext").makeTwoWay(),
           new go.Binding("editable", "isport", function(v) {return !v}),
+          new go.Binding("visible", "connectedBlock", function(v) { return !v }),
           new go.Binding("background", "isport", function(v) {return v ? "lightgray" : "white"})
         ),
       ),
