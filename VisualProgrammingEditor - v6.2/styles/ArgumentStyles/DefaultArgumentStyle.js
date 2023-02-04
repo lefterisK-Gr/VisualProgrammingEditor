@@ -165,7 +165,12 @@ function argStyle() {
           new go.Binding("text", "paramtext").makeTwoWay(),
           new go.Binding("editable", "isport", function(v) {return !v}),
           new go.Binding("visible", "connectedBlock", function(v) { return !v }),
-          new go.Binding("background", "isport", function(v) {return v ? "lightgray" : "white"})
+          new go.Binding("background", "isport", function(v) {return v ? "lightgray" : "white"}),
+          {
+            textEdited: function(tb, olds, news) {
+              tb.part.updateTargetBindings();
+            }
+          }
         ),
       ),
 
