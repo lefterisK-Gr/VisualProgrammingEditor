@@ -105,7 +105,6 @@ var tempAstModel;
   }
 
   function isNodeFunBlock(n) {
-    console.log("ok")
     return n == "funBlocks"
   }
 

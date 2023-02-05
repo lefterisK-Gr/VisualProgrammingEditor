@@ -11,12 +11,12 @@
   
   //argument row style
   var argTemplate =         $(go.Panel, "TableRow", argStyle());
-  var varDeclArgTemplate =  $(go.Panel, "Auto", varDeclArgStyle());//add parameter to varArg so change binding to parameter
-  var varArgTemplate =      $(go.Panel, "Auto", varArgStyle());   
-  var getElemArgTemplate =  $(go.Panel, "Auto", getElemArgStyle());
+  var varDeclArgTemplate =  $(go.Panel, "TableRow", varDeclArgStyle());//add parameter to varArg so change binding to parameter
+  var varArgTemplate =      $(go.Panel, "TableRow", varArgStyle());   
+  var getElemArgTemplate =  $(go.Panel, "TableRow", getElemArgStyle());
 
-  var funParamTemplate =    $(go.Panel, "Auto", varDeclArgStyle())
-  var funParamCodeTemplate =$(go.Panel, "Auto", funCodeParamStyle())
+  var funParamTemplate =    $(go.Panel, "TableRow", varDeclArgStyle())
+  var funParamCodeTemplate =$(go.Panel, "TableRow", funCodeParamStyle())
   //argument table style
   var argsTemplate =        $(go.Node, "Vertical", argsStyle());
   var varDeclArgsTemplate = $(go.Node, "Vertical", argsStyle()); //maybe change this??
@@ -75,11 +75,7 @@
   }
 
   function canHaveValue(adorn) {
-    console.log(adorn.data)
-    if(adorn.data.isport) {
-      return true;
-    }
-    return false;
+    return adorn.data.isport ? true : false
   }
 
   var argSettingsAdornment = //adornment is on whole node
@@ -210,7 +206,6 @@
   function onArgClick(e, item, varType) {
     var oldskips = item.diagram.skipsUndoManager;
     var node = item; 
-    console.log(node);
     item.diagram.skipsUndoManager = true;
     if (!isArgSelected(item.elt(0))) {
       // deselect all sibling items      
@@ -336,8 +331,8 @@
     myDiagram.startTransaction("makePort");
     const data = arg.data;
     myDiagram.model.setDataProperty(data, "isport", true);
-    console.log(arg)
-    arg.updateTargetBindings()
+    arg.updateTargetBindings();
+    arg.part.updateAdornments()
     const tool = myDiagram.toolManager.linkingTool;
     tool.startObject = arg.part.findPort(data.portId)
     myDiagram.currentTool = tool;
@@ -356,7 +351,8 @@
       }
     }
     myDiagram.model.setDataProperty(data, "isport", false);
-    arg.updateTargetBindings()
+    arg.updateTargetBindings();
+    arg.part.updateAdornments()
     myDiagram.commitTransaction("makeTextField");
   }
 
@@ -383,13 +379,16 @@
     
     for(let i = 0; i < allArgs.data.items.length; i++) {
       var upperArg = up ? allArgs.data.items[i-1] : data;
-      var underArg = up ? data : allArgs.data.items[i+1];
+      var underArg = up ? data                    : allArgs.data.items[i+1];
       if( (allArgs.data.items[i].portId == data.portId) && (up ? (i > 0) : (i < allArgs.data.items.length - 1) )) {
         const sourceParamtext = data.paramtext;	
         var upperArgLink;	
         var downArgLink;
-        const targetParamText = underArg.paramtext;
-        myDiagram.model.setDataProperty(data, "paramtext", targetParamText);
+        const targetParamText = up ? upperArg.paramtext : underArg.paramtext;
+        console.log(data);
+        console.log(underArg);
+        console.log(upperArg);
+        myDiagram.model.setDataProperty(data, "paramtext", targetParamText ? targetParamText : "");
         myDiagram.model.setDataProperty(up ? upperArg : underArg, "paramtext", sourceParamtext);
         if(underArg.isport || upperArg.isport) {
           allArgs.findLinksOutOf().each(v=>{	
@@ -414,6 +413,7 @@
         break;
       }
     }
+    arg.part.updateTargetBindings();
     myDiagram.commitTransaction("move argument");
   }
 

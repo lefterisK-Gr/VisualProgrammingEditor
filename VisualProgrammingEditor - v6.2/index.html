@@ -120,10 +120,30 @@
                     
                   } else if (p instanceof go.Link && p.category === "Comment") {
                     var comlink = p;  // a "Comment" Link
-                    var comnode = comlink.fromNode;
+                    var comnode = comlink.toNode;
                     // remove the Comment Node that is associated with this Comment Link,
                     if (comnode.category === "Comment") {
                       comnode.isSelected = true;  // include in normal deletion process
+                    }
+                  } else if (p instanceof go.Link && (p.category === "" || p.category == "Reversed")) {
+                    var plink = p;  // a "Comment" Link
+                    var tonode = plink.toNode;
+                    var fromnode = plink.fromNode;
+                    // remove the Comment Node that is associated with this Comment Link,
+                    if ((tonode.category === "funBlocks") || (plink.category == "Reversed")) {
+                      p.isSelected = false;
+                      return;
+                    }
+                    else {
+                      var fromport = plink.data.fromPort;
+                      console.log(plink.data);
+                      console.log(fromnode.data)
+                      for(let i = 0; i < fromnode.data.items.length; i++) {
+                        if(fromnode.data.items[i].portId == fromport) {
+                          myDiagram.model.setDataProperty(fromnode.data.items[i], "isport", false)
+                        }
+                      }
+                      fromnode.updateTargetBindings();
                     }
                   }
                 });

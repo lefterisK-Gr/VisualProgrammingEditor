@@ -98,7 +98,12 @@ function argsStyle() {
         defaultColumnSeparatorStroke: "gray",
         defaultRowSeparatorStroke: "gray",},
 
-
+        $(go.RowColumnDefinition,
+          { column: 0, background: argDefaultColor}),
+        $(go.RowColumnDefinition,
+          { column: 1, background: "white"}),
+        $(go.RowColumnDefinition,
+          { column: 2, background: argDefaultColor}),
       new go.Binding("itemArray", "items"),
       new go.Binding("itemTemplate", "type", function(v) {
           if(v == "decl")
@@ -118,7 +123,13 @@ function argsStyle() {
 
 function argStyle() {
   return [
-      $(go.Shape, "TriangleRight", { desiredSize: new go.Size(10, 10), fill: "white", stroke: null, fill: null, column: 0 }),
+      $(go.Shape, "TriangleRight", {
+        desiredSize: new go.Size(10, 10), 
+        fill: "white", 
+        stroke: null, 
+        fill: null, 
+        column: 0 
+      }),
       argShapeStyle(), 
       new go.Binding("toLinkable", "itemIndex", function(v, shape) {
         const inLinks = shape.part.findLinksInto();
@@ -144,7 +155,7 @@ function argStyle() {
       }).ofObject(),
       
       $(go.TextBlock, //portId lport
-        {width: 30, column: 1 }, //width less than 40 cause of margin
+        {width: 30, column: 0 }, //width less than 40 cause of margin
         { width: 60,
           font: "bold 12pt sans-serif"},
         
@@ -152,7 +163,7 @@ function argStyle() {
         new go.Binding("visible", "icon", function(v) { return !v }),
       ),
       $(go.Picture, "",//portId lport
-        {column: 1 }, //width less than 40 cause of margin
+        {column: 0 }, //width less than 40 cause of margin
         {width: 20, height: 20},
         new go.Binding("visible", "icon", function(v) { return v != "" }),
         new go.Binding("source", "icon", function(v) { return "./images/" + v}),
@@ -160,7 +171,7 @@ function argStyle() {
       ),
 
       $(go.Panel, "Auto", //textfield
-        { alignment: go.Spot.Center, column: 2, minSize: new go.Size(50, NaN)},
+        { alignment: go.Spot.Center, column: 1, minSize: new go.Size(50, NaN)},
         $(go.TextBlock, {editable: true, background: "white", stretch: go.GraphObject.Horizontal,},
           new go.Binding("text", "paramtext").makeTwoWay(),
           new go.Binding("editable", "isport", function(v) {return !v}),
@@ -175,7 +186,7 @@ function argStyle() {
       ),
 
       $(go.Panel, "Auto",
-        { alignment: go.Spot.Right, column: 3},
+        { alignment: go.Spot.Right, column: 2},
         $(go.Shape, "Circle", portStyle(false),  // the rvalue port
           new go.Binding("portId", "portId"),
           { fill: "black", visible: false},
