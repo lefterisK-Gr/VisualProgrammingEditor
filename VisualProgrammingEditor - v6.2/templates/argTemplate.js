@@ -16,7 +16,7 @@
   var getElemArgTemplate =  $(go.Panel, "TableRow", getElemArgStyle());
 
   var funParamTemplate =    $(go.Panel, "TableRow", varDeclArgStyle())
-  var funParamCodeTemplate =$(go.Panel, "TableRow", funCodeParamStyle())
+  var funParamCodeTemplate =$(go.Panel, "Auto", funCodeParamStyle())
   //argument table style
   var argsTemplate =        $(go.Node, "Vertical", argsStyle());
   var varDeclArgsTemplate = $(go.Node, "Vertical", argsStyle()); //maybe change this??
@@ -207,18 +207,23 @@
     var oldskips = item.diagram.skipsUndoManager;
     var node = item; 
     item.diagram.skipsUndoManager = true;
-    if (!isArgSelected(item.elt(0))) {
+    if (!isArgSelected(item.elt(2))) {
       // deselect all sibling items      
       myDiagram.nodes.each(function (n) {
-        if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl" || n.data.type == "propertyAccesors" || n.data.type == "parameters") {
+        if(n.data.type == "args" || n.data.type == "var" || n.data.type == "decl" || n.data.type == "propertyAccesors" ) {
           n.elt(0).elt(1).elements.each(it => { //remove selection highlight
-            setArgSelected(it.elt(0), false);
+            setArgSelected(it.elt(2), false);
+          });
+        }
+        else if(n.data.type == "parameters"){
+          n.elt(0).elt(1).elt(0).elements.each(it => { //remove selection highlight
+            setArgSelected(it.elt(2), false);
           });
         }
         n.removeAdornment(settingsMenuSelect); //idk why this need to remove exclusively from each node
         n.removeAdornment(mouseSettingsSelect);
       })
-      setArgSelected(item.elt(0), true);
+      setArgSelected(item.elt(2), true);
       item.part.isSelected = true;
       
       //settings adornment 
@@ -236,7 +241,7 @@
       }
     }
     else {
-      setArgSelected(item.elt(0), false);
+      setArgSelected(item.elt(2), false);
       item.part.isSelected = false;
       node.part.removeAdornment(mouseSettingsSelect);
       node.part.removeAdornment(settingsMenuSelect);

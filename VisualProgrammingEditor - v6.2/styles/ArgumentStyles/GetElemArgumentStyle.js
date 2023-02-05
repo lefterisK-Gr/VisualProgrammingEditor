@@ -1,32 +1,36 @@
 function getElemArgStyle() {
   return [
-    $(go.Shape, "Rectangle", argShapeStyle(),
-      new go.Binding("fill", "itemIndex", function(v, shape) {
-          if( v < shape.part.data.arity.from)
-              return argFixedColor;
+      {background: "transparent"},
+      new go.Binding("background", "itemIndex", function(v, shape) {
+        console.log(shape.data)
+          if(!shape.data.isport && !shape.data.paramtext && !shape.data.connectedBlock) {
+            return "#fc554c"
+          }
+          else if( shape.part.data.arity && shape.part.data.arity.from && v < shape.part.data.arity.from){
+            return argFixedColor;
+          }
           return argDefaultColor;
-      }).ofObject()
-    ),
-    $(go.Panel, "Table",
-      {
-        defaultAlignment: go.Spot.Left,
-        defaultColumnSeparatorStroke: "gray" //overriden by stroke of shape
-      },
-      $(go.RowColumnDefinition, { column: 0, width: 40 }),
-      $(go.RowColumnDefinition, { column: 1, width: 105 }),
+      }).ofObject(),
       $(go.TextBlock, //portId lport
-        {row: 0, column: 0, width: 30 }, //width less than 40 cause of margin
+        {column: 0, width: 30 }, //width less than 40 cause of margin
         {margin: new go.Margin(2, 5, 2, 5)},
         new go.Binding("text", "portId")
       ),
       $(go.Panel, "Auto",
         {row: 0, column: 1, alignment: go.Spot.Right},
-        $(go.Shape, "TriangleLeft", portStyle(false),  // the rvalue port
+        $(go.Shape, "Circle", portStyle(false),  // the rvalue port
           new go.Binding("portId", "portId"),
           { fill: "black", visible: false},
           new go.Binding("visible", "isport")
         )
       ),
+      $(go.Shape, "TriangleRight", {
+        desiredSize: new go.Size(10, 10), 
+        fill: "white", 
+        stroke: null, 
+        fill: null, 
+        column: 0 
+      }),
       $(go.Panel, "Auto", //textfield
         {row:0, column: 1, alignment: go.Spot.Center},
         $(go.TextBlock, {editable: true, visible: false, background: "white", width: 50},
@@ -35,7 +39,7 @@ function getElemArgStyle() {
         ),
       ),
       selectableArgStyle("Key"),
-    ),
+
     {
       click: (e, obj) => {
         onArgClick(e, obj, settingsAdornmentMap["GET ELEMENT ARGUMENT"]);

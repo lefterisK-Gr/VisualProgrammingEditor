@@ -156,10 +156,16 @@
               click: (e, obj) => { //make this function
                 myDiagram.nodes.each(function (n) {
                   if(isNodeArg(n.data.type, false)) {
-
-                    n.elt(0).elt(1).elements.each(it => {
-                      setArgSelected(it.elt(0), false);
+                    if(n.data.type == "parameters") {
+                      n.elt(0).elt(1).elt(0).elements.each(it => {
+                      setArgSelected(it.elt(2), false);
                     });
+                    }
+                    else {
+                      n.elt(0).elt(1).elements.each(it => {
+                      setArgSelected(it.elt(2), false);
+                    });
+                    }
                     n.removeAdornment(mouseSettingsSelect);
                     n.removeAdornment(settingsMenuSelect);
                   }

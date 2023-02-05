@@ -53,12 +53,18 @@ return [
 function selectableArgStyle(varKind) {
 return [
   $(go.TextBlock, 
-    {row: 0, column: 1, alignment: go.Spot.Right},
+    {column: 1, alignment: go.Spot.Right},
     {editable: true, width: 100, margin: 5, background: lightergray},
     new go.Binding("visible", "isExistingVar", function(v) {return !v}),
-    new go.Binding("text", "paramtext").makeTwoWay()),
+    new go.Binding("text", "paramtext").makeTwoWay(),
+    {
+      textEdited: function(tb, olds, news) {
+        tb.part.updateTargetBindings();
+      }
+    }
+  ),
   $(go.TextBlock, "Enter " + varKind, 
-    {row: 0, column: 1, alignment: go.Spot.Right},
+    {column: 1, alignment: go.Spot.Right},
     {width: 100, margin: 5, background: darkergray, textEditor: window.VarEditorSelectBox, editable: true},
     
     //INTELLISENSE
@@ -68,9 +74,9 @@ return [
     new go.Binding("text", "paramtext").makeTwoWay(),
     {
       textEdited: function(tb, olds, news) {
-        tb.part.updateTargetBindings("choices");
+        tb.part.updateTargetBindings();
       }
-    }
+    },
   )
 ]
 }
@@ -123,13 +129,7 @@ function argsStyle() {
 
 function argStyle() {
   return [
-      $(go.Shape, "TriangleRight", {
-        desiredSize: new go.Size(10, 10), 
-        fill: "white", 
-        stroke: null, 
-        fill: null, 
-        column: 0 
-      }),
+      
       argShapeStyle(), 
       new go.Binding("toLinkable", "itemIndex", function(v, shape) {
         const inLinks = shape.part.findLinksInto();
@@ -145,14 +145,19 @@ function argStyle() {
       }).ofObject(),
       new go.Binding("portId", "portId", function(v) { return ("inSlot" + v)}),
       new go.Binding("background", "itemIndex", function(v, shape) {
+        console.log(shape.data)
           if(!shape.data.isport && !shape.data.paramtext && !shape.data.connectedBlock) {
+            console.log("wtf")
             return "#fc554c"
           }
-          else if( v < shape.part.data.arity.from){
+          else if( shape.part.data.arity && shape.part.data.arity.from && v < shape.part.data.arity.from){
+            console.log("wtf1")
             return argFixedColor;
           }
+          console.log("wtf2")
           return argDefaultColor;
       }).ofObject(),
+
       
       $(go.TextBlock, //portId lport
         {width: 30, column: 0 }, //width less than 40 cause of margin
@@ -162,6 +167,7 @@ function argStyle() {
         new go.Binding("text", "portId"),
         new go.Binding("visible", "icon", function(v) { return !v }),
       ),
+     
       $(go.Picture, "",//portId lport
         {column: 0 }, //width less than 40 cause of margin
         {width: 20, height: 20},
@@ -169,7 +175,13 @@ function argStyle() {
         new go.Binding("source", "icon", function(v) { return "./images/" + v}),
         
       ),
-
+      $(go.Shape, "TriangleRight", {
+        desiredSize: new go.Size(10, 10), 
+        fill: "white", 
+        stroke: null, 
+        fill: null, 
+        column: 0 
+      }),
       $(go.Panel, "Auto", //textfield
         { alignment: go.Spot.Center, column: 1, minSize: new go.Size(50, NaN)},
         $(go.TextBlock, {editable: true, background: "white", stretch: go.GraphObject.Horizontal,},
