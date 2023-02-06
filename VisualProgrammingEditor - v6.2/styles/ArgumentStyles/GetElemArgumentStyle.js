@@ -2,7 +2,6 @@ function getElemArgStyle() {
   return [
       {background: "transparent"},
       new go.Binding("background", "itemIndex", function(v, shape) {
-        console.log(shape.data)
           if(!shape.data.isport && !shape.data.paramtext && !shape.data.connectedBlock) {
             return "#fc554c"
           }

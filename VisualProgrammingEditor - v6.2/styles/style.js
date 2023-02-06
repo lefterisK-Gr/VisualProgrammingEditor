@@ -26,7 +26,7 @@ function selectionStyle() {
       fromLinkable: !input,
       toSpot: go.Spot.Left,
       toLinkable: input,
-      toMaxLinks: 1,
+      
       fromMaxLinks: 1,
       cursor: "pointer"
     };

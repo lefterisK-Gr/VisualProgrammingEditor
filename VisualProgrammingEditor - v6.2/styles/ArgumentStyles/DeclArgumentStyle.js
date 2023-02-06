@@ -1,12 +1,13 @@
 function varDeclArgStyle() {
   return [
-      {background: "transparent"},
+      {background: "transparent", toSpot: go.Spot.Left, toLinkable: true},
       new go.Binding("background", "itemIndex", function(v, shape) {
           if(!shape.data.variable) {
             return "#fc554c"
           }
           return argDefaultColor;
       }).ofObject(),
+      new go.Binding("portId", "portId", function(v) { return ("inSlot" + v)}),
       $(go.TextBlock,  //portId
         {column: 0, width: 30},
         {margin: new go.Margin(2, 5, 2, 5),
@@ -27,7 +28,8 @@ function varDeclArgStyle() {
         },
         new go.Binding("text", "variable").makeTwoWay()
       ),
-      $(go.Shape, "TriangleRight", {
+      $(go.Shape, "TriangleRight", 
+      {
         desiredSize: new go.Size(10, 10), 
         fill: "white", 
         stroke: null, 
@@ -54,7 +56,6 @@ function varDeclArgStyle() {
       ),
       {
         click: (e, obj) => {
-          console.log("okey")
           onArgClick(e, obj, settingsAdornmentMap["DEFAULT ARGUMENT"]);
         }
       }

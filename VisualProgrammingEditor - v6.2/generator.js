@@ -179,7 +179,6 @@ function generateStatement(stmt, stack, frame, functionFrame) { // recursive fun
         const condition = arguments[0];
         const if_part = arguments[1];
         const else_part = arguments[2];
-        console.log(else_part)
         
         return (else_part != "") ? `if (${condition}) {\n${if_part}\n}\nelse {\n${else_part}\n}` : `if (${condition}) {\n${if_part}\n}`;
     } 

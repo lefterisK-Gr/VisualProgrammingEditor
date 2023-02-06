@@ -145,25 +145,21 @@ function argStyle() {
       }).ofObject(),
       new go.Binding("portId", "portId", function(v) { return ("inSlot" + v)}),
       new go.Binding("background", "itemIndex", function(v, shape) {
-        console.log(shape.data)
           if(!shape.data.isport && !shape.data.paramtext && !shape.data.connectedBlock) {
-            console.log("wtf")
             return "#fc554c"
           }
           else if( shape.part.data.arity && shape.part.data.arity.from && v < shape.part.data.arity.from){
-            console.log("wtf1")
             return argFixedColor;
           }
-          console.log("wtf2")
           return argDefaultColor;
       }).ofObject(),
-
       
       $(go.TextBlock, //portId lport
         {width: 30, column: 0 }, //width less than 40 cause of margin
-        { width: 60,
-          font: "bold 12pt sans-serif"},
-        
+        {
+          width: 60,
+          font: "bold 12pt sans-serif"
+        },   
         new go.Binding("text", "portId"),
         new go.Binding("visible", "icon", function(v) { return !v }),
       ),
