@@ -1,12 +1,16 @@
 function varDeclArgStyle() {
   return [
-      {background: "transparent", toSpot: go.Spot.Left, toLinkable: true},
+      {background: "transparent"},
       new go.Binding("background", "itemIndex", function(v, shape) {
           if(!shape.data.variable) {
             return "#fc554c"
           }
           return argDefaultColor;
       }).ofObject(),
+      $(go.Shape, "Rectangle",
+        {column: 0, width: 10, height: 10, strokeWidth: 0, fill: "transparent", toSpot: go.Spot.Left, toLinkable: true},
+        new go.Binding("portId", "portId", function(v) { return ("inSlot" + v)}),
+      ),
       new go.Binding("portId", "portId", function(v) { return ("inSlot" + v)}),
       $(go.TextBlock,  //portId
         {column: 0, width: 30},
