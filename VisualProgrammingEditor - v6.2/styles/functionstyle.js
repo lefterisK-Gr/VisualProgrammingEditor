@@ -9,6 +9,7 @@
     },
     new go.Binding("stroke", "isHighlighted", h => h ? "#7F00FF" : "darkslategray").ofObject(),
     new go.Binding("strokeWidth", "isHighlighted", h => h ? 8 : 2).ofObject(),
+    new go.Binding("fill", "fillCol")
   ];
   }
 
@@ -101,24 +102,41 @@
     return {}
   }
 
-  function functionBoxStyle(functionName, shapeColor, isGroup) {
+  function functionBoxStyle(functionName, isGroup) {
     if(functionName.endsWith("OP") && !isGroup) {
       return $(go.Shape,"Circle", 
-        { width: 50, height: 50, fill: shapeColor},
+        {
+          width: 50,
+          height: 50,
+          fill: "lightgray"
+        },
         new go.Binding("stroke", "isHighlighted", h => h ? "#7F00FF" : "darkslategray").ofObject(),
-        new go.Binding("strokeWidth", "isHighlighted", h => h ? 8 : 2).ofObject()
+        new go.Binding("strokeWidth", "isHighlighted", h => h ? 8 : 2).ofObject(),
+        new go.Binding("fill", "fillCol")
         );
     }
     if((functionName == "BREAK") || (functionName == "CONTINUE") || (functionName == "RETURN")) {
-      return $(go.Shape, nodeFunctionShapeStyle(true),{ figure: "RoundedRectangle", fill: shapeColor })
+      return $(go.Shape, nodeFunctionShapeStyle(true),
+        {
+          figure: "RoundedRectangle",
+          fill: "lightgray"
+        },
+        new go.Binding("fill", "fillCol")
+      )
     }
-    return $(go.Shape, nodeFunctionShapeStyle(false),{ figure: "RoundedRectangle", fill: shapeColor })
+    return $(go.Shape, nodeFunctionShapeStyle(false),
+      {
+        figure: "RoundedRectangle",
+        fill: "lightgray"
+      },  
+      new go.Binding("fill", "fillCol")
+    )
   }
 
-  function functionStyle(shapeColor, functionName, isGroup) {
+  function functionStyle(functionName, isGroup) {
     return [
       selectionStyle(),
-      functionBoxStyle(functionName, shapeColor, isGroup),
+      functionBoxStyle(functionName, isGroup),
       setNodeTopName(functionName, isGroup),
       $(go.Panel, "Auto",
         setCallBorder(functionName, isGroup), 
@@ -138,7 +156,7 @@
     return isOp ? new go.Size(18,18) : new go.Size(18, 40);
   }
 
-  function nodeFunctionStyle(shapeColor, functionName) {
+  function nodeFunctionStyle(functionName) {
     return [
       new go.Binding("visible", "key", function(v, node) {// show when dropping function
         if(myDiagram.findNodeForKey(v)) {
@@ -147,7 +165,7 @@
         return false;
       }).ofObject(),
       new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-      functionStyle(shapeColor, functionName, false),
+      functionStyle(functionName, false),
       $(go.Shape, "Ellipse", portStyle(true), // left in port
         { fill: "black", portId: "in", alignment: new go.Spot(0.05, 0.5) ,desiredSize: portIdSize(functionName.endsWith("OP") || (functionName == "BREAK") || (functionName == "CONTINUE") || (functionName == "RETURN"))}
       ),
@@ -248,7 +266,7 @@
     ];
   }
 
-  function groupFunctionStyle(shapeColor, functionName) { 
+  function groupFunctionStyle(functionName) { 
     return [
       {layout: $(go.LayeredDigraphLayout, {layerSpacing: 50})},
       go.Panel.Auto,
@@ -256,7 +274,7 @@
         //isSubGraphExpanded: false,  // only show the Group itself, not any of its members
         ungroupable: true
       },
-      functionStyle(shapeColor, functionName, true)
+      functionStyle(functionName, true)
     ]
   }
 

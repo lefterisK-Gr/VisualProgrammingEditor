@@ -1,6 +1,6 @@
 var paletteComps3 = [
-    {key: 1, type: "functionGroup", isGroup: true},
-    {key: 2, type: "function", group: 1},
+    {key: 1, type: "functionGroup", isGroup: true, fillCol: "white"},
+    {key: 2, type: "function", group: 1, fillCol: "white"},
     {key: 3, type: "parameters", items: [ 
         {portId: "1"},
         {portId: "2"},
@@ -8,15 +8,15 @@ var paletteComps3 = [
     {key: 4, type: "funBlocks", items: [ {portId: "1", isport: true}, {portId: "2", isport: true} 
     ], group: 1},
 
-    {key: 5, type: "callGroup", isGroup: true},
-    {key: 6, type: "call", group: 5},
+    {key: 5, type: "callGroup", isGroup: true, fillCol: "white"},
+    {key: 6, type: "call", group: 5, fillCol: "white"},
     {key: 7, type: "args", items: [
         {portId: "1"},
         {portId: "2"},
     ], group: 5},
 
-    {key: 8, type: "returnGroup", isGroup: true},
-    {key: 9, type: "return", group: 8},
+    {key: 8, type: "returnGroup", isGroup: true, fillCol: "white"},
+    {key: 9, type: "return", group: 8, fillCol: "white"},
     {key: 10, type: "args", arity: { "from" : 1 , "to": 1},  items: [ 
         {portId: "val"}
     ], group: 8},

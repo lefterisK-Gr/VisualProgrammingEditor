@@ -485,33 +485,34 @@
         );
         // add the templates created above to myDiagram and myPalette
         const objectsMap = {
-          "arithmeticOperator": {"ARITHMETIC OP":	yellowgrad},
-          "relationalOperator": {"RELATIONAL OP":	yellowgreengrad},
-          "unaryOperator":      {"UNARY OP":	    yellowbluegrad},
-          "binaryOperator":     {"BINARY OP":	    yellowredgrad},
-          "print":              {"PRINT":	        orangegrad},
-          "varsDecl":           {"VAR DECL":	    lightbluegrad},
-          "varsRefer":          {"VAR":	          purplegrad},
-          "getElem":            {"GET ELEM":      redpinkgrad},
-          "if":                 {"IF":	          greengrad},
-          "while":              {"WHILE":	        greengrad},
-          "for":                {"FOR":	          greengrad},
-          "break":              {"BREAK":         "white"},
-          "continue":           {"CONTINUE":      "white"},
-          "return":             {"RETURN":        "white"},
-          "assign":             {"ASSIGN":        bluegrad},
-          "object":             {"OBJECT":        browngrad},
-          "array":              {"ARRAY":         lightbluegreengrad},
-          "function":           {"FUNCTION":      "white"},
-          "call":               {"CALL":          "white"},
+          "arithmeticOperator": "ARITHMETIC OP",
+          "relationalOperator": "RELATIONAL OP",
+          "unaryOperator":      "UNARY OP",
+          "binaryOperator":     "BINARY OP",
+          "print":              "PRINT",
+          "varsDecl":           "VAR DECL",
+          "varsRefer":          "VAR",
+          "getElem":            "GET ELEM",
+          "if":                 "IF",
+          "while":              "WHILE",
+          "for":                "FOR",
+          "break":              "BREAK",
+          "continue":           "CONTINUE",
+          "return":             "RETURN",
+          "assign":             "ASSIGN",
+          "object":             "OBJECT",
+          "array":              "ARRAY",
+          "function":           "FUNCTION",
+          "call":               "CALL",
         }
 
         //NODES
         Object.keys(objectsMap).forEach(key => {
-          let shapeColor = Object.values(objectsMap[key])[0];
-          let functionName = Object.keys(objectsMap[key])[0];
-          myDiagram.nodeTemplateMap.add(key, $(go.Node, "Spot", nodeFunctionStyle(  shapeColor,  functionName  )));
-          myDiagram.groupTemplateMap.add(key+"Group", $(go.Group, groupFunctionStyle(  shapeColor,  functionName  )));
+          console.log(key)
+          console.log(objectsMap[key])
+          let functionName = objectsMap[key];
+          myDiagram.nodeTemplateMap.add(key, $(go.Node, "Spot", nodeFunctionStyle( functionName  )));
+          myDiagram.groupTemplateMap.add(key+"Group", $(go.Group, groupFunctionStyle( functionName  )));
           myDiagram.nodeTemplateMap.get(key).contextMenu = (key == "function" || key == "call") ? nodeFunContextMenu : nodeContextMenu;
         })
         

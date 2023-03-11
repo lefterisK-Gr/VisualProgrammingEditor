@@ -78,10 +78,10 @@ function blockStyle(block_kind) {
 
   function blockFill(block_kind) {
     if(!block_kind){
-      return darkbluegrad;
+      return whitegrad;
     } else if (block_kind == block.stmt)
     {
-      return whitegrad;
+      return darkbluegrad;
     }
     return cyangrad;
     
@@ -89,7 +89,7 @@ function blockStyle(block_kind) {
 
   function blockTextStroke(block_kind) {
     if(!block_kind) {
-      return "white";
+      return "black";
     }
-    return "black";
+    return "white";
   }
